@@ -2,7 +2,7 @@
 * Automatyczna transkrypcja mowy na tekst: Angielski/Polski ( mogą występować pewne błędy - klient powinien o tym wiedzieć )  
 Co w przypadku natłoku rozmowy ?
 * Zapis udostępnionego ekranu oraz wykonywania zrzutów ekranu
-* Działanie na różnych narzędziach do telekonferencji: Zoom, Google Meet, MS Teams
+* Działanie na różnych narzędziach do telekonferencji: Zoom, Google Meet, MS Teams ( doprecyzować platformę, np: sama przeglądarka)
 * Zapis w formacie PDF, TXT  
 Rezygnacja z pliku PDF/TXT stworzyć plik docs, w celu umożliwienia użytkownikowi edycje już dostępnych, automatycznie wygenerowanych notatek  
 * UI  
