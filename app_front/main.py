@@ -48,7 +48,7 @@ class IoFront(ttk.Frame):
 
         tree.tag_configure('change_bg', background="#20374C")
 
-        data = get_data.get_data_locally() #importowanie danych
+        data = get_data.get_data_locally() #importowanie danych z pliku
 
         # for i in self.data:
         #     if (int(i[0]) % 2 == 1):
