@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.toast import ToastNotification
 
-from get_data import get_data_locally as get_data
+from get_data import get_data_locally
 
 class IoFront(ttk.Frame):
     def __init__(self, master_window):
@@ -48,7 +48,7 @@ class IoFront(ttk.Frame):
 
         tree.tag_configure('change_bg', background="#20374C")
 
-        data = get_data.get_data_locally() #importowanie danych z pliku
+        data = get_data_locally() #importowanie danych z pliku
 
         # for i in self.data:
         #     if (int(i[0]) % 2 == 1):
