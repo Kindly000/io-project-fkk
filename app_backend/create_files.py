@@ -4,6 +4,9 @@ import os
 from docx import Document
 from docx.shared import Inches
 
+from app_beckend.logging_f import log_file_creation
+
+
 def format_timestamp(seconds: int) -> str:
     """
         Converts a time duration in seconds into a formatted timestamp string.
@@ -40,44 +43,47 @@ def create_docx_file(note_title: str, note_summary: str,  note_content: list, do
     """
         Creates a .docx file with structured content including a title, summary, and additional elements.
 
-        This function generates a Word document (.docx) based on the provided note title, summary, and content elements.
-        The content may include text, speaker annotations, and images, each formatted appropriately. The document's
-        headings are adjusted based on the specified language.
+        This function generates a Word document (.docx) based on the provided title, summary, and content elements.
+        The content may include text, speaker annotations, and images, each formatted appropriately. Headings in
+        the document are language-sensitive, supporting both Polish and English.
 
         Args:
             note_title (str): The title of the note to include in the document.
-            note_summary (str): A summary of the note, added below the title.
-            note_content (list): A list of content elements. Each element should be a dictionary with keys:
+            note_summary (str): A summary of the note, displayed below the title.
+            note_content (list): A list of content elements. Each element is a dictionary with the following structure:
                 - `type` (str): The type of content (`'img'`, `'speaker'`, or `'text'`).
-                - `timestamp` (int): A timestamp in seconds, formatted as `[HH:MM:SS]`.
-                - Additional keys depend on the type:
-                    - For `'img'`: `file_path` (str) specifies the image path.
-                    - For `'speaker'`: `name` (str) specifies the speaker's name.
-                    - For `'text'`: `value` (str) specifies the text content.
+                - `timestamp` (int): A timestamp in seconds, displayed as `[HH:MM:SS]`.
+                - Additional keys based on the `type`:
+                    - `'img'`: Includes `file_path` (str), the path to the image.
+                    - `'speaker'`: Includes `name` (str), the speaker's name.
+                    - `'text'`: Includes `value` (str), the text content.
             docx_file_path (str): The file path where the .docx file will be saved.
-            language (str, optional): The language for the document headings (`'pl'` for Polish, or `'en'` for English).
-                                      Defaults to `'pl'`.
+            language (str, optional): The language for the document headings. Defaults to `'pl'` (Polish).
+                                      Use `'en'` for English headings.
 
         Returns:
-            bool: `True` if the file is created successfully. `False` if an error occurs during creation.
+            bool: `True` if the file is successfully created, otherwise `False`.
 
         Behavior on Error:
-            - Logs the error message with a timestamp to `error_logs/file_creation.log`.
-            - Returns `False` to indicate failure.
+            - Logs error details to the logging mechanism specified by `log_file_creation`.
+            - Returns `False` if an exception occurs.
 
         Example:
             >>> note_content = [
-            ...     {'type': 'speaker', 'timestamp': 30, 'name': 'Alice'},
-            ...     {'type': 'img', 'timestamp': 60, 'file_path': 'example.jpg'},
-            ...     {'type': 'text', 'timestamp': 120, 'value': 'This is a note content.'}
+            ...     {'type': 'speaker', 'timestamp': 45, 'name': 'John'},
+            ...     {'type': 'img', 'timestamp': 90, 'file_path': 'diagram.png'},
+            ...     {'type': 'text', 'timestamp': 120, 'value': 'This is the main note content.'}
             ... ]
-            >>> create_docx_file("Meeting Notes", "Summary of the meeting", note_content, "meeting_notes.docx", language='en')
+            >>> create_docx_file("Project Update", "Overview of project status", note_content, "project_update.docx", language='en')
             True
 
         Notes:
-            - Requires the `python-docx` library for creating Word documents.
-            - Images are added with a width of 4 inches.
-            - The `error_logs/` directory must exist to log errors, or logging will fail silently.
+            - This function requires the `python-docx` library to create Word documents.
+            - Images are added with a width of 4 inches to maintain consistent formatting.
+
+        Limitations:
+            - Only supports adding images, speaker annotations, and plain text. Unsupported types are not handled.
+            - Does not validate file paths for images; ensure images exist before calling this function.
     """
     title = "Title"
     summary = "Summary"
@@ -104,8 +110,7 @@ def create_docx_file(note_title: str, note_summary: str,  note_content: list, do
         docx_file.save(docx_file_path)
         return True
     except Exception as e:
-        with open(file="../error_logs/file_creation.log", mode="a") as log:
-            log.write(f"{datetime.datetime.now()} For create_docx_file() - Error: {e}\n")
+        log_file_creation(f"For create_docx_file() - Error: {e}\n")
         return False
 
 
@@ -133,7 +138,7 @@ def create_txt_file(note_title: str, note_summary: str, note_content: list, txt_
             bool: `True` if the file is created successfully. `False` if an error occurs during creation.
 
         Behavior on Error:
-            - Logs the error message with a timestamp to `error_logs/file_creation.log`.
+            - Logs error details to the logging mechanism specified by `log_file_creation`.
             - Returns `False` to indicate failure.
 
         Example:
@@ -146,7 +151,6 @@ def create_txt_file(note_title: str, note_summary: str, note_content: list, txt_
 
         Notes:
             - Images (`'img'` type) are skipped and not included in the text file.
-            - The `error_logs/` directory must exist to log errors, or logging will fail silently.
             - The file is written with UTF-8 encoding for compatibility with various languages.
     """
     title = "Title"
@@ -170,12 +174,11 @@ def create_txt_file(note_title: str, note_summary: str, note_content: list, txt_
                     txt_file.write(f"{format_timestamp(content['timestamp'])} {content['value']}\n")
         return True
     except Exception as e:
-        with open(file="../error_logs/file_creation.log", mode="a") as log:
-            log.write(f"{datetime.datetime.now()} For create_txt_file() - Error: {e}\n")
+        log_file_creation(f"For create_txt_file() - Error: {e}\n")
         return False
 
 
-def create_json_file(note_title: str, note_summary: str, note_content: list, video_file_name: str, json_file_path: str, note_datetime, language='pl') -> bool:
+def create_json_file(note_title: str, note_summary: str, note_content: list, note_datetime: datetime.datetime, video_file_name: str, json_file_path: str, language='pl') -> bool:
     """
         Creates a .json file with structured note information, including metadata, summary, and content details.
 
@@ -193,9 +196,9 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, vid
                     - For `'img'`: `file_path` (str) specifies the image's file path.
                     - For `'speaker'`: `name` (str) specifies the speaker's name.
                     - For `'text'`: `value` (str) specifies the text content.
+            note_datetime: The date and time of the note's creation or occurrence.
             video_file_name (str): The name of the associated video file.
             json_file_path (str): The file path where the JSON file will be saved.
-            note_datetime: The date and time of the note's creation or occurrence.
             language (str, optional): The language of the note's content (`'pl'` for Polish, or `'en'` for English).
                                       Defaults to `'pl'`.
 
@@ -221,7 +224,7 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, vid
             ```
 
         Behavior on Error:
-            - Logs the error message with a timestamp to `error_logs/file_creation.log`.
+            - Logs error details to the logging mechanism specified by `log_file_creation`.
             - Returns `False` to indicate failure.
 
         Example:
@@ -242,7 +245,6 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, vid
             True
 
         Notes:
-            - The `error_logs/` directory must exist to log errors, or logging will fail silently.
             - JSON is written with UTF-8 encoding and formatted with an indentation of 4 spaces.
             - The `note_id` is derived from the JSON file name (excluding the `.json` extension).
     """
@@ -270,6 +272,5 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, vid
             json.dump(data, f, ensure_ascii=False, indent=4)
         return True
     except Exception as e:
-        with open(file="../error_logs/file_creation.log", mode="a") as log:
-            log.write(f"{datetime.datetime.now()} For create_json_file() - Error: {e}\n")
+        log_file_creation(f"For create_json_file() - Error: {e}\n")
         return False

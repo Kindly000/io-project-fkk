@@ -48,7 +48,7 @@ def send_failed_files():
         file_path = os.path.join(directory, element.get("file_path", ""))
 
         if upload_file_on_server(note_id, file_path):
-            os.remove(file_path)  # Usuń plik z dysku
+            os.remove(file_path)
         else:
             failed_elements.append(element)
 
