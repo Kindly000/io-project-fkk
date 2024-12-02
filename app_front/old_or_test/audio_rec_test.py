@@ -15,7 +15,7 @@ p = pyaudio.PyAudio()
 def find_input_device():
     for i in range(p.get_device_count()):
         device_info = p.get_device_info_by_index(i)
-        if "stereo mix" in device_info.get("name", "").lower():
+        if "stereo mix" or "miks stereo" in device_info.get("name", "").lower():
             return i
     return None
 

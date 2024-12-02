@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import class_record as rec_vid
-import class_audio as rec_aud
+import audio_rec_class_test as rec_aud
 
 class IoFront(ttk.Frame):
     def __init__(self, master_window):
