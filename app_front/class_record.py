@@ -5,6 +5,7 @@ from screeninfo import get_monitors
 import datetime
 import os
 
+#https://www.youtube.com/watch?v=fEdbtmrpFGw
 
 class ScreenRecorder:
     def __init__(self):
@@ -34,6 +35,7 @@ class ScreenRecorder:
 
             # Write the image frame to the video file
             self.captured_video.write(cvt_img)
+            print("recording...")
 
             # Optional: Show the video feed (this is commented out)
             # cv2.imshow('Screen Recording', cvt_img)
