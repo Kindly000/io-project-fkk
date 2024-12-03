@@ -1,13 +1,12 @@
 import datetime
-import time
 from concurrent.futures import ThreadPoolExecutor
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from pathlib import Path
+import subprocess
+
 import class_record as rec_vid
 import class_audio as rec_aud
-import os
-from pathlib import Path
-import shutil
 
 class IoFront(ttk.Frame):
     def __init__(self, master_window):
@@ -81,10 +80,15 @@ class IoFront(ttk.Frame):
         button = ttk.Button(master=self.new_record_container, width=20, text="Stop recording")
         button.bind("<Button-1>", lambda e: [
             self.stop_recordings(),
-            # self.new_directory()
+            self.combining_recordings()
         ])
         button.grid(row=2, column=1, padx=5, pady=10)
         return button
+
+    def combining_recordings(self):
+        cmd = f"ffmpeg -i ../tmp/{self.record_dir}/audio_output.wav -i ../tmp/{self.record_dir}/video_output.avi -c:v libx264 -c:a aac -strict experimental ../tmp/{self.record_dir}/combined.mp4"
+        subprocess.call(cmd, shell=True)  # "Muxing Done
+        print('Muxing Done')
 
     def new_directory(self):
         current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
