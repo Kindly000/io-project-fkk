@@ -8,7 +8,7 @@ import os
 #https://www.youtube.com/watch?v=fEdbtmrpFGw
 
 class ScreenRecorder:
-    def __init__(self):
+    def __init__(self,directory):
         # Detect the primary monitor's dimensions
         for m in get_monitors():
             self.x = m.x
@@ -17,7 +17,8 @@ class ScreenRecorder:
             self.height = m.height
 
         current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        file_name = f"recording_{current_time}.avi"
+        # file_name = f"recording_{current_time}.avi"
+        file_name = f"../tmp/{directory}/video_output.avi"
 
         # Set up video writer with the specified codec
         self.fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')

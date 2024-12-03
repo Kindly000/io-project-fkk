@@ -1,8 +1,13 @@
+import datetime
+import time
 from concurrent.futures import ThreadPoolExecutor
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import class_record as rec_vid
-import audio_rec_class_test as rec_aud
+import class_audio as rec_aud
+import os
+from pathlib import Path
+import shutil
 
 class IoFront(ttk.Frame):
     def __init__(self, master_window):
@@ -12,6 +17,7 @@ class IoFront(ttk.Frame):
         self.executor = ThreadPoolExecutor(max_workers=2)  # Zarządza wątkami
         self.recording_video = False
         self.recording_audio = False
+        self.record_dir = ""
 
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
@@ -64,15 +70,27 @@ class IoFront(ttk.Frame):
 
     def start_recording_button(self):
         button = ttk.Button(master=self.new_record_container, width=20, text="Start recording")
-        button.bind("<Button-1>", lambda e: self.start_recordings())
+        button.bind("<Button-1>", lambda e: [
+            self.new_directory(),
+            self.start_recordings()
+        ])
         button.grid(row=1, column=1, padx=5, pady=10)
         return button
 
     def stop_recording_button(self):
         button = ttk.Button(master=self.new_record_container, width=20, text="Stop recording")
-        button.bind("<Button-1>", lambda e: self.stop_recordings())
+        button.bind("<Button-1>", lambda e: [
+            self.stop_recordings(),
+            # self.new_directory()
+        ])
         button.grid(row=2, column=1, padx=5, pady=10)
         return button
+
+    def new_directory(self):
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.record_dir = f"recording_{current_time}"
+        nested_dir = Path(f"../tmp/{self.record_dir}")
+        nested_dir.mkdir(parents=True, exist_ok=True)
 
     def start_recordings(self):
         # Ustaw flagi na True, aby rozpocząć nagrywanie
@@ -97,7 +115,7 @@ class IoFront(ttk.Frame):
     # Twoje istniejące metody
     def start_video_recording(self):
         print("Video recording thread started")
-        self.screen_recorder = rec_vid.ScreenRecorder()
+        self.screen_recorder = rec_vid.ScreenRecorder(self.record_dir)
         print("Initializing screen recorder...")
         self.screen_recorder.start_record()
         print("Video recording started")
@@ -110,7 +128,7 @@ class IoFront(ttk.Frame):
 
     def start_audio_recording(self):
         print("Audio recording thread started")
-        self.audio_recorder = rec_aud.AudioRecorder()  # Utwórz obiekt nagrywania audio
+        self.audio_recorder = rec_aud.AudioRecorder(f"../tmp/{self.record_dir}/audio_output.wav")  # Utwórz obiekt nagrywania audio
         self.audio_recorder.start_recording()  # Rozpocznij nagrywanie
         print("Audio recording started")
 
