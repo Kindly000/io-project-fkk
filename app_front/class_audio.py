@@ -1,99 +1,63 @@
-import time
-import wave
-import pyaudio
+import soundcard as sc
+import soundfile as sf
 import threading
+import numpy as np
+
 
 class AudioRecorder:
-    def __init__(self, filename, channels=2, rate=44100, chunk=1024):
+    def __init__(self, filename):
         self.filename = filename
-        self.channels = channels
-        self.rate = rate
-        self.chunk = chunk
-
-        # Inicjalizacja PyAudio
-        self.p = pyaudio.PyAudio()
-        self.stream = None
-        self.device_index = self.find_input_device()
-        self.frames = []
+        self.sample_rate = 48000
         self.is_recording = False
-
-        if self.device_index is None:
-            raise ValueError("Nie znaleziono urządzenia 'Stereo Mix'. Upewnij się, że jest włączone.")
-
-    def find_input_device(self):
-        """Znajduje urządzenie wejściowe 'Stereo Mix'."""
-        for i in range(self.p.get_device_count()):
-            device_info = self.p.get_device_info_by_index(i)
-            if "stereo mix" or "miks stereo" in device_info.get("name", "").lower():
-                return i
-        return None
+        self.thread = None
+        self.buffer = []
 
     def start_recording(self):
-        """Rozpoczyna nagrywanie dźwięku."""
-        print("Rozpoczynanie nagrywania dźwięku...")
-        self.frames = []  # Wyczyszczenie wcześniejszych danych
-        self.stream = self.p.open(
-            format=pyaudio.paInt16,
-            channels=self.channels,
-            rate=self.rate,
-            input=True,
-            input_device_index=self.device_index,
-            frames_per_buffer=self.chunk,
-        )
+        """Start recording audio in a separate thread."""
+        if self.is_recording:
+            print("Recording is already in progress.")
+            return
         self.is_recording = True
-        # Rozpoczynamy nagrywanie w osobnym wątku
-        self.recording_thread = threading.Thread(target=self.record_chunks)
-        self.recording_thread.start()
-
-    def record_chunks(self):
-        """Nagrywa pojedyncze bloki danych w wątku."""
-        while self.is_recording:
-            data = self.stream.read(self.chunk)
-            self.frames.append(data)
+        self.buffer = []
+        self.thread = threading.Thread(target=self._record)
+        self.thread.start()
 
     def stop_recording(self):
-        """Zatrzymuje nagrywanie i zapisuje dane do pliku."""
-        print("Zatrzymywanie nagrywania...")
-        self.is_recording = False  # Zatrzymujemy nagrywanie
-        self.recording_thread.join()  # Czekamy na zakończenie wątku nagrywania
+        """Stop the recording and save the audio to a file."""
+        if not self.is_recording:
+            print("No recording in progress to stop.")
+            return
+        self.is_recording = False
+        self.thread.join()  # Wait for the recording thread to finish
+        # Save the audio to file
+        if self.buffer:
+            data = np.concatenate(self.buffer, axis=0)
+            sf.write(file=self.filename, data=data, samplerate=self.sample_rate)
+            print(f"Recording saved to {self.filename}")
+        else:
+            print("No data recorded.")
 
-        if self.stream:
-            self.stream.stop_stream()
-            self.stream.close()
-            self.stream = None
-
-            # Zapisz nagrany dźwięk do pliku WAV
-            with wave.open(self.filename, 'wb') as wf:
-                wf.setnchannels(self.channels)
-                wf.setsampwidth(self.p.get_sample_size(pyaudio.paInt16))
-                wf.setframerate(self.rate)
-                wf.writeframes(b''.join(self.frames))
-
-            print(f"Nagrywanie zakończone. Plik zapisany jako '{self.filename}'.")
-
-    def terminate(self):
-        """Zamyka PyAudio."""
-        self.p.terminate()
+    def _record(self):
+        """Internal method to handle audio recording."""
+        try:
+            with sc.get_microphone(id=str(sc.default_speaker().name), include_loopback=True).recorder(
+                    samplerate=self.sample_rate) as mic:
+                while self.is_recording:
+                    # Mniejszy bufor (np. 0.05 sekundy)
+                    data = mic.record(numframes=int(self.sample_rate * 0.05))
+                    self.buffer.append(data[:, 0])  # Użyj jednego kanału
+        except Exception as e:
+            print(f"Error during recording: {e}")
+            self.is_recording = False
 
 
-# Przykład użycia
 if __name__ == "__main__":
+    recorder = AudioRecorder("test.wav")
     try:
-        recorder = AudioRecorder()
-
-        # Rozpocznij nagrywanie
+        print("Starting recording...")
         recorder.start_recording()
-
-        # Symulacja czasu nagrywania (6 sekund)
-        time.sleep(6)
-
-        # Zatrzymaj nagrywanie
+        input("Press Enter to stop recording...\n")  # Wait for user input to stop
         recorder.stop_recording()
-
-    except ValueError as e:
-        print(e)
-
-    finally:
-        # Zwolnij zasoby
-        if 'recorder' in locals():
-            recorder.terminate()
+    except KeyboardInterrupt:
+        print("Recording interrupted.")
+        recorder.stop_recording()

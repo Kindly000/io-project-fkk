@@ -105,6 +105,8 @@ class IoFront(ttk.Frame):
         # Przekaż funkcje do executor
         self.executor.submit(self.start_audio_recording)
         self.executor.submit(self.start_video_recording)
+        # self.start_video_recording()
+        # self.start_audio_recording()
 
     def stop_recordings(self):
         # Ustaw flagi na False, aby zatrzymać nagrywanie

@@ -36,7 +36,7 @@ class ScreenRecorder:
 
             # Write the image frame to the video file
             self.captured_video.write(cvt_img)
-            print("recording...")
+            # print("recording...")
 
             # Optional: Show the video feed (this is commented out)
             # cv2.imshow('Screen Recording', cvt_img)
