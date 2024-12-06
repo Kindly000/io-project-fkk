@@ -5,8 +5,10 @@ from ttkbootstrap.constants import *
 from pathlib import Path
 import subprocess
 
-import class_record as rec_vid
-import class_audio as rec_aud
+import app_front.class_record as rec_vid
+import app_front.class_audio as rec_aud
+from transcription import transkrypcja
+
 
 class IoFront(ttk.Frame):
     def __init__(self, master_window):
@@ -26,12 +28,16 @@ class IoFront(ttk.Frame):
         self.right_container = ttk.Frame(self)
 
         # GUI setup
-        self.new_record_container = ttk.LabelFrame(self.right_container, text="New recording")
+        self.new_record_container = ttk.LabelFrame(
+            self.right_container, text="New recording"
+        )
         self.start_recording_button()
         self.stop_recording_button()
         self.new_record_container.pack(padx=5, pady=10)
 
-        self.action_container = ttk.LabelFrame(self.right_container, text="Manage recording")
+        self.action_container = ttk.LabelFrame(
+            self.right_container, text="Manage recording"
+        )
         self.open_in_browser_button()
         self.delete_recording_button()
         self.action_container.pack(padx=5, pady=10)
@@ -40,7 +46,13 @@ class IoFront(ttk.Frame):
 
     def create_treeview(self):
         columns = ["id", "date", "name"]
-        tree = ttk.Treeview(master=self.left_container, bootstyle="secondary", columns=columns, show='headings', height=20)
+        tree = ttk.Treeview(
+            master=self.left_container,
+            bootstyle="secondary",
+            columns=columns,
+            show="headings",
+            height=20,
+        )
         tree.grid_configure(row=0, column=0, columnspan=4, rowspan=5, padx=20, pady=10)
 
         tree.column("id", width=50, anchor=CENTER)
@@ -51,44 +63,51 @@ class IoFront(ttk.Frame):
         tree.heading("date", text="date")
         tree.heading("name", text="name")
 
-        tree.tag_configure('change_bg', background="#20374C")
+        tree.tag_configure("change_bg", background="#20374C")
 
         # data = get_data_locally()  # importowanie danych z pliku
 
         return tree
 
     def open_in_browser_button(self):
-        button = ttk.Button(master=self.action_container, width=20, text="Open in browser")
+        button = ttk.Button(
+            master=self.action_container, width=20, text="Open in browser"
+        )
         button.grid(row=3, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
         return button
 
     def delete_recording_button(self):
-        button = ttk.Button(master=self.action_container, width=20, text="Delete recording")
+        button = ttk.Button(
+            master=self.action_container, width=20, text="Delete recording"
+        )
         button.grid(row=5, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
         return button
 
     def start_recording_button(self):
-        button = ttk.Button(master=self.new_record_container, width=20, text="Start recording")
-        button.bind("<Button-1>", lambda e: [
-            self.new_directory(),
-            self.start_recordings()
-        ])
+        button = ttk.Button(
+            master=self.new_record_container, width=20, text="Start recording"
+        )
+        button.bind(
+            "<Button-1>", lambda e: [self.new_directory(), self.start_recordings()]
+        )
         button.grid(row=1, column=1, padx=5, pady=10)
         return button
 
     def stop_recording_button(self):
-        button = ttk.Button(master=self.new_record_container, width=20, text="Stop recording")
-        button.bind("<Button-1>", lambda e: [
-            self.stop_recordings(),
-            self.combining_recordings()
-        ])
+        button = ttk.Button(
+            master=self.new_record_container, width=20, text="Stop recording"
+        )
+        button.bind(
+            "<Button-1>",
+            lambda e: [self.stop_recordings(), self.combining_recordings()],
+        )
         button.grid(row=2, column=1, padx=5, pady=10)
         return button
 
     def combining_recordings(self):
         cmd = f"ffmpeg -i ../tmp/{self.record_dir}/audio_output.wav -i ../tmp/{self.record_dir}/video_output.avi -c:v libx264 -c:a aac -strict experimental ../tmp/{self.record_dir}/combined.mp4"
         subprocess.call(cmd, shell=True)  # "Muxing Done
-        print('Muxing Done')
+        print("Muxing Done")
 
     def new_directory(self):
         current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -105,8 +124,6 @@ class IoFront(ttk.Frame):
         # Przekaż funkcje do executor
         self.executor.submit(self.start_audio_recording)
         self.executor.submit(self.start_video_recording)
-        # self.start_video_recording()
-        # self.start_audio_recording()
 
     def stop_recordings(self):
         # Ustaw flagi na False, aby zatrzymać nagrywanie
@@ -127,24 +144,28 @@ class IoFront(ttk.Frame):
         print("Video recording started")
 
     def stop_video_recording(self):
-        if hasattr(self, 'screen_recorder'):
+        if hasattr(self, "screen_recorder"):
             print("Stopping video recording...")
             self.screen_recorder.stop_record()
             print(f"Video recording saved")
 
     def start_audio_recording(self):
         print("Audio recording thread started")
-        self.audio_recorder = rec_aud.AudioRecorder(f"../tmp/{self.record_dir}/audio_output.wav")  # Utwórz obiekt nagrywania audio
+        self.audio_recorder = rec_aud.AudioRecorder(
+            f"../tmp/{self.record_dir}/audio_output.wav"
+        )  # Utwórz obiekt nagrywania audio
         self.audio_recorder.start_recording()  # Rozpocznij nagrywanie
         print("Audio recording started")
 
     def stop_audio_recording(self):
-        if hasattr(self, 'audio_recorder'):
+        if hasattr(self, "audio_recorder"):
             print("Stopping audio recording...")
             self.audio_recorder.stop_recording()
             print("Audio recording stopped")
+            self.executor.submit(self.start_audio_transciption)
 
-
+    def start_audio_transciption(self):
+        transkrypcja.main()
 
 
 if __name__ == "__main__":

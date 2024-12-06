@@ -44,8 +44,8 @@ def combine_transcription_and_diarization(segments, diarization):
 
 
 # 4. Główna funkcja
-if __name__ == "__main__":
-    audio_file = "./audio_output.wav"
+def main():
+    audio_file = "./aiduoasdh.wav"
     hf_token = "..."
 
     # Transkrypcja
@@ -64,3 +64,5 @@ if __name__ == "__main__":
         print(
             f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}"
         )
+
+main()
