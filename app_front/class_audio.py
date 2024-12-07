@@ -3,8 +3,9 @@ import wave
 import pyaudio
 import threading
 
+
 class AudioRecorder:
-    def __init__(self, filename, channels=2, rate=44100, chunk=1024):
+    def __init__(self, filename, channels=1, rate=44100, chunk=1024):
         self.filename = filename
         self.channels = channels
         self.rate = rate
@@ -18,7 +19,9 @@ class AudioRecorder:
         self.is_recording = False
 
         if self.device_index is None:
-            raise ValueError("Nie znaleziono urządzenia 'Stereo Mix'. Upewnij się, że jest włączone.")
+            raise ValueError(
+                "Nie znaleziono urządzenia 'Stereo Mix'. Upewnij się, że jest włączone."
+            )
 
     def find_input_device(self):
         """Znajduje urządzenie wejściowe 'Stereo Mix'."""
@@ -63,13 +66,14 @@ class AudioRecorder:
             self.stream = None
 
             # Zapisz nagrany dźwięk do pliku WAV
-            with wave.open(self.filename, 'wb') as wf:
+            with wave.open(self.filename, "wb") as wf:
                 wf.setnchannels(self.channels)
                 wf.setsampwidth(self.p.get_sample_size(pyaudio.paInt16))
                 wf.setframerate(self.rate)
-                wf.writeframes(b''.join(self.frames))
+                wf.writeframes(b"".join(self.frames))
 
             print(f"Nagrywanie zakończone. Plik zapisany jako '{self.filename}'.")
+            return self.filename
 
     def terminate(self):
         """Zamyka PyAudio."""
@@ -79,7 +83,7 @@ class AudioRecorder:
 # Przykład użycia
 if __name__ == "__main__":
     try:
-        recorder = AudioRecorder('aiduoasdh.wav')
+        recorder = AudioRecorder("aiduoasdh.wav")
 
         # Rozpocznij nagrywanie
         recorder.start_recording()
@@ -95,5 +99,5 @@ if __name__ == "__main__":
 
     finally:
         # Zwolnij zasoby
-        if 'recorder' in locals():
+        if "recorder" in locals():
             recorder.terminate()

@@ -160,12 +160,12 @@ class IoFront(ttk.Frame):
     def stop_audio_recording(self):
         if hasattr(self, "audio_recorder"):
             print("Stopping audio recording...")
-            self.audio_recorder.stop_recording()
+            file_name = self.audio_recorder.stop_recording()
             print("Audio recording stopped")
-            self.executor.submit(self.start_audio_transciption)
+            self.executor.submit(self.start_audio_transciption(file_name))
 
-    def start_audio_transciption(self):
-        transkrypcja.main()
+    def start_audio_transciption(self, file_name):
+        transkrypcja.main(file_name)
 
 
 if __name__ == "__main__":
