@@ -5,7 +5,7 @@ import threading
 
 
 class AudioRecorder:
-    def __init__(self, filename, channels=1, rate=44100, chunk=1024):
+    def __init__(self, filename, channels=2, rate=44100, chunk=1024):
         self.filename = filename
         self.channels = channels
         self.rate = rate

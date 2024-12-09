@@ -47,7 +47,7 @@ def combine_transcription_and_diarization(segments, diarization):
 
 
 # 4. Główna funkcja
-def main(filename="./test_wyklad.wav"):
+def main(filename="../tmp/recording_2024-12-09_15-44-41/audio_output.wav"):
     audio_file = f"{filename}"
     hf_token = "..."
 
@@ -60,40 +60,41 @@ def main(filename="./test_wyklad.wav"):
         transcription_segments = future_transcription_segments.result()
         diarization_result = future_diarization_result.result()
 
-        # Wyświetlanie wyników
-        print("Transkrypcja:")
-        print(transcription_segments)
-
-        print("Diarizacja:")
-        print(diarization_result)
-
         # Połączenie wyników
         combined = combine_transcription_and_diarization(
             transcription_segments, diarization_result
         )
+
+        filename = filename[0 : -(len(filename.split("/").pop()))]
+        docx_file = open(f'{filename}transcription.doc', "w+")
 
         # Wyświetlenie wyników
         for entry in combined:
             print(
                 f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}"
             )
+            docx_file.write(
+                f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
+            )
+        docx_file.close()
 
-    # # Transkrypcja
-    # transcription_segments = transcribe_audio(audio_file)
+    """
+    # Transkrypcja
+    transcription_segments = transcribe_audio(audio_file)
 
-    # # Diarizacja
-    # diarization_result = diarize_audio(audio_file, hf_token)
+    # Diarizacja
+    diarization_result = diarize_audio(audio_file, hf_token)
 
-    # # Połączenie wyników
-    # combined = combine_transcription_and_diarization(
-    #     transcription_segments, diarization_result
-    # )
+    # Połączenie wyników
+    combined = combine_transcription_and_diarization(
+        transcription_segments, diarization_result
+    )
 
-    # # Wyświetlenie wyników
-    # for entry in combined:
-    #     print(
-    #         f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}"
-    #     )
-
+    # Wyświetlenie wyników
+    for entry in combined:
+        print(
+            f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}"
+        )
+    """
 
 main()

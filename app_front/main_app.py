@@ -105,6 +105,9 @@ class IoFront(ttk.Frame):
         return button
 
     def combining_recordings(self):
+        self.executor.submit(self._combining_recordings)
+
+    def _combining_recordings(self):
         cmd = f"ffmpeg -i ../tmp/{self.record_dir}/audio_output.wav -i ../tmp/{self.record_dir}/video_output.avi -c:v libx264 -c:a aac -strict experimental ../tmp/{self.record_dir}/combined.mp4"
         subprocess.call(cmd, shell=True)  # "Muxing Done
         print("Muxing Done")
@@ -162,10 +165,14 @@ class IoFront(ttk.Frame):
             print("Stopping audio recording...")
             file_name = self.audio_recorder.stop_recording()
             print("Audio recording stopped")
-            self.executor.submit(self.start_audio_transciption(file_name))
+            self.executor.submit(self.start_audio_transciption, file_name)
 
     def start_audio_transciption(self, file_name):
-        transkrypcja.main(file_name)
+        try:
+            transkrypcja.main(file_name)
+            self.master.after(0, lambda: print("Transcription finished"))  # Update UI safely
+        except Exception as e:
+            print(f"Error in transcription: {e}")
 
 
 if __name__ == "__main__":
