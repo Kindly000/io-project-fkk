@@ -15,7 +15,7 @@ class IoFront(ttk.Frame):
         super().__init__(master_window, padding=(20, 10))
         self.grid(row=0, column=0)
 
-        self.executor = ThreadPoolExecutor(max_workers=2)  # Zarządza wątkami
+        self.executor = ThreadPoolExecutor(max_workers=3)  # Zarządza wątkami
         self.recording_video = False
         self.recording_audio = False
         self.record_dir = ""
@@ -108,9 +108,15 @@ class IoFront(ttk.Frame):
         self.executor.submit(self._combining_recordings)
 
     def _combining_recordings(self):
-        cmd = f"ffmpeg -i ../tmp/{self.record_dir}/audio_output.wav -i ../tmp/{self.record_dir}/video_output.avi -c:v libx264 -c:a aac -strict experimental ../tmp/{self.record_dir}/combined.mp4"
-        subprocess.call(cmd, shell=True)  # "Muxing Done
-        print("Muxing Done")
+        try:
+            cmd = f"ffmpeg -i ../tmp/{self.record_dir}/audio_output.wav -i ../tmp/{self.record_dir}/video_output.avi -c:v libx264 -c:a aac -strict experimental ../tmp/{self.record_dir}/combined.mp4"
+            with open(f"../tmp/{self.record_dir}/ffmpeg_log", "w") as log_file:
+                subprocess.call(
+                    cmd, shell=True, stdout=log_file, stderr=subprocess.STDOUT
+                )
+            print("Muxing Done")
+        except Exception as e:
+            print(f"Muxing Error {e}")
 
     def new_directory(self):
         current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -170,7 +176,9 @@ class IoFront(ttk.Frame):
     def start_audio_transciption(self, file_name):
         try:
             transkrypcja.main(file_name)
-            self.master.after(0, lambda: print("Transcription finished"))  # Update UI safely
+            self.master.after(
+                0, lambda: print("Transcription finished")
+            )  # Update UI safely
         except Exception as e:
             print(f"Error in transcription: {e}")
 
