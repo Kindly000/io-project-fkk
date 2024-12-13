@@ -4,10 +4,12 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from pathlib import Path
 import subprocess
+import webbrowser
 
 import app_front.class_record as rec_vid
 import app_front.class_audio as rec_aud
 from transcription import transkrypcja
+import app_backend.communication_with_www_server as com_www_server
 
 
 class IoFront(ttk.Frame):
@@ -22,6 +24,13 @@ class IoFront(ttk.Frame):
 
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
+
+        """pobieranie danych z serwera"""
+        self.import_from_server = com_www_server.get_info_of_notes_from_server()
+        self.imported_notes = self.import_from_server["notes"]
+        # print(self.imported_notes[0]["note_id"])
+        self.clicked_note = ""
+
         # dodanie listy spotkań
         self.tree = self.create_treeview()
 
@@ -39,7 +48,7 @@ class IoFront(ttk.Frame):
             self.right_container, text="Manage recording"
         )
         self.open_in_browser_button()
-        self.delete_recording_button()
+        self.refresh_button()
         self.action_container.pack(padx=5, pady=10)
 
         self.right_container.pack(side=LEFT, padx=20, pady=10, fill=Y)
@@ -65,23 +74,65 @@ class IoFront(ttk.Frame):
 
         tree.tag_configure("change_bg", background="#20374C")
 
-        # data = get_data_locally()  # importowanie danych z pliku
+        data = self.imported_notes
+
+        tree.tag_configure('change_bg', background="#20374C")
+        index = 0
+        for i in data:
+            print(i)
+            if (int(index) % 2 == 1):
+                tree.insert("", 'end', values=i, tags="change_bg", iid=index)
+            else:
+                tree.insert("", 'end', values=[i["note_id"],i["datetime"],i["title"]], iid=index)
+            tree.bind("<<TreeviewSelect>>", self.tree_on_click_element)
+            # tree.bind("<Button-3>", self.identify_item)
+
+            index += 1
 
         return tree
+
+    def tree_on_click_element(self,event):
+        clickedItem = self.tree.focus()
+        print(self.tree.item(clickedItem)["values"])
+        self.clicked_note = self.tree.item(clickedItem)["values"][0]
+        return
+
 
     def open_in_browser_button(self):
         button = ttk.Button(
             master=self.action_container, width=20, text="Open in browser"
         )
         button.grid(row=3, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
+        button.bind("<Button-1>", lambda x:webbrowser.open_new(f"https://ioprojekt.atwebpages.com/{self.clicked_note}"))
         return button
 
-    def delete_recording_button(self):
+    def refresh_button(self):
         button = ttk.Button(
-            master=self.action_container, width=20, text="Delete recording"
+            master=self.action_container, width=20, text="Refresh"
         )
         button.grid(row=5, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
+        button.bind("<Button-1>", lambda x:self.on_click_refresh())
         return button
+
+    def on_click_refresh(self):
+        data = com_www_server.get_info_of_notes_from_server()["notes"]
+        print(data)
+        index = 0
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+
+        for i in data:
+            print(i)
+            if (int(index) % 2 == 1):
+                self.tree.insert("", 'end', values=i, tags="change_bg", iid=index)
+            else:
+                self.tree.insert("", 'end', values=[i["note_id"], i["datetime"], i["title"]], iid=index)
+            self.tree.bind("<<TreeviewSelect>>", self.tree_on_click_element)
+            # tree.bind("<Button-3>", self.identify_item)
+
+            index += 1
+
+        return
 
     def start_recording_button(self):
         button = ttk.Button(
