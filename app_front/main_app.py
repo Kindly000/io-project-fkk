@@ -25,7 +25,7 @@ class IoFront(ttk.Frame):
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
 
-        """pobieranie danych z serweraa"""
+        """pobieranie danych z serweraaa"""
         self.import_from_server = com_www_server.get_info_of_notes_from_server()
         self.imported_notes = self.import_from_server["notes"]
         # print(self.imported_notes[0]["note_id"])
