@@ -2,7 +2,7 @@ import requests
 import os
 import json
 import shutil
-from app_beckend.logging_f import log_communication_with_www_server, log_file_creation
+from app_backend.logging_f import log_communication_with_www_server, log_file_creation
 
 # URL = "https://ioprojekt.atwebpages.com"
 URL = "https://localhost"
@@ -134,3 +134,7 @@ def upload_file_on_server(note_id: str, file_path: str, url: str = f"{URL}/api/u
             with open(json_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
         return False
+
+
+if __name__ == '__main__':
+    get_info_of_notes_from_server()

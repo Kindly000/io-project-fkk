@@ -5,6 +5,8 @@
     "summary": "summary of note transcription only",
     "language": "language of conntent (en,pl)",
     "video": "video file name (.mp4)",
+    "docx": "docx file name (.docx)",
+    "txt": "txt file name (.txt)",
     "content": [
         {
             "type": "img",

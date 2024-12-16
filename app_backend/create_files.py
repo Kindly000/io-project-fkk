@@ -4,7 +4,7 @@ import os
 from docx import Document
 from docx.shared import Inches
 
-from app_beckend.logging_f import log_file_creation
+from app_backend.logging_f import log_file_creation
 
 
 def format_timestamp(seconds: int) -> str:
@@ -178,7 +178,7 @@ def create_txt_file(note_title: str, note_summary: str, note_content: list, txt_
         return False
 
 
-def create_json_file(note_title: str, note_summary: str, note_content: list, note_datetime: datetime.datetime, video_file_name: str, json_file_path: str, language='pl') -> bool:
+def create_json_file(note_title: str, note_summary: str, note_content: list, note_datetime: str, video_file_name: str, docx_file_name: str, txt_file_name: str, json_file_path: str, language='pl') -> bool:
     """
         Creates a .json file with structured note information, including metadata, summary, and content details.
 
@@ -260,10 +260,12 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, not
     data = {
         "note_id": os.path.basename(json_file_path)[:-5], # -5 -> .json
         "title": note_title,
-        "datetime": str(note_datetime),
+        "datetime": note_datetime,
         "summary": note_summary,
         "language": language,
         "video": video_file_name,
+        "docx": docx_file_name,
+        "txt": txt_file_name,
         "content": data_content
     }
 

@@ -2,14 +2,14 @@ import datetime
 import os.path
 import random
 import shutil
-from app_beckend.create_files import create_docx_file, create_txt_file, create_json_file
-from app_beckend.communication_with_www_server import upload_file_on_server
+from app_backend.create_files import create_docx_file, create_txt_file, create_json_file
+from app_backend.communication_with_www_server import upload_file_on_server
 import hashlib
 import threading
-from app_beckend.logging_f import log_file_creation
+from app_backend.logging_f import log_file_creation
 
 
-def create_note_id(note_title: str, note_datetime, language: str) -> str:
+def create_note_id(note_title: str, note_datetime: str, language: str) -> str:
     """
     Generates a unique identifier (ID) for a note based on its title, datetime, and language.
 
@@ -26,7 +26,7 @@ def create_note_id(note_title: str, note_datetime, language: str) -> str:
         str: A unique SHA-256 hash string that serves as the ID for the note.
 
     Example:
-        >>> note_id = create_note_id("Meeting Notes", datetime.datetime(2024, 11, 30, 10, 15), "en")
+        >>> note_id = create_note_id("Meeting Notes", "", "en")
         >>> print(note_id)
         '5f4d2b89f...<hash_value>...'
 
@@ -36,7 +36,7 @@ def create_note_id(note_title: str, note_datetime, language: str) -> str:
         - Ensure that the `datetime` module and `hashlib` library are imported for this function to work properly.
         - The function returns a string of 64 hexadecimal characters.
     """
-    v = f"{note_title}{language}{str(note_datetime)}{str(random.randint(0,10000))}"
+    v = f"{note_title}{language}{note_datetime}{str(random.randint(0,10000))}"
     hash_object = hashlib.sha256(v.encode('utf-8'))
     hash_str = hash_object.hexdigest()
 
@@ -85,11 +85,12 @@ def send_and_delete_files(
         note_id: str,
         json_file_path: str,
         img_files_name: list,
-        video_file_name: str,
+        video_file_path: str,
         is_docx_file_created: bool,
         docx_file_path: str,
         is_docx_txt_created: bool,
-        txt_file_path: str
+        txt_file_path: str,
+        tmp_dir_name: str
 ) -> None:
     """
     Sends files to a server and deletes them from the local temporary directory after uploading.
@@ -133,28 +134,27 @@ def send_and_delete_files(
         - The `os` module is used to interact with the filesystem, so make sure it is imported at the top of the script.
     """
     upload_file_on_server(note_id, json_file_path)
-    upload_file_on_server(note_id, f"../tmp/{video_file_name}")
+    upload_file_on_server(note_id, video_file_path)
     for img_file in img_files_name:
-        upload_file_on_server(note_id, f"../tmp/{img_file}")
+        upload_file_on_server(note_id, f"../tmp/{tmp_dir_name}/{img_file}")
 
     if is_docx_file_created:
         upload_file_on_server(note_id, docx_file_path)
     if is_docx_txt_created:
         upload_file_on_server(note_id, txt_file_path)
 
-    tmp_files = [f for f in os.listdir('../tmp')]
-    for tmp_file in tmp_files:
-        os.remove(f"../tmp/{tmp_file}")
+    shutil.rmtree(f"../tmp/{tmp_dir_name}")
 
 
 def save_files_to_user_directory(
         directory_path: str,
+        tmp_dir_name: str,
         is_docx_file_created: bool,
         docx_file_path: str,
         is_txt_file_created: bool,
         txt_file_path: str,
         img_files_name: list,
-        video_file_name: str
+        video_file_path: str
 ) -> None:
     """
     Copies specific files to a user-specified directory and logs any errors encountered during the process.
@@ -214,30 +214,33 @@ def save_files_to_user_directory(
 
     for img_file_name in img_files_name:
         try:
-            shutil.copyfile(f"../tmp/{img_file_name}", f'{directory_path}/{img_file_name}')
+            shutil.copyfile(f"../tmp/{tmp_dir_name}/{img_file_name}", f'{directory_path}/{img_file_name}')
         except Exception as e:
             log_file_creation(
-                f"For save_files()->shutil.copyfile(../tmp/{img_file_name}, {directory_path}/{img_file_name}) - Error: {e} - Cannot copy file\n"
+                f"For save_files()->shutil.copyfile(../tmp/{tmp_dir_name}/{img_file_name}, {directory_path}/{img_file_name}) - Error: {e} - Cannot copy file\n"
             )
 
     try:
-        shutil.copyfile(f"../tmp/{video_file_name}", f'{directory_path}/{video_file_name}')
+        shutil.copyfile(video_file_path, f'{directory_path}/{os.path.basename(video_file_path)}')
     except Exception as e:
         log_file_creation(
-            f"For save_files()->shutil.copyfile(../tmp/{video_file_name}, {directory_path}/{video_file_name}) - Error: {e} - Cannot copy file\n"
+            f"For save_files()->shutil.copyfile({video_file_path}, {directory_path}/{os.path.basename(video_file_path)}) - Error: {e} - Cannot copy file\n"
         )
 
 def save_files(
     note_title: str,
     note_summary: str,
-    note_datetime: datetime.datetime,
+    note_datetime: str,
     note_content_img: list,
     note_content_text: list,
     note_content_speaker: list,
+    video_file_name: str,
+    tmp_dir_name: str,
     directory_path: str,
     language: str = 'pl'
 ) -> None:
     """
+    datetime jako string
     Saves structured content from a note to specified directories and prepares files for upload to a server.
 
     This function organizes and compiles content from different parts of a note, creates various file formats
@@ -275,7 +278,7 @@ def save_files(
         >>> save_files(
         ...     note_title="Project Notes",
         ...     note_summary="Summary of project notes",
-        ...     note_datetime=datetime.datetime.now(),
+        ...     note_datetime="1",
         ...     note_content_img=[{'type': 'img', 'timestamp': 45, 'file_path': 'image1.png'}],
         ...     note_content_text=[{'type': 'text', 'timestamp': 60, 'value': 'Text content'}],
         ...     note_content_speaker=[{'type': 'speaker', 'timestamp': 30, 'name': 'Alice'}],
@@ -298,37 +301,35 @@ def save_files(
     note_content = sort_note_content(note_content)
     note_id = create_note_id(note_title, note_datetime, language)
 
-    docx_file_path = f"../tmp/{note_title} {note_datetime.strftime("%Y-%m-%d_%H-%M-%S")}.docx"
-    txt_file_path = f"../tmp/{note_title} {note_datetime.strftime("%Y-%m-%d_%H-%M-%S")}.txt"
-    json_file_path = f"../tmp/{note_id}.json"
-    video_file_name = "video.mp4"
-    img_files_name = [f for f in os.listdir('../tmp') if f.endswith('.png')]
+    docx_file_name = f"{note_title} {note_datetime}.docx"
+    docx_file_path = f"../tmp/{tmp_dir_name}/{docx_file_name}"
+    txt_file_name =  f"{note_title} {note_datetime}.txt"
+    txt_file_path = f"../tmp/{tmp_dir_name}/{txt_file_name}"
+    json_file_path = f"../tmp/{tmp_dir_name}/{note_id}.json"
+    video_file_path = f"../tmp/{tmp_dir_name}/{video_file_name}"
+    img_files_name = [f for f in os.listdir(f"../tmp/{tmp_dir_name}") if f.endswith('.png')]
 
     is_docx_file_created = create_docx_file(note_title, note_summary, note_content, docx_file_path=docx_file_path, language=language)
     is_txt_file_created = create_txt_file(note_title, note_summary, note_content, txt_file_path=txt_file_path, language=language)
 
-    save_files_to_user_directory(directory_path, is_docx_file_created, docx_file_path, is_txt_file_created, txt_file_path, img_files_name, video_file_name)
+    save_files_to_user_directory(directory_path, tmp_dir_name, is_docx_file_created, docx_file_path, is_txt_file_created, txt_file_path, img_files_name, video_file_path)
 
-    if create_json_file(note_title, note_summary, note_content, note_datetime, video_file_name=video_file_name, json_file_path=json_file_path, language=language):
+    if create_json_file(note_title, note_summary, note_content, note_datetime, video_file_name=video_file_name, docx_file_name=docx_file_name, txt_file_name=txt_file_name, json_file_path=json_file_path, language=language):
         threading.Thread(
-            send_and_delete_files(note_id, json_file_path, img_files_name, video_file_name, is_docx_file_created,
-                                  docx_file_path, is_txt_file_created, txt_file_path)
+            send_and_delete_files(note_id, json_file_path, img_files_name, video_file_path, is_docx_file_created,
+                                  docx_file_path, is_txt_file_created, txt_file_path, tmp_dir_name)
         )
 
 
-
-
-
-
 if __name__ == "__main__":
-    note_content_img = [{'timestamp': 0, 'type': "img", 'file_path': "../tmp/z1.png"},
-                        {'timestamp': 10, 'type': "img", 'file_path': "../tmp/z2.png"},
-                        {'timestamp': 20, 'type': "img", 'file_path': "../tmp/z3.png"},
-                        {'timestamp': 30, 'type': "img", 'file_path': "../tmp/z4.png"},
-                        {'timestamp': 40, 'type': "img", 'file_path': "../tmp/z5.png"},
-                        {'timestamp': 50, 'type': "img", 'file_path': "../tmp/z6.png"},
-                        {'timestamp': 60, 'type': "img", 'file_path': "../tmp/z7.png"},
-                        {'timestamp': 70, 'type': "img", 'file_path': "../tmp/z8.png"}
+    note_content_img = [{'timestamp': 0, 'type': "img", 'file_path': "../tmp/zzz/z1.png"},
+                        {'timestamp': 10, 'type': "img", 'file_path': "../tmp/zzz/z2.png"},
+                        {'timestamp': 20, 'type': "img", 'file_path': "../tmp/zzz/z3.png"},
+                        {'timestamp': 30, 'type': "img", 'file_path': "../tmp/zzz/z4.png"},
+                        {'timestamp': 40, 'type': "img", 'file_path': "../tmp/zzz/z5.png"},
+                        {'timestamp': 50, 'type': "img", 'file_path': "../tmp/zzz/z6.png"},
+                        {'timestamp': 60, 'type': "img", 'file_path': "../tmp/zzz/z7.png"},
+                        {'timestamp': 70, 'type': "img", 'file_path': "../tmp/zzz/z8.png"}
                         ]
     note_content_text = [{'timestamp': 0, 'type': "text", 'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"},
                          {'timestamp': 7, 'type': "text", 'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"},
@@ -340,29 +341,5 @@ if __name__ == "__main__":
     note_content_speaker = [{'timestamp': 0, 'type': "speaker", 'name': "Basia"},
                             {'timestamp': 45, 'type': "speaker", 'name': "Jan"},
                             {'timestamp': 62, 'type': "speaker", 'name': "Basia"},]
-    save_files("Tytuł notatki", "Podsumowanie notatki", datetime.datetime.now(), note_content_img, note_content_text, note_content_speaker, '../save')
+    save_files("ANTEK", "Podsumowanie notatki", "12.12.24", note_content_img, note_content_text, note_content_speaker, 'video.mp4', 'zzz', '../save')
     exit()
-    print(type(datetime.datetime.now()))
-    aa = [{'timestamp': 0, 'type': "img", 'file_path': "z1.png"},
-          {'timestamp': 65, 'type': "img", 'file_path': "449002904_794797922739171_6710242531326557904_n.jpg"},
-          {'timestamp': 70, 'type': "img", 'file_path': "450442080_340653142428273_5379566348089261318_n.jpg"},
-          {'timestamp': 0, 'type': "text",
-           'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"},
-          {'timestamp': 10, 'type': "text",
-           'value': "cos bfsgnythfngbshd jyshd fgahry jtukyuj ghfga hsfdgmfj kyu ghnfx g"},
-          {'timestamp': 40, 'type': "text",
-           'value': "cos vbcbvcb cvb cvbf gss hsh ghs hs gfh sgh sf bv b sfgb fgb sfg bs fb fgb sfg b sfg sf gb sgfn gsfn g j wy jw g fn wr hnrag f"},
-          {'timestamp': 50, 'type': "text",
-           'value': "cos gnhdm fngzb ddg nfhdmj fsngbd sfdsgnfdhmgd jsgfdbfsg dfbdg nh rjdhmg djgh "},
-          {'timestamp': 60, 'type': "text",
-           'value': "cos  sfg fgn n sf ngf nf n gsn sn ry mw ym tym wt mthnuyk ril yujmhngsfnb fdh nm rj,yi 5ry kjhndfgbs vdfbgf nhyi lkyurjh gdfsdg dhjrukyt iyrkutjh dfbgfn hjy uituerhdf bhrte yjrukil ykjghdnfb"},
-          {'timestamp': 65, 'type': "text",
-           'value': "cos gngmdhjsgfbdfag hsfhdmyetjfnzbdfgafbd bnhj hmhrea fdb gjyku thdg aght"},
-          {'timestamp': 75, 'type': "text",
-           'value': "cosdsf gsh dgh jeyr thgn fdjruk tyjfshgdghtr yjtrukyjmgdh ngfsht jyeukr yhdgns dfht uyetruky ujyh greywruetrky fjghdfh treyjtuk i67 ytdjghs erwrtey truyukr jhdnfgshyt u65i yi67 uytejrhs ewt heyjt"},
-          {'timestamp': 0, 'type': "speaker", 'name': "Jan"},
-          {'timestamp': 50, 'type': "speaker", 'name': "Basia"},
-          {'timestamp': 65, 'type': "speaker", 'name': "Jan"}]
-
-    aa_s = sort_note_content(aa)
-    save_files()

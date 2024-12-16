@@ -1,6 +1,6 @@
 import json
 import os
-from app_beckend.communication_with_www_server import upload_file_on_server
+from app_backend.communication_with_www_server import upload_file_on_server
 
 
 def send_failed_files():
