@@ -5,11 +5,15 @@ from ttkbootstrap.constants import *
 from pathlib import Path
 import subprocess
 import webbrowser
+import os
 
 import app_front.class_record as rec_vid
 import app_front.class_audio as rec_aud
 from transcription import transkrypcja
 import app_backend.communication_with_www_server as com_www_server
+
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 class IoFront(ttk.Frame):
@@ -27,7 +31,10 @@ class IoFront(ttk.Frame):
 
         """pobieranie danych z serwera"""
         self.import_from_server = com_www_server.get_info_of_notes_from_server()
-        self.imported_notes = self.import_from_server["notes"]
+        if self.import_from_server is not None:
+            self.imported_notes = self.import_from_server["notes"]
+        else:
+            self.imported_notes = []
         # print(self.imported_notes[0]["note_id"])
         self.clicked_note = ""
 
@@ -76,14 +83,19 @@ class IoFront(ttk.Frame):
 
         data = self.imported_notes
 
-        tree.tag_configure('change_bg', background="#20374C")
+        tree.tag_configure("change_bg", background="#20374C")
         index = 0
         for i in data:
             print(i)
-            if (int(index) % 2 == 1):
-                tree.insert("", 'end', values=i, tags="change_bg", iid=index)
+            if int(index) % 2 == 1:
+                tree.insert("", "end", values=i, tags="change_bg", iid=index)
             else:
-                tree.insert("", 'end', values=[i["note_id"],i["datetime"],i["title"]], iid=index)
+                tree.insert(
+                    "",
+                    "end",
+                    values=[i["note_id"], i["datetime"], i["title"]],
+                    iid=index,
+                )
             tree.bind("<<TreeviewSelect>>", self.tree_on_click_element)
             # tree.bind("<Button-3>", self.identify_item)
 
@@ -91,27 +103,29 @@ class IoFront(ttk.Frame):
 
         return tree
 
-    def tree_on_click_element(self,event):
+    def tree_on_click_element(self, event):
         clickedItem = self.tree.focus()
         print(self.tree.item(clickedItem)["values"])
         self.clicked_note = self.tree.item(clickedItem)["values"][0]
         return
-
 
     def open_in_browser_button(self):
         button = ttk.Button(
             master=self.action_container, width=20, text="Open in browser"
         )
         button.grid(row=3, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
-        button.bind("<Button-1>", lambda x:webbrowser.open_new(f"https://ioprojekt.atwebpages.com/{self.clicked_note}"))
+        button.bind(
+            "<Button-1>",
+            lambda x: webbrowser.open_new(
+                f"https://ioprojekt.atwebpages.com/{self.clicked_note}"
+            ),
+        )
         return button
 
     def refresh_button(self):
-        button = ttk.Button(
-            master=self.action_container, width=20, text="Refresh"
-        )
+        button = ttk.Button(master=self.action_container, width=20, text="Refresh")
         button.grid(row=5, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
-        button.bind("<Button-1>", lambda x:self.on_click_refresh())
+        button.bind("<Button-1>", lambda x: self.on_click_refresh())
         return button
 
     def on_click_refresh(self):
@@ -123,10 +137,15 @@ class IoFront(ttk.Frame):
 
         for i in data:
             print(i)
-            if (int(index) % 2 == 1):
-                self.tree.insert("", 'end', values=i, tags="change_bg", iid=index)
+            if int(index) % 2 == 1:
+                self.tree.insert("", "end", values=i, tags="change_bg", iid=index)
             else:
-                self.tree.insert("", 'end', values=[i["note_id"], i["datetime"], i["title"]], iid=index)
+                self.tree.insert(
+                    "",
+                    "end",
+                    values=[i["note_id"], i["datetime"], i["title"]],
+                    iid=index,
+                )
             self.tree.bind("<<TreeviewSelect>>", self.tree_on_click_element)
             # tree.bind("<Button-3>", self.identify_item)
 
