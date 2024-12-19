@@ -2,33 +2,45 @@ import whisper
 import functools
 import logging
 from pyannote.audio import Pipeline
+from faster_whisper import WhisperModel
+from transformers import pipeline
 from concurrent.futures import ThreadPoolExecutor
 
+model_size = "small"
 
 # 1. Transkrypcja pliku audio za pomocą Whisper
 def transcribe_audio(file_path):
     try:
-        whisper.torch.load = functools.partial(whisper.torch.load, weights_only=True)
-        model = whisper.load_model("large")
-        result = model.transcribe(
+        model = WhisperModel(model_size, device="cpu", compute_type="int8")
+        segments, _ = model.transcribe(
             file_path,
             task="transcribe",
-            fp16=False,
-            logprob_threshold=-1.0,
-            suppress_tokens="",
+            beam_size=2,
+            temperature=0.0,
+            no_speech_threshold=0.1, 
+            word_timestamps=True,
         )
-        return result["segments"]
+        result_segments = []
+        for segment in segments:
+            print(segment)
+            result_segments.append(
+                {
+                    "start": segment.start,
+                    "end": segment.end,
+                    "text": segment.text.strip(),
+                }
+            )
+        return result_segments
     except Exception as e:
-        print(f"Transciption Error: {e}")
+        print(f"Transcription Error: {e}")
 
 
-# 2. Diarizacja pliku audio za pomocą pyannote.audio
+# 2. Rozpoznawanie rozmówców audio za pomocą pyannote.audio
 def diarize_audio(file_path, hf_token):
     try:
         pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1", use_auth_token=hf_token
         )
-        logging.getLogger("speechbrain.utils.quirks").setLevel(logging.WARNING)
         diarization = pipeline(file_path)
         return diarization
     except Exception as e:
@@ -80,13 +92,20 @@ def combine_transcription_and_diarization(segments, diarization):
     return combined_results
 
 
-def notes_summary(filename):
-    None
+def notes_summary(tekst):
+    summarizer = pipeline("summarization", model="facebook/bart-large-cnn", tokenizer="facebook/bart-large-cnn")
+    print(tekst)
+
+    summary = summarizer(tekst, max_length=130, min_length=30, do_sample=False)
+
+    print("Podsumowanie w języku polskim:", summary[0]["summary_text"])
+
 
 # 4. Główna funkcja
-def main(filename="./audio_output_2.wav"):
+def main(filename="./testowe_pliki/test_wyklad.wav"):
     audio_file = f"{filename}"
     hf_token = "..."
+    tekst = ""
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         # Wysyłanie obu zadań do executor w tym samym czasie
@@ -117,30 +136,16 @@ def main(filename="./audio_output_2.wav"):
                 docx_file.write(
                     f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
                 )
+                tekst = (
+                    tekst
+                    + f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
+                )
 
+            notes_summary(tekst)
             docx_file.close()
         except Exception as e:
             print(f"Error generating docx file: {e}")
 
 
-    """
-    # Transkrypcja
-    transcription_segments = transcribe_audio(audio_file)
-
-    # Diarizacja
-    diarization_result = diarize_audio(audio_file, hf_token)
-
-    # Połączenie wyników
-    combined = combine_transcription_and_diarization(
-        transcription_segments, diarization_result
-    )
-
-    # Wyświetlenie wyników
-    for entry in combined:
-        print(
-            f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}"
-        )
-    """
-
-
-# main()
+if __name__ == '__main__':
+    main()
