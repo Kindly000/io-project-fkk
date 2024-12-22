@@ -12,6 +12,8 @@ import app_front.class_audio as rec_aud
 from transcription import transkrypcja
 import app_backend.communication_with_www_server as com_www_server
 
+import app_front.quickstart as google_cal
+
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,6 +31,11 @@ class IoFront(ttk.Frame):
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
 
+        self.application_name = "" #nazwa wybranej aplikacji do nagrania
+
+        """logowanie do google"""
+        self.google_ = google_cal.Calendar()
+
         """pobieranie danych z serwera"""
         self.import_from_server = com_www_server.get_info_of_notes_from_server()
         if self.import_from_server is not None:
@@ -42,6 +49,8 @@ class IoFront(ttk.Frame):
         self.tree = self.create_treeview()
 
         self.right_container = ttk.Frame(self)
+
+        self.drop_menu_app()
 
         # GUI setup
         self.new_record_container = ttk.LabelFrame(
@@ -109,6 +118,22 @@ class IoFront(ttk.Frame):
         self.clicked_note = self.tree.item(clickedItem)["values"][0]
         return
 
+    def drop_menu_app(self):
+        mb = ttk.Menubutton(
+            master=self.right_container, width=16, text="Application"
+        )
+        mb.pack(padx=5, pady=10)
+        options = ["MSTeams", "Zoom", "Google Meet"]
+        inside_menu = ttk.Menu(mb, tearoff=0)
+
+        def on_click(option):
+            self.application_name = option
+            print(option)
+
+        for option in options:
+            inside_menu.add_radiobutton(label=option, command=lambda x=option: on_click(x))
+        mb["menu"] = inside_menu
+
     def open_in_browser_button(self):
         button = ttk.Button(
             master=self.action_container, width=20, text="Open in browser"
@@ -169,7 +194,7 @@ class IoFront(ttk.Frame):
         )
         button.bind(
             "<Button-1>",
-            lambda e: [self.stop_recordings(), self.combining_recordings()],
+            lambda e: [self.stop_recordings(), self.combining_recordings(), self.google_.add_event("test","date","url")],
         )
         button.grid(row=2, column=1, padx=5, pady=10)
         return button

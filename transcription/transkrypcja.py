@@ -1,4 +1,3 @@
-import whisper
 import functools
 import logging
 from pyannote.audio import Pipeline

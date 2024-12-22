@@ -4,8 +4,8 @@ import json
 import shutil
 from app_backend.logging_f import log_communication_with_www_server, log_file_creation
 
-# URL = "https://ioprojekt.atwebpages.com"
-URL = "https://localhost"
+URL = "https://ioprojekt.atwebpages.com"
+# URL = "https://localhost"
 
 def get_info_of_notes_from_server(url: str = f"{URL}/api/get_notes_info") -> [dict|None]:
     """
