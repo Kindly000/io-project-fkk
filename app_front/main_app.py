@@ -281,5 +281,6 @@ class IoFront(ttk.Frame):
 if __name__ == "__main__":
     app = ttk.Window("io_app", "superhero", resizable=(True, True))
     app.geometry("900x500")
+    app.iconphoto(True, ttk.PhotoImage(file="assets/icon.png"))
     IoFront(app)
     app.mainloop()
