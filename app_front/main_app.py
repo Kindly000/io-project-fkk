@@ -9,7 +9,7 @@ import os
 
 import app_front.class_record as rec_vid
 import app_front.class_audio as rec_aud
-from transcription import transkrypcja
+from data_analyze import data_analyze
 import app_backend.communication_with_www_server as com_www_server
 
 import app_front.quickstart as google_cal
@@ -266,11 +266,11 @@ class IoFront(ttk.Frame):
             print("Stopping audio recording...")
             file_name = self.audio_recorder.stop_recording()
             print("Audio recording stopped")
-            self.executor.submit(self.start_audio_transciption, file_name)
+            self.executor.submit(self.start_data_analization, file_name)
 
-    def start_audio_transciption(self, file_name):
+    def start_data_analization(self, file_name):
         try:
-            transkrypcja.main(file_name)
+            data_analyze.main(file_name)
             self.master.after(
                 0, lambda: print("Transcription finished")
             )  # Update UI safely

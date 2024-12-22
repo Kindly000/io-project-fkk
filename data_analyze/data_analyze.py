@@ -1,11 +1,13 @@
 import functools
 import logging
+import math
 from pyannote.audio import Pipeline
 from faster_whisper import WhisperModel
 from transformers import pipeline
 from concurrent.futures import ThreadPoolExecutor
 
 model_size = "small"
+
 
 # 1. Transkrypcja pliku audio za pomocą Whisper
 def transcribe_audio(file_path):
@@ -16,7 +18,7 @@ def transcribe_audio(file_path):
             task="transcribe",
             beam_size=2,
             temperature=0.0,
-            no_speech_threshold=0.1, 
+            no_speech_threshold=0.1,
             word_timestamps=True,
         )
         result_segments = []
@@ -92,12 +94,15 @@ def combine_transcription_and_diarization(segments, diarization):
 
 
 def notes_summary(tekst):
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn", tokenizer="facebook/bart-large-cnn")
-    print(tekst)
+    summarizer = pipeline(
+        "summarization",
+        model="facebook/bart-large-cnn",
+        tokenizer="facebook/bart-large-cnn",
+    )
 
     summary = summarizer(tekst, max_length=130, min_length=30, do_sample=False)
 
-    print("Podsumowanie w języku polskim:", summary[0]["summary_text"])
+    return summary[0]["summary_text"]
 
 
 # 4. Główna funkcja
@@ -115,9 +120,6 @@ def main(filename="./testowe_pliki/test_wyklad.wav"):
         transcription_segments = future_transcription_segments.result()
         diarization_result = future_diarization_result.result()
 
-        print(transcription_segments)
-        print(diarization_result)
-
         # Połączenie wyników
         combined = combine_transcription_and_diarization(
             transcription_segments, diarization_result
@@ -125,26 +127,36 @@ def main(filename="./testowe_pliki/test_wyklad.wav"):
 
         try:
             filename = filename[0 : -(len(filename.split("/").pop()))]
-            docx_file = open(f"{filename}transcription.doc", "w+")
-
+            note_content_text = []
+            note_content_speaker = []
+            summary = ""
             # Wyświetlenie wyników
             for entry in combined:
-                print(
-                    f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}"
-                )
-                docx_file.write(
-                    f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
-                )
+                if len(note_content_text) == 0 or note_content_speaker[-1]["name"] != entry["speaker"]:
+                    speaker = {
+                        "type": "speaker",
+                        "timestamp": math.floor(float(entry["start"])),
+                        "name": f"{entry["speaker"]}",
+                    }
+                    note_content_speaker.append(speaker)
+
+                text = {
+                    "type": "text",
+                    "timestamp": math.floor(float(entry["start"])),
+                    "value": f"{entry["text"]}",
+                }
+                note_content_text.append(text)
+                
                 tekst = (
                     tekst
                     + f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
                 )
 
-            notes_summary(tekst)
-            docx_file.close()
+            summary = notes_summary(tekst)
+            # docx_file.close()
         except Exception as e:
             print(f"Error generating docx file: {e}")
+    
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
