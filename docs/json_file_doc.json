@@ -1,0 +1,27 @@
+{
+    "note_id": "unique_note_id hash_funcion",
+    "title": "title",
+    "datetime": "datetime of note",
+    "summary": "summary of note transcription only",
+    "language": "language of conntent (en,pl)",
+    "video": "video file name (.mp4)",
+    "docx": "docx file name (.docx)",
+    "txt": "txt file name (.txt)",
+    "content": [
+        {
+            "type": "img",
+            "val": "img file name (.png)",
+            "timestamp_str": "time (string) of element in video in format [HH:MM:SS]"
+        },
+        {
+            "type": "speaker",
+            "val": "name of speaker",
+            "timestamp_str": "[00:00:00]"
+        },
+        {
+            "type": "txt",
+            "val": "text from trnascription",
+            "timestamp_str": "[00:00:00]"
+        }
+    ]
+}
