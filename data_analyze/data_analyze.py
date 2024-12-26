@@ -2,6 +2,8 @@ import functools
 import logging
 import math
 import subprocess
+import re
+import os
 from pyannote.audio import Pipeline
 from faster_whisper import WhisperModel
 from transformers import pipeline
@@ -24,7 +26,7 @@ def transcribe_audio(file_path):
         )
         result_segments = []
         for segment in segments:
-            print(segment)
+            # print(segment)
             result_segments.append(
                 {
                     "start": segment.start,
@@ -93,6 +95,7 @@ def combine_transcription_and_diarization(segments, diarization):
 
     return combined_results
 
+
 # 4. Generowanie podsumowań notatek
 def notes_summary(tekst: str):
     summarizer = pipeline(
@@ -105,12 +108,10 @@ def notes_summary(tekst: str):
 
     return summary[0]["summary_text"]
 
-# 5. Wydobywanie ramek z wideo do dalszej analizy
-def get_video_frames(file_path: str):
-    file_name_match = re.search(r"/([\w]+)(\.[a-zA-Z0-9]+)", file_path)
-    file_name = file_name_match.group(1)
 
-    output_dir = f"./testowe/{file_name}/"
+# 5. Wydobywanie ramek z wideo do dalszej analizy
+def get_video_frames(file_path: str, file_name: str, file_extension: str):
+    output_dir = f"{file_path}/{file_name}/"
     try:
         os.makedirs(output_dir, exist_ok=True)
         print(f"Directory {output_dir} is ready.")
@@ -122,7 +123,7 @@ def get_video_frames(file_path: str):
     ffmpeg_command = [
         "ffmpeg",
         "-i",
-        file_path,
+        f"{file_path}/{file_name}{file_extension}",
         "-vf",
         "fps=1",
         "-frame_pts",
@@ -137,7 +138,8 @@ def get_video_frames(file_path: str):
         print(f"FFmpeg execution failed: {e}")
     except FileNotFoundError:
         print("FFmpeg not found. Make sure it is installed and in your PATH.")
-        
+
+
 """
 def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
     image1 = cv2.imread(
@@ -171,10 +173,15 @@ def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
 
 
 # 6. Główna funkcja
-def main(filename="./testowe_pliki/test_wyklad.wav"):
-    audio_file = f"{filename}"
+def main(
+    filename_audio: str = "./testowe_pliki/test_wyklad.wav",
+    filename_video: str = "./testowe_pliki/nagranie_testowe_teams.mp4",
+):
+    audio_file = f"{filename_audio}"
+    video_file = f"{filename_video}"
     hf_token = "..."
     tekst = ""
+    filepath = ""
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         # Wysyłanie obu zadań do executor w tym samym czasie
@@ -191,12 +198,24 @@ def main(filename="./testowe_pliki/test_wyklad.wav"):
         )
 
         try:
-            filename = filename[0 : -(len(filename.split("/").pop()))]
+            """
+            Informacje o plikach wideo
+            """
+            file_name_match = re.search(r"(.+)/([\w]+)(\.[a-zA-Z0-9]+)", filename_video)
+            filepath = file_name_match.group(1)
+            filename = file_name_match.group(2)
+            fileextension = file_name_match.group(3)
+            print(filepath, filename, fileextension)
+
             note_content_text = []
             note_content_speaker = []
             summary = ""
+
             for entry in combined:
-                if len(note_content_text) == 0 or note_content_speaker[-1]["name"] != entry["speaker"]:
+                if (
+                    len(note_content_text) == 0
+                    or note_content_speaker[-1]["name"] != entry["speaker"]
+                ):
                     speaker = {
                         "type": "speaker",
                         "timestamp": math.floor(float(entry["start"])),
@@ -210,17 +229,18 @@ def main(filename="./testowe_pliki/test_wyklad.wav"):
                     "value": f"{entry["text"]}",
                 }
                 note_content_text.append(text)
-                
+
                 tekst = (
                     tekst
                     + f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
                 )
 
             summary = notes_summary(tekst)
-            # docx_file.close()
+            get_video_frames(filepath, filename, fileextension)
+
         except Exception as e:
-            print(f"Error generating docx file: {e}")
-    
+            print(f"Error in main function: {e}")
+
 
 if __name__ == "__main__":
     main()

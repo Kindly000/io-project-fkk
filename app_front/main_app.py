@@ -31,7 +31,7 @@ class IoFront(ttk.Frame):
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
 
-        self.application_name = "" #nazwa wybranej aplikacji do nagrania
+        self.application_name = ""  # nazwa wybranej aplikacji do nagrania
 
         """logowanie do google"""
         self.google_ = google_cal.Calendar()
@@ -119,9 +119,7 @@ class IoFront(ttk.Frame):
         return
 
     def drop_menu_app(self):
-        mb = ttk.Menubutton(
-            master=self.right_container, width=16, text="Application"
-        )
+        mb = ttk.Menubutton(master=self.right_container, width=16, text="Application")
         mb.pack(padx=5, pady=10)
         options = ["MSTeams", "Zoom", "Google Meet"]
         inside_menu = ttk.Menu(mb, tearoff=0)
@@ -131,7 +129,9 @@ class IoFront(ttk.Frame):
             print(option)
 
         for option in options:
-            inside_menu.add_radiobutton(label=option, command=lambda x=option: on_click(x))
+            inside_menu.add_radiobutton(
+                label=option, command=lambda x=option: on_click(x)
+            )
         mb["menu"] = inside_menu
 
     def open_in_browser_button(self):
@@ -194,7 +194,11 @@ class IoFront(ttk.Frame):
         )
         button.bind(
             "<Button-1>",
-            lambda e: [self.stop_recordings(), self.combining_recordings(), self.google_.add_event("test","date","url")],
+            lambda e: [
+                self.stop_recordings(),
+                self.combining_recordings(),
+                self.google_.add_event("test", "date", "url"),
+            ],
         )
         button.grid(row=2, column=1, padx=5, pady=10)
         return button
@@ -264,13 +268,13 @@ class IoFront(ttk.Frame):
     def stop_audio_recording(self):
         if hasattr(self, "audio_recorder"):
             print("Stopping audio recording...")
-            file_name = self.audio_recorder.stop_recording()
+            audio_filename = self.audio_recorder.stop_recording()
             print("Audio recording stopped")
-            self.executor.submit(self.start_data_analization, file_name)
+            self.executor.submit(self.start_data_analization, audio_filename)
 
-    def start_data_analization(self, file_name):
+    def start_data_analization(self, audio_filename):
         try:
-            data_analyze.main(file_name)
+            data_analyze.main(audio_filename, None)
             self.master.after(
                 0, lambda: print("Transcription finished")
             )  # Update UI safely
