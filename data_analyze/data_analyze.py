@@ -1,6 +1,7 @@
 import functools
 import logging
 import math
+import subprocess
 from pyannote.audio import Pipeline
 from faster_whisper import WhisperModel
 from transformers import pipeline
@@ -92,8 +93,8 @@ def combine_transcription_and_diarization(segments, diarization):
 
     return combined_results
 
-
-def notes_summary(tekst):
+# 4. Generowanie podsumowań notatek
+def notes_summary(tekst: str):
     summarizer = pipeline(
         "summarization",
         model="facebook/bart-large-cnn",
@@ -104,8 +105,72 @@ def notes_summary(tekst):
 
     return summary[0]["summary_text"]
 
+# 5. Wydobywanie ramek z wideo do dalszej analizy
+def get_video_frames(file_path: str):
+    file_name_match = re.search(r"/([\w]+)(\.[a-zA-Z0-9]+)", file_path)
+    file_name = file_name_match.group(1)
 
-# 4. Główna funkcja
+    output_dir = f"./testowe/{file_name}/"
+    try:
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Directory {output_dir} is ready.")
+    except Exception as e:
+        print(f"Failed to create directory {output_dir}: {e}")
+        return
+
+    output_pattern = f"{output_dir}%d.png"
+    ffmpeg_command = [
+        "ffmpeg",
+        "-i",
+        file_path,
+        "-vf",
+        "fps=1",
+        "-frame_pts",
+        "1",  # Use frame presentation timestamps
+        output_pattern,
+    ]
+
+    try:
+        subprocess.run(ffmpeg_command, check=True)
+        print(f"Frames successfully extracted to {output_dir}")
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg execution failed: {e}")
+    except FileNotFoundError:
+        print("FFmpeg not found. Make sure it is installed and in your PATH.")
+        
+"""
+def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
+    image1 = cv2.imread(
+        f"./testowe/nagranie_testowe_teams/{img_nr_1}.png", cv2.IMREAD_GRAYSCALE
+    )
+    image2 = cv2.imread(f"./testowe/teams_screen_template.png", cv2.IMREAD_GRAYSCALE)
+
+    sift = cv2.SIFT_create()
+
+    kp, des = sift.detectAndCompute(image1, None)
+    kp1, des1 = sift.detectAndCompute(image2, None)
+
+    bf = cv2.BFMatcher()
+
+    matches = bf.knnMatch(des, des1, k=2)
+    best = []
+    for match1, match2 in matches:
+        if match1.distance < 0.85 * match2.distance:
+            best.append([match1])
+
+    # print(best)
+
+    sift_matches = cv2.drawMatchesKnn(image1, kp, image2, kp1, best, None, flags=2)
+    plt.imshow(sift_matches)
+    plt.show()
+
+    print(
+        f"Liczba dopasowanych punktów obraz nr {img_nr_1} do obrazu nr {img_nr_2}: {len(best)}"
+    )
+"""
+
+
+# 6. Główna funkcja
 def main(filename="./testowe_pliki/test_wyklad.wav"):
     audio_file = f"{filename}"
     hf_token = "..."
@@ -130,7 +195,6 @@ def main(filename="./testowe_pliki/test_wyklad.wav"):
             note_content_text = []
             note_content_speaker = []
             summary = ""
-            # Wyświetlenie wyników
             for entry in combined:
                 if len(note_content_text) == 0 or note_content_speaker[-1]["name"] != entry["speaker"]:
                     speaker = {
