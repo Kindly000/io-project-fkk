@@ -4,6 +4,7 @@ import math
 import subprocess
 import re
 import os
+import cv2
 from pyannote.audio import Pipeline
 from faster_whisper import WhisperModel
 from transformers import pipeline
@@ -11,9 +12,17 @@ from concurrent.futures import ThreadPoolExecutor
 
 model_size = "small"
 
-
 # 1. Transkrypcja pliku audio za pomocą Whisper
-def transcribe_audio(file_path):
+def transcribe_audio(file_path: str) -> list[dict]:
+    """
+    Transkrypcja pliku audio na tekst.
+
+    Args:
+        file_path (str): Ścieżka do pliku audio.
+
+    Returns:
+        list[dict]: Lista segmentów transkrypcji zawierająca czas rozpoczęcia, czas zakończenia i tekst.
+    """
     try:
         model = WhisperModel(model_size, device="cpu", compute_type="int8")
         segments, _ = model.transcribe(
@@ -26,7 +35,6 @@ def transcribe_audio(file_path):
         )
         result_segments = []
         for segment in segments:
-            # print(segment)
             result_segments.append(
                 {
                     "start": segment.start,
@@ -40,7 +48,17 @@ def transcribe_audio(file_path):
 
 
 # 2. Rozpoznawanie rozmówców audio za pomocą pyannote.audio
-def diarize_audio(file_path, hf_token):
+def diarize_audio(file_path: str, hf_token: str) -> object:
+    """
+    Diarizacja audio - rozpoznawanie rozmówców w pliku audio.
+
+    Args:
+        file_path (str): Ścieżka do pliku audio.
+        hf_token (str): Token do autentykacji w HuggingFace.
+
+    Returns:
+        object: Wynik diarizacji zawierający informacje o rozmówcach.
+    """
     try:
         pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1", use_auth_token=hf_token
@@ -52,7 +70,19 @@ def diarize_audio(file_path, hf_token):
 
 
 # 3. Łączenie transkrypcji i diarizacji
-def combine_transcription_and_diarization(segments, diarization):
+def combine_transcription_and_diarization(
+    segments: list[dict], diarization: object
+) -> list[dict]:
+    """
+    Łączenie wyników transkrypcji i diarizacji.
+
+    Args:
+        segments (list[dict]): Lista segmentów transkrypcji.
+        diarization (object): Wyniki diarizacji rozmówców.
+
+    Returns:
+        list[dict]: Lista połączonych wyników zawierających informacje o czasie i mówiącym.
+    """
     combined_results = []
     previous_segment = None
 
@@ -97,7 +127,16 @@ def combine_transcription_and_diarization(segments, diarization):
 
 
 # 4. Generowanie podsumowań notatek
-def notes_summary(tekst: str):
+def notes_summary(tekst: str) -> str:
+    """
+    Generowanie podsumowań notatek.
+
+    Args:
+        tekst (str): Tekst, który ma zostać podsumowany.
+
+    Returns:
+        str: Streszczenie tekstu.
+    """
     summarizer = pipeline(
         "summarization",
         model="facebook/bart-large-cnn",
@@ -110,7 +149,18 @@ def notes_summary(tekst: str):
 
 
 # 5. Wydobywanie ramek z wideo do dalszej analizy
-def get_video_frames(file_path: str, file_name: str, file_extension: str):
+def get_video_frames(file_path: str, file_name: str, file_extension: str) -> None:
+    """
+    Wydobywanie ramek z pliku wideo do dalszej analizy.
+
+    Args:
+        file_path (str): Ścieżka do folderu, w którym znajduje się plik wideo.
+        file_name (str): Nazwa pliku wideo.
+        file_extension (str): Rozszerzenie pliku wideo.
+
+    Returns:
+        None
+    """
     output_dir = f"{file_path}/{file_name}/"
     try:
         os.makedirs(output_dir, exist_ok=True)
@@ -138,7 +188,6 @@ def get_video_frames(file_path: str, file_name: str, file_extension: str):
         print(f"FFmpeg execution failed: {e}")
     except FileNotFoundError:
         print("FFmpeg not found. Make sure it is installed and in your PATH.")
-
 
 """
 def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
@@ -171,16 +220,27 @@ def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
     )
 """
 
-
 # 6. Główna funkcja
 def main(
     filename_audio: str = "./testowe_pliki/test_wyklad.wav",
     filename_video: str = "./testowe_pliki/nagranie_testowe_teams.mp4",
+    application_name: str = "MSTeams",
 ):
+    """
+    Główna funkcja odpowiedzialna za przetwarzanie audio, wideo oraz generowanie podsumowań.
+
+    Args:
+        filename_audio (str): Ścieżka do pliku audio, domyślnie "./testowe_pliki/test_wyklad.wav".
+        filename_video (str): Ścieżka do pliku wideo, domyślnie "./testowe_pliki/nagranie_testowe_teams.mp4".
+        application_name (str): Nazwa aplikacji (np. "MSTeams", "Zoom", "Google Meet").
+
+    Returns:
+        None
+    """
     audio_file = f"{filename_audio}"
     video_file = f"{filename_video}"
     hf_token = "..."
-    tekst = ""
+    tekst = ""  # Wykorzystywany podczas generowania podsumowan
     filepath = ""
 
     with ThreadPoolExecutor(max_workers=2) as executor:
@@ -198,9 +258,7 @@ def main(
         )
 
         try:
-            """
-            Informacje o plikach wideo
-            """
+            # Informacje o plikach wideo
             file_name_match = re.search(r"(.+)/([\w]+)(\.[a-zA-Z0-9]+)", filename_video)
             filepath = file_name_match.group(1)
             filename = file_name_match.group(2)
@@ -219,14 +277,14 @@ def main(
                     speaker = {
                         "type": "speaker",
                         "timestamp": math.floor(float(entry["start"])),
-                        "name": f"{entry["speaker"]}",
+                        "name": f"{entry['speaker']}",
                     }
                     note_content_speaker.append(speaker)
 
                 text = {
                     "type": "text",
                     "timestamp": math.floor(float(entry["start"])),
-                    "value": f"{entry["text"]}",
+                    "value": f"{entry['text']}",
                 }
                 note_content_text.append(text)
 
@@ -236,6 +294,7 @@ def main(
                 )
 
             summary = notes_summary(tekst)
+
             get_video_frames(filepath, filename, fileextension)
 
         except Exception as e:
