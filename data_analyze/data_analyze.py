@@ -9,8 +9,10 @@ from pyannote.audio import Pipeline
 from faster_whisper import WhisperModel
 from transformers import pipeline
 from concurrent.futures import ThreadPoolExecutor
+import app_backend.save_files as sf
 
 model_size = "small"
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # 1. Transkrypcja pliku audio za pomocą Whisper
 def transcribe_audio(file_path: str) -> list[dict]:
@@ -222,8 +224,9 @@ def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
 
 # 6. Główna funkcja
 def main(
-    filename_audio: str = "./testowe_pliki/test_wyklad.wav",
-    filename_video: str = "./testowe_pliki/nagranie_testowe_teams.mp4",
+    temp_dir_name: str = "testowe_pliki",
+    filename_audio: str = "../tmp/testowe_pliki/test_wyklad.wav",
+    filename_video: str = "../tmp/testowe_pliki/nagranie_testowe_teams.mp4",
     application_name: str = "MSTeams",
 ):
     """
@@ -299,6 +302,18 @@ def main(
 
         except Exception as e:
             print(f"Error in main function: {e}")
+
+    sf.save_files(
+        "BetaTitle",
+        note_summary=summary,
+        note_datetime="01-01-2024",
+        note_content_img=[], #betaT
+        note_content_text=note_content_text,
+        note_content_speaker=note_content_speaker,
+        video_file_name=os.path.basename(filename_video),
+        tmp_dir_name=temp_dir_name,
+        directory_path='./',
+    )
 
 
 if __name__ == "__main__":

@@ -13,3 +13,8 @@ Co w przypadku natłoku rozmowy ? - brak pełnej identyfikacji rozmówcy. Identy
 * Generowanie podsumowania notatek -> kilka zdań
 * Wyszukiwanie w notatkach - wyświetlanie wszystkich plików, które zawierają dane słowa kluczowe
 * Identyfikacja mówcy w notatkach - opcjonalnie
+
+# Uruchamianie programu
+Z poziomu głównego folderu wykonać komendy: 
+pip install requirements.txt
+python -m app_front.main_app

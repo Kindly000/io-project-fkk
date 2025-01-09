@@ -270,15 +270,19 @@ class IoFront(ttk.Frame):
             print("Stopping audio recording...")
             audio_filename = self.audio_recorder.stop_recording()
             print("Audio recording stopped")
-        
-            video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
-            
-            self.executor.submit(self.start_data_analization, audio_filename, video_filename)
 
+            video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
+
+            self.executor.submit(self.start_data_analization, audio_filename, video_filename)
 
     def start_data_analization(self, audio_filename, video_filename):
         try:
-            data_analyze.main(audio_filename, video_filename, self.application_name)
+            data_analyze.main(
+                temp_dir_name=self.record_dir,
+                filename_audio=audio_filename,
+                filename_video=video_filename,
+                application_name=self.application_name,
+            )
             self.master.after(
                 0, lambda: print("Transcription finished")
             )  # Update UI safely
