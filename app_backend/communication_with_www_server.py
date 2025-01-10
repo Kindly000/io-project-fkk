@@ -138,7 +138,7 @@ def upload_file_on_server(note_id: str, file_path: str, url: str = f"{URL}/api/u
 
 def get_info_of_notes_from_server_if_note_contain_search_word(search_word: str, url: str = f"{URL}/api/search_in_notes") -> [dict|None]:
     """
-    Fetches information about notes from the server that contain a specified search word.
+    Fetches information about notes from the server that contain a specified search word (case insensitive).
 
     This function sends a POST request to the specified server URL with the search word as a parameter.
     It returns the server's JSON response if the request is successful, or `None` if an error occurs.
