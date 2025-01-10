@@ -7,7 +7,7 @@ from app_backend.logging_f import log_communication_with_www_server, log_file_cr
 URL = "https://ioprojekt.atwebpages.com"
 # URL = "https://localhost"
 
-def get_info_of_notes_from_server(url: str = f"{URL}/api/get_notes_info") -> [dict|None]:
+def get_info_of_notes_from_server(url: str = f"{URL}/api/get_notes_list") -> [dict|None]:
     """
         Fetches information about notes from a server.
 
@@ -136,5 +136,40 @@ def upload_file_on_server(note_id: str, file_path: str, url: str = f"{URL}/api/u
         return False
 
 
+def get_info_of_notes_from_server_if_note_contain_search_word(search_word: str, url: str = f"{URL}/api/search_in_notes") -> [dict|None]:
+    """
+    Fetches information about notes from the server that contain a specified search word.
+
+    This function sends a POST request to the specified server URL with the search word as a parameter.
+    It returns the server's JSON response if the request is successful, or `None` if an error occurs.
+
+    Args:
+        search_word (str): The word to search for in the notes.
+        url (str): The URL of the API endpoint to fetch notes information from. Defaults to a predefined URL:
+                       `https://ioprojekt.atwebpages.com//api/get_notes_info`.
+
+    Returns:
+        [dict | None]: A dictionary containing the JSON response from the server if successful,
+            or `None` if an error occurs during the request.
+
+    Logs:
+        Logs any errors encountered during the request to the server using the
+        `log_communication_with_www_server` function.
+
+    Raises:
+        None: Any exceptions raised during the request are caught and logged, and the function
+        returns `None`.
+    """
+    try:
+        text_data = {"phrase": search_word}
+        response = requests.post(url, data=text_data, verify=False)
+        response.raise_for_status()
+        return response.json()
+
+    except Exception as e:
+        log_communication_with_www_server(f"For get_info_of_notes_from_server_if_note_contain_search_word({search_word}, {url}) - Error: {e}\n")
+        return None
+
 if __name__ == '__main__':
-    get_info_of_notes_from_server()
+    # print(get_info_of_notes_from_server())
+    print(get_info_of_notes_from_server_if_note_contain_search_word('co'))
