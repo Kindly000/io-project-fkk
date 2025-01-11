@@ -36,7 +36,7 @@ class IoFront(ttk.Frame):
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
 
-        self.application_name = ""  # nazwa wybranej aplikacji do nagrania
+        self.application_name = "MSTeams"  # nazwa wybranej aplikacji do nagrania
 
         """logowanie do google"""
         self.google_ = google_cal.Calendar()
@@ -57,7 +57,7 @@ class IoFront(ttk.Frame):
         self.entered_name = ttk.StringVar()
 
         """date variable"""
-        self.date_var
+        self.date_var = None
 
         # dodanie listy spotkań
         self.tree = self.create_treeview()
@@ -258,7 +258,6 @@ class IoFront(ttk.Frame):
             lambda e: [
                 self.stop_recordings(),
                 self.combining_recordings(),
-                self.open_input_name_dir_window(),
                 self.google_.add_event(self.file_name, self.date_var.strftime("%Y-%m-%dT%H:%M:%S"), "url")
             ],
         )
@@ -336,7 +335,7 @@ class IoFront(ttk.Frame):
             print("Audio recording stopped")
 
             video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
-
+            self.open_input_name_dir_window()
             self.executor.submit(self.start_data_analization, audio_filename, video_filename)
 
     def start_data_analization(self, audio_filename, video_filename):
