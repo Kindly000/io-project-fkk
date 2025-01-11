@@ -2,6 +2,7 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from tkinter import filedialog
 from tkinter import Toplevel
+from typing import re
 
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -259,11 +260,15 @@ class IoFront(ttk.Frame):
                 self.stop_recordings(),
                 self.combining_recordings(),
                 self.open_input_name_dir_window(),
-                self.google_.add_event(self.file_name, self.date_var, "url")
+                self.google_.add_event(self.file_name, self.update_date_format(), "url")
             ],
         )
         button.grid(row=2, column=1, padx=5, pady=10)
         return button
+
+    def update_date_format(self):
+        google_date_format = re.sub(r"_(\d{2}:\d{2}:\d{2})", r"T\1", self.date_var)
+        return google_date_format
 
     def combining_recordings(self):
         self.executor.submit(self._combining_recordings)
@@ -280,7 +285,7 @@ class IoFront(ttk.Frame):
             print(f"Muxing Error {e}")
 
     def new_directory(self):
-        self.date_var = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        self.date_var = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
         self.record_dir = f"recording_{self.date_var}"
         nested_dir = Path(f"../tmp/{self.record_dir}")
         nested_dir.mkdir(parents=True, exist_ok=True)
