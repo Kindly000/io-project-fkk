@@ -401,6 +401,7 @@ class IoFront(ttk.Frame):
         input_window = Toplevel(app)
         input_window.title("File name and directory")
         input_window.geometry("300x200")
+        input_window.grab_set()
 
         # Pole Entry do wpisania tekstu
 
