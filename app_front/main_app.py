@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from tkinter import filedialog
 from tkinter import Toplevel
@@ -53,8 +53,11 @@ class IoFront(ttk.Frame):
         """save directory"""
         self.selected_dir_var = "../default_save_folder"
         self.entered_dir = ttk.StringVar()
-        self.file_name = "skibidi.txt"
+        self.file_name = "skibidi"
         self.entered_name = ttk.StringVar()
+
+        """date variable"""
+        self.date_var = ""
 
         # dodanie listy spotkań
         self.tree = self.create_treeview()
@@ -255,8 +258,8 @@ class IoFront(ttk.Frame):
             lambda e: [
                 self.stop_recordings(),
                 self.combining_recordings(),
-                self.google_.add_event("test", "date", "url"),
-                self.open_input_name_dir_window()
+                self.open_input_name_dir_window(),
+                self.google_.add_event(self.file_name, self.date_var, "url")
             ],
         )
         button.grid(row=2, column=1, padx=5, pady=10)
@@ -277,8 +280,8 @@ class IoFront(ttk.Frame):
             print(f"Muxing Error {e}")
 
     def new_directory(self):
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.record_dir = f"recording_{current_time}"
+        self.date_var = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        self.record_dir = f"recording_{self.date_var}"
         nested_dir = Path(f"../tmp/{self.record_dir}")
         nested_dir.mkdir(parents=True, exist_ok=True)
 
@@ -343,7 +346,7 @@ class IoFront(ttk.Frame):
                 application_name=self.application_name,
                 user_dir=self.selected_dir_var,
                 title=self.file_name,
-                datetime=self.
+                datetime=self.date_var,
             )
             self.master.after(
                 0, lambda: print("Transcription finished")
