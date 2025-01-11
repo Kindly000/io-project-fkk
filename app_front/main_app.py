@@ -283,7 +283,7 @@ class IoFront(ttk.Frame):
     def new_directory(self):
         self.date_var = datetime.now()
         date_current = self.date_var.strftime("%Y-%m-%d_%H-%M-%S")
-        self.record_dir = f"recording_{self.date_var}"
+        self.record_dir = f"recording_{date_current}"
         nested_dir = Path(f"../tmp/{self.record_dir}")
         nested_dir.mkdir(parents=True, exist_ok=True)
 
@@ -348,7 +348,7 @@ class IoFront(ttk.Frame):
                 application_name=self.application_name,
                 user_dir=self.selected_dir_var,
                 title=self.file_name,
-                datetime=self.date_var,
+                datetime=self.date_var.strftime("%Y-%m-%dT%H:%M:%S"),
             )
             self.master.after(
                 0, lambda: print("Transcription finished")
