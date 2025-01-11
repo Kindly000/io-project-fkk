@@ -1,4 +1,17 @@
 import datetime
+import os
+
+
+def check_and_create_error_logs_folder():
+    """
+    Checks if the 'error_logs' folder exists in the parent directory.
+    If it does not exist, creates the folder to store error logs.
+
+    This function ensures that the necessary directory for error logs is available
+    before attempting to write any error logs to it.
+    """
+    if not os.path.exists('../error_logs'):
+        os.mkdir('../error_logs')
 
 
 def log_file_creation(text: str) -> None:
@@ -20,13 +33,14 @@ def log_file_creation(text: str) -> None:
         >>> log_file_creation("Error: Unable to create the file due to insufficient permissions.")
 
     Notes:
-        - Ensure that the `error_logs/` directory exists to avoid any issues when writing the log file.
+        - Ensure that the `check_and_create_error_logs_folder` funkcion exists to avoid any issues when writing the log file.
         - The function writes logs using UTF-8 encoding to support a wide range of characters.
         - Logs include the current timestamp for tracking when the event occurred.
 
     Limitations:
         - The function does not handle potential file I/O errors such as permission issues or disk space limitations.
     """
+    check_and_create_error_logs_folder()
     with open(file="../error_logs/file_creation.log", mode="a", encoding='utf-8') as log:
         log.write(f"{datetime.datetime.now()} {text}")
 
@@ -51,12 +65,13 @@ def log_communication_with_www_server(text: str) -> None:
         >>> log_communication_with_www_server("Received 404 Not Found response.")
 
     Notes:
-        - Ensure that the `error_logs/` directory exists to avoid any issues when writing the log file.
+        - Ensure that the `check_and_create_error_logs_folder` funkcion exists to avoid any issues when writing the log file.
         - The function writes logs using UTF-8 encoding to support a wide range of characters.
         - Logs include the current timestamp for tracking when the event occurred.
 
     Limitations:
         - The function does not handle potential file I/O errors such as permission issues or disk space limitations.
     """
+    check_and_create_error_logs_folder()
     with open(file="../error_logs/communication_with_www_server.log", mode="a", encoding='utf-8') as log:
         log.write(f"{datetime.datetime.now()} {text}")
