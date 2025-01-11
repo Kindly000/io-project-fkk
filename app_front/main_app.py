@@ -53,7 +53,7 @@ class IoFront(ttk.Frame):
         """save directory"""
         self.selected_dir_var = "../default_save_folder"
         self.entered_dir = ttk.StringVar()
-        self.file_name = "skibidi"
+        self.file_name = "testtest"
         self.entered_name = ttk.StringVar()
 
         """date variable"""
@@ -81,9 +81,7 @@ class IoFront(ttk.Frame):
         self.refresh_button()
         self.action_container.pack(padx=5, pady=10)
 
-        self.search_container = ttk.LabelFrame(
-            self.right_container, text="Search"
-        )
+        self.search_container = ttk.LabelFrame(self.right_container, text="Search")
         self.search_entry = self.create_entry()
         self.create_search_button()
         self.search_container.pack(padx=5, pady=10)
@@ -120,7 +118,13 @@ class IoFront(ttk.Frame):
         for i in data:
             print(i)
             if int(index) % 2 == 1:
-                tree.insert("", "end", values=[i["note_id"], i["datetime"], i["title"]], tags="change_bg", iid=index)
+                tree.insert(
+                    "",
+                    "end",
+                    values=[i["note_id"], i["datetime"], i["title"]],
+                    tags="change_bg",
+                    iid=index,
+                )
             else:
                 tree.insert(
                     "",
@@ -184,9 +188,10 @@ class IoFront(ttk.Frame):
     def refresh_button(self):
         button = ttk.Button(master=self.action_container, width=20, text="Refresh")
         button.grid(row=5, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
-        button.bind("<Button-1>", lambda x: [self.on_click_refresh(),self.send_failed_files()])
+        button.bind(
+            "<Button-1>", lambda x: [self.on_click_refresh(), self.send_failed_files()]
+        )
         return button
-
 
     def on_click_refresh(self):
         data = com_www_server.get_info_of_notes_from_server()["notes"]
@@ -198,7 +203,13 @@ class IoFront(ttk.Frame):
         for i in data:
             # print(i)
             if int(index) % 2 == 1:
-                self.tree.insert("", "end", values=[i["note_id"], i["datetime"], i["title"]], tags="change_bg", iid=index)
+                self.tree.insert(
+                    "",
+                    "end",
+                    values=[i["note_id"], i["datetime"], i["title"]],
+                    tags="change_bg",
+                    iid=index,
+                )
             else:
                 self.tree.insert(
                     "",
@@ -215,7 +226,9 @@ class IoFront(ttk.Frame):
 
     def on_click_search(self):
         get_text = self.search_entry.get()
-        data = com_www_server.get_info_of_notes_from_server_if_note_contain_search_word(get_text)["notes"]
+        data = com_www_server.get_info_of_notes_from_server_if_note_contain_search_word(
+            get_text
+        )["notes"]
         # print(data)
         index = 0
         for i in self.tree.get_children():
@@ -224,7 +237,13 @@ class IoFront(ttk.Frame):
         for i in data:
             print(i)
             if int(index) % 2 == 1:
-                self.tree.insert("", "end", values=[i["note_id"], i["datetime"], i["title"]], tags="change_bg", iid=index)
+                self.tree.insert(
+                    "",
+                    "end",
+                    values=[i["note_id"], i["datetime"], i["title"]],
+                    tags="change_bg",
+                    iid=index,
+                )
             else:
                 self.tree.insert(
                     "",
@@ -258,12 +277,13 @@ class IoFront(ttk.Frame):
             lambda e: [
                 self.stop_recordings(),
                 self.combining_recordings(),
-                self.google_.add_event(self.file_name, self.date_var.strftime("%Y-%m-%dT%H:%M:%S"), "url")
+                self.google_.add_event(
+                    self.file_name, self.date_var.strftime("%Y-%m-%dT%H:%M:%S"), "url"
+                ),
             ],
         )
         button.grid(row=2, column=1, padx=5, pady=10)
         return button
-
 
     def combining_recordings(self):
         self.executor.submit(self._combining_recordings)
@@ -334,16 +354,18 @@ class IoFront(ttk.Frame):
             audio_filename = self.audio_recorder.stop_recording()
             print("Audio recording stopped")
 
-            video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
-            self.open_input_name_dir_window()
-            self.executor.submit(self.start_data_analization, audio_filename, video_filename)
+            # video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
+            # self.open_input_name_dir_window()
+            self.executor.submit(
+                self.start_data_analization, audio_filename
+            )
 
-    def start_data_analization(self, audio_filename, video_filename):
+    def start_data_analization(self, audio_filename):
         try:
             data_analyze.main(
                 temp_dir_name=self.record_dir,
                 filename_audio=audio_filename,
-                filename_video=video_filename,
+                filename_video=f"../tmp/{self.record_dir}/combined.mp4",
                 application_name=self.application_name,
                 user_dir=self.selected_dir_var,
                 title=self.file_name,
@@ -353,7 +375,7 @@ class IoFront(ttk.Frame):
                 0, lambda: print("Transcription finished")
             )  # Update UI safely
         except Exception as e:
-            print(f"Error in transcription: {e}")
+            print(f"Error in data_analyze: {e.with_traceback}")
 
     def send_failed_files(self):
         retry_logic.send_failed_files()
@@ -366,8 +388,7 @@ class IoFront(ttk.Frame):
 
     def save_name_dir_in_variables(self):
         self.file_name = self.entered_name.get()
-        print([self.file_name,self.selected_dir_var])
-
+        print([self.file_name, self.selected_dir_var])
 
     def open_input_name_dir_window(self):
         """Funkcja otwierająca nowe okienko z polem Entry do wpisania tekstu."""
@@ -386,24 +407,21 @@ class IoFront(ttk.Frame):
         # Pole Entry do wpisania tekstu
 
         entry_var = ttk.StringVar()
-        entry_label = ttk.Label(
-            input_window, text="Enter file name:"
-        )
+        entry_label = ttk.Label(input_window, text="Enter file name:")
         entry_label.pack(pady=5)
-        entry_field = ttk.Entry(
-            input_window, textvariable=entry_var
-        )
+        entry_field = ttk.Entry(input_window, textvariable=entry_var)
         entry_field.pack(pady=5)
-        button = ttk.Button(
-            master=input_window, width=20, text="Choose directory"
-        )
+        button = ttk.Button(master=input_window, width=20, text="Choose directory")
         button.pack(padx=5, pady=10)
         button.bind("<Button-1>", lambda x: self.open_directory_picker())
 
         # Przycisk do zatwierdzenia
         confirm_button = ttk.Button(input_window, text="Submit")
-        confirm_button.bind("<Button-1>", lambda x: [save_input(),self.save_name_dir_in_variables()])
+        confirm_button.bind(
+            "<Button-1>", lambda x: [save_input(), self.save_name_dir_in_variables()]
+        )
         confirm_button.pack(pady=10)
+
 
 if __name__ == "__main__":
     app = ttk.Window("io_app", "superhero", resizable=(True, True))

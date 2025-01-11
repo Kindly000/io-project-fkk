@@ -16,6 +16,7 @@ import data_analyze.image_files_analyze as image_analyzer
 model_size = "small"
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+
 # 1. Transkrypcja pliku audio za pomocą Whisper
 def transcribe_audio(file_path: str) -> list[dict]:
     """
@@ -193,7 +194,10 @@ def get_video_frames(file_path: str, file_name: str, file_extension: str) -> int
     except FileNotFoundError:
         print("FFmpeg not found. Make sure it is installed and in your PATH.")
 
-    return(len(os.listdir(f"{output_dir}")) - 3) # odjęcie 3 plików, które zawsze znajdują się w folderze
+    return (
+        len(os.listdir(f"{output_dir}")) - 4
+    )  # odjęcie 3 plików, które zawsze znajdują się w folderze
+
 
 """
 def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
@@ -226,6 +230,7 @@ def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
     )
 """
 
+
 # 6. Główna funkcja
 def main(
     temp_dir_name: str = "testowe_pliki",
@@ -234,7 +239,7 @@ def main(
     application_name: str = "MSTeams",
     user_dir: str = None,
     title: str = None,
-    datetime: str = None
+    datetime: str = None,
 ):
     """
     Główna funkcja odpowiedzialna za przetwarzanie audio, wideo oraz generowanie podsumowań.
@@ -255,8 +260,12 @@ def main(
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         # Wysyłanie obu zadań do executor w tym samym czasie
-        future_transcription_segments = executor.submit(transcribe_audio, filename_audio)
-        future_diarization_result = executor.submit(diarize_audio, filename_audio, hf_token)
+        future_transcription_segments = executor.submit(
+            transcribe_audio, filename_audio
+        )
+        future_diarization_result = executor.submit(
+            diarize_audio, filename_audio, hf_token
+        )
 
         # Oczekiwanie na zakończenie zadań i pobranie wyników
         transcription_segments = future_transcription_segments.result()
@@ -304,13 +313,17 @@ def main(
                     + f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
                 )
 
+            print(note_content_text)
+            print(note_content_speaker)
+
             # Generowania podsumowania notatek
             summary = notes_summary(tekst)
 
             # Analizowanie zrzutow w celu sprawdzenia występowania slajdów
             number_of_screens = get_video_frames(filepath, filename, fileextension)
-            screen_data = image_analyzer.main(number_of_screens, filepath+"/", application_name)
-
+            screen_data = image_analyzer.main(
+                number_of_screens, filepath + "/", application_name
+            )
 
             for entry in screen_data:
                 img_info = {

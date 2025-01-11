@@ -106,7 +106,7 @@ def main(video_length: int, folder_path: str, application_name: str) -> list[str
     # Analiza obecności danych na obrazach za pomocą szablonu
     for i in range(video_length):
         if template_analyze(
-            f"./templates/{application_name}_no_screen_template.png",
+            f"../data_analyze/templates/{application_name}_no_screen_template.png",
             f"{folder_path}/{i}.png",
             i,
         ):
