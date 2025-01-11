@@ -240,16 +240,15 @@ def main(
     Returns:
         None
     """
-    audio_file = f"{filename_audio}"
-    video_file = f"{filename_video}"
+    
     hf_token = "..."
     tekst = ""  # Wykorzystywany podczas generowania podsumowan
     filepath = ""
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         # Wysyłanie obu zadań do executor w tym samym czasie
-        future_transcription_segments = executor.submit(transcribe_audio, audio_file)
-        future_diarization_result = executor.submit(diarize_audio, audio_file, hf_token)
+        future_transcription_segments = executor.submit(transcribe_audio, filename_audio)
+        future_diarization_result = executor.submit(diarize_audio, filename_audio, hf_token)
 
         # Oczekiwanie na zakończenie zadań i pobranie wyników
         transcription_segments = future_transcription_segments.result()
@@ -296,6 +295,7 @@ def main(
                     + f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
                 )
 
+            # Generowania podsumowania notatek
             summary = notes_summary(tekst)
 
             get_video_frames(filepath, filename, fileextension)
