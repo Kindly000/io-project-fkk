@@ -19,21 +19,21 @@ def create_note_id(note_title: str, note_datetime: str, language: str) -> str:
 
     Args:
         note_title (str): The title of the note used as part of the ID generation.
-        note_datetime (datetime): The datetime associated with the note, used to ensure uniqueness.
+        note_datetime (str): The datetime associated with the note, used to ensure uniqueness.
         language (str): The language code (e.g., 'en' or 'pl') used as part of the ID generation.
 
     Returns:
         str: A unique SHA-256 hash string that serves as the ID for the note.
 
     Example:
-        >>> note_id = create_note_id("Meeting Notes", "", "en")
+        >>> note_id = create_note_id("Meeting Notes", "01-02-2022 11:50:00", "en")
         >>> print(note_id)
         '5f4d2b89f...<hash_value>...'
 
     Notes:
         - This function uses the `hashlib` module to create the SHA-256 hash.
         - The function includes a random integer between 0 and 10,000 to increase the likelihood of uniqueness.
-        - Ensure that the `datetime` module and `hashlib` library are imported for this function to work properly.
+        - Ensure that the `hashlib` library is imported for this function to work properly.
         - The function returns a string of 64 hexadecimal characters.
     """
     v = f"{note_title}{language}{note_datetime}{str(random.randint(0,10000))}"
@@ -103,11 +103,12 @@ def send_and_delete_files(
         note_id (str): The unique identifier of the note for which the files are being uploaded.
         json_file_path (str): The path to the JSON file that contains note data.
         img_files_name (list): A list of names of image files to be uploaded.
-        video_file_name (str): The name of the video file to be uploaded.
+        video_file_path (str): The path to the video file to be uploaded.
         is_docx_file_created (bool): A flag indicating whether a DOCX file has been created.
         docx_file_path (str): The path to the DOCX file to be uploaded (if created).
         is_docx_txt_created (bool): A flag indicating whether a TXT file has been created.
         txt_file_path (str): The path to the TXT file to be uploaded (if created).
+        tmp_dir_name (str): The name of tmp directory where are files.
 
     Returns:
         None: This function does not return a value. It performs file uploads and deletes files locally.
@@ -121,17 +122,18 @@ def send_and_delete_files(
         ...     note_id="12345",
         ...     json_file_path="note_data.json",
         ...     img_files_name=["image1.jpg", "image2.jpg"],
-        ...     video_file_name="video.mp4",
+        ...     video_file_path="video.mp4",
         ...     is_docx_file_created=True,
         ...     docx_file_path="note.docx",
         ...     is_docx_txt_created=True,
         ...     txt_file_path="note.txt"
+        ...     tmp_dir_name="notes_id_znadri"
         ... )
 
     Notes:
-        - The function deletes all files in the `../tmp/` directory after uploading, so use this with caution.
+        - The function deletes directory '../tmp/{tmp_dir_name}' with all files after uploading, so use this with caution.
         - Ensure that the `upload_file_on_server` function is working correctly, as this function relies on it for uploads.
-        - The `os` module is used to interact with the filesystem, so make sure it is imported at the top of the script.
+        - The `shutil` and `os` modules are used for file operations. Ensure they are imported at the top of the script.
     """
     upload_file_on_server(note_id, json_file_path)
     upload_file_on_server(note_id, video_file_path)
@@ -165,12 +167,13 @@ def save_files_to_user_directory(
 
     Args:
         directory_path (str): The path to the directory where the files should be saved.
+        tmp_dir_name (str): The name of tmp directory where are files.
         is_docx_file_created (bool): A flag indicating if the DOCX file was created.
         docx_file_path (str): The path to the DOCX file to be copied.
         is_txt_file_created (bool): A flag indicating if the TXT file was created.
         txt_file_path (str): The path to the TXT file to be copied.
         img_files_name (list): A list of image file names to be copied from the temporary directory.
-        video_file_name (str): The name of the video file to be copied from the temporary directory.
+        video_file_path (str): The path to the video file to be uploaded.
 
     Returns:
         None: This function does not return a value. It performs file copying and logging.
@@ -182,18 +185,19 @@ def save_files_to_user_directory(
     Example:
         >>> save_files_to_user_directory(
         ...     directory_path="../user_notes/",
+        ...     tmp_dir_name="notes_id_znadri",
         ...     is_docx_file_created=True,
         ...     docx_file_path="note.docx",
         ...     is_txt_file_created=True,
         ...     txt_file_path="note.txt",
         ...     img_files_name=["image1.jpg", "image2.jpg"],
-        ...     video_file_name="video.mp4"
+        ...     video_file_path="video.mp4"
         ... )
 
     Notes:
         - The `shutil` and `os` modules are used for file operations. Ensure they are imported at the top of the script.
         - The function handles each file type separately and logs any issues during the copying process.
-        - The function assumes that the source files are located in the `../tmp/` directory for image and video files.
+        - The function assumes that the source files are located in the `../tmp/{tmp_dir_name}` directory for image.
         - The `error_logs/` directory should exist for logging; otherwise, the function will fail to log errors.
     """
     if is_docx_file_created:
@@ -227,6 +231,7 @@ def save_files_to_user_directory(
             f"For save_files()->shutil.copyfile({video_file_path}, {directory_path}/{os.path.basename(video_file_path)}) - Error: {e} - Cannot copy file\n"
         )
 
+
 def save_files(
     note_title: str,
     note_summary: str,
@@ -240,7 +245,6 @@ def save_files(
     language: str = 'pl'
 ) -> None:
     """
-    datetime jako string
     Saves structured content from a note to specified directories and prepares files for upload to a server.
 
     This function organizes and compiles content from different parts of a note, creates various file formats
@@ -250,10 +254,12 @@ def save_files(
     Args:
         note_title (str): The title of the note.
         note_summary (str): A brief summary of the note.
-        note_datetime (datetime.datetime): The date and time when the note was created.
+        note_datetime (str): The date and time when the note was created.
         note_content_img (list): A list of image content elements, each represented as a dictionary.
         note_content_text (list): A list of text content elements, each represented as a dictionary.
         note_content_speaker (list): A list of speaker content elements, each represented as a dictionary.
+        video_file_name (str): The name of the video file.
+        tmp_dir_name (str): The name of tmp directory where are files.
         directory_path (str): The path to the directory where the files should be saved.
         language (str, optional): The language for the document headings (`'pl'` for Polish or `'en'` for English).
                                   Defaults to `'pl'`.
@@ -278,10 +284,12 @@ def save_files(
         >>> save_files(
         ...     note_title="Project Notes",
         ...     note_summary="Summary of project notes",
-        ...     note_datetime="1",
+        ...     note_datetime="01-02-2022 11:50:00",
         ...     note_content_img=[{'type': 'img', 'timestamp': 45, 'file_path': 'image1.png'}],
         ...     note_content_text=[{'type': 'text', 'timestamp': 60, 'value': 'Text content'}],
         ...     note_content_speaker=[{'type': 'speaker', 'timestamp': 30, 'name': 'Alice'}],
+        ...     video_file_name="video",
+        ...     tmp_dir_name="notes_id_znadri",
         ...     directory_path='../user_notes',
         ...     language='en'
         ... )
@@ -289,7 +297,7 @@ def save_files(
     Notes:
         - Ensure the `python-docx` library is installed for DOCX file creation.
         - Ensure `shutil`, `os`, `threading`, and `datetime` libraries are imported and available.
-        - The `../tmp/` directory should be writable for temporary file creation.
+        - The `../tmp/{tmp_dir_name}` directory should be writable for temporary file creation.
         - The function assumes that images have the `.png` extension for image processing.
         - The `error_logs/` directory should exist for error logging; otherwise, logging will fail silently.
     """
@@ -319,27 +327,3 @@ def save_files(
             send_and_delete_files(note_id, json_file_path, img_files_name, video_file_path, is_docx_file_created,
                                   docx_file_path, is_txt_file_created, txt_file_path, tmp_dir_name)
         )
-
-
-if __name__ == "__main__":
-    note_content_img = [{'timestamp': 0, 'type': "img", 'file_path': "../tmp/zzz/z1.png"},
-                        {'timestamp': 10, 'type': "img", 'file_path': "../tmp/zzz/z2.png"},
-                        {'timestamp': 20, 'type': "img", 'file_path': "../tmp/zzz/z3.png"},
-                        {'timestamp': 30, 'type': "img", 'file_path': "../tmp/zzz/z4.png"},
-                        {'timestamp': 40, 'type': "img", 'file_path': "../tmp/zzz/z5.png"},
-                        {'timestamp': 50, 'type': "img", 'file_path': "../tmp/zzz/z6.png"},
-                        {'timestamp': 60, 'type': "img", 'file_path': "../tmp/zzz/z7.png"},
-                        {'timestamp': 70, 'type': "img", 'file_path': "../tmp/zzz/z8.png"}
-                        ]
-    note_content_text = [{'timestamp': 0, 'type': "text", 'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"},
-                         {'timestamp': 7, 'type': "text", 'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"},
-                         {'timestamp': 13, 'type': "text", 'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"},
-                         {'timestamp': 45, 'type': "text", 'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"},
-                         {'timestamp': 54, 'type': "text", 'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"},
-                         {'timestamp': 62, 'type': "text", 'value': "co dzfbgnfs jtes  sgfhmdgsg fgahtrjhdmgd hjfgshdfga rhtsgf dgmjy dtfgdzbgs"}
-                         ]
-    note_content_speaker = [{'timestamp': 0, 'type': "speaker", 'name': "Basia"},
-                            {'timestamp': 45, 'type': "speaker", 'name': "Jan"},
-                            {'timestamp': 62, 'type': "speaker", 'name': "Basia"},]
-    save_files("ANTEK", "Podsumowanie notatki", "12.12.24", note_content_img, note_content_text, note_content_speaker, 'video.mp4', 'zzz', '../save')
-    exit()

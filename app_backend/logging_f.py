@@ -1,5 +1,6 @@
 import datetime
 
+
 def log_file_creation(text: str) -> None:
     """
     Logs a message to a file for tracking errors or events related to file creation.
@@ -43,17 +44,19 @@ def log_communication_with_www_server(text: str) -> None:
                     responses, or any relevant details regarding server communication.
 
     Returns:
-        None: This function does not return a value. It writes the log entry to a file as a side effect.
+        None: This function does not return a value. It performs a file-writing operation for logging purposes.
 
     Example:
         >>> log_communication_with_www_server("HTTP GET request sent to the server.")
         >>> log_communication_with_www_server("Received 404 Not Found response.")
 
     Notes:
-        - The log entries are written to `../error_logs/communication_with_www_server.log` in the
-          current working directory. Ensure that the `error_logs/` directory exists to avoid errors.
-        - Logs are recorded in the default system encoding, which may vary by environment.
-        - The function does not handle potential I/O exceptions, such as permission issues or file write errors.
+        - Ensure that the `error_logs/` directory exists to avoid any issues when writing the log file.
+        - The function writes logs using UTF-8 encoding to support a wide range of characters.
+        - Logs include the current timestamp for tracking when the event occurred.
+
+    Limitations:
+        - The function does not handle potential file I/O errors such as permission issues or disk space limitations.
     """
-    with open(file="../error_logs/communication_with_www_server.log", mode="a") as log:
+    with open(file="../error_logs/communication_with_www_server.log", mode="a", encoding='utf-8') as log:
         log.write(f"{datetime.datetime.now()} {text}")

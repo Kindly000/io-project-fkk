@@ -2,7 +2,7 @@ import requests
 import os
 import json
 import shutil
-from app_backend.logging_f import log_communication_with_www_server, log_file_creation
+from app_backend.logging_f import log_communication_with_www_server
 
 URL = "https://ioprojekt.atwebpages.com"
 # URL = "https://localhost"
@@ -152,13 +152,20 @@ def get_info_of_notes_from_server_if_note_contain_search_word(search_word: str, 
         [dict | None]: A dictionary containing the JSON response from the server if successful,
             or `None` if an error occurs during the request.
 
-    Logs:
-        Logs any errors encountered during the request to the server using the
-        `log_communication_with_www_server` function.
+    Behavior on Exception:
+            - Logs errors using `log_communication_with_www_server`.
+            - Returns `None` if an exception occurs.
 
-    Raises:
-        None: Any exceptions raised during the request are caught and logged, and the function
-        returns `None`.
+        Notes:
+            - SSL certificate verification is disabled (`verify=False`), which may introduce security risks.
+            - Ensure the `requests` library is installed to use this function.
+
+        Example:
+            >>> info = get_info_of_notes_from_server_if_note_contain_search_word('VSS')
+            >>> if info:
+            ...     print("Notes Info:", info)
+            ... else:
+            ...     print("Failed to fetch notes information.")
     """
     try:
         text_data = {"phrase": search_word}
@@ -169,7 +176,3 @@ def get_info_of_notes_from_server_if_note_contain_search_word(search_word: str, 
     except Exception as e:
         log_communication_with_www_server(f"For get_info_of_notes_from_server_if_note_contain_search_word({search_word}, {url}) - Error: {e}\n")
         return None
-
-if __name__ == '__main__':
-    # print(get_info_of_notes_from_server())
-    print(get_info_of_notes_from_server_if_note_contain_search_word('co'))

@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 from docx import Document
@@ -104,7 +103,7 @@ def create_docx_file(note_title: str, note_summary: str,  note_content: list, do
                 docx_file.add_picture(content['file_path'], width=Inches(4))
             elif content['type'] == 'speaker':
                 docx_file.add_paragraph(f"{format_timestamp(content['timestamp'])} {content['name']}:")
-            else:
+            elif content['type'] == 'text':
                 docx_file.add_paragraph(f"{format_timestamp(content['timestamp'])} {content['value']}")
 
         docx_file.save(docx_file_path)
@@ -131,11 +130,11 @@ def create_txt_file(note_title: str, note_summary: str, note_content: list, txt_
                     - For `'speaker'`: `name` (str) specifies the speaker's name.
                     - For `'text'`: `value` (str) specifies the text content.
             txt_file_path (str): The file path where the .txt file will be saved.
-            language (str, optional): The language for the document headings (`'pl'` for Polish, or `'en'` for English).
-                                      Defaults to `'pl'`.
+            language (str, optional): The language for the document headings. Defaults to `'pl'` (Polish).
+                                      Use `'en'` for English headings.
 
         Returns:
-            bool: `True` if the file is created successfully. `False` if an error occurs during creation.
+            bool: `True` if the file is successfully created, otherwise `False`.
 
         Behavior on Error:
             - Logs error details to the logging mechanism specified by `log_file_creation`.
@@ -166,11 +165,9 @@ def create_txt_file(note_title: str, note_summary: str, note_content: list, txt_
             txt_file.write(f"{note_summary}\n\n")
 
             for content in note_content:
-                if content['type'] == 'img':
-                    continue
-                elif content['type'] == 'speaker':
+                if content['type'] == 'speaker':
                     txt_file.write(f"{format_timestamp(content['timestamp'])} {content['name']}:\n")
-                else:
+                elif content['type'] == 'text':
                     txt_file.write(f"{format_timestamp(content['timestamp'])} {content['value']}\n")
         return True
     except Exception as e:
@@ -196,14 +193,16 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, not
                     - For `'img'`: `file_path` (str) specifies the image's file path.
                     - For `'speaker'`: `name` (str) specifies the speaker's name.
                     - For `'text'`: `value` (str) specifies the text content.
-            note_datetime: The date and time of the note's creation or occurrence.
+            note_datetime (str): The date and time of the note's creation or occurrence.
             video_file_name (str): The name of the associated video file.
+            docx_file_name (str): The name of the associated DOCX file.
+            txt_file_name (str): The name of the associated TXT file.
             json_file_path (str): The file path where the JSON file will be saved.
-            language (str, optional): The language of the note's content (`'pl'` for Polish, or `'en'` for English).
-                                      Defaults to `'pl'`.
+            language (str, optional): The language for the document headings. Defaults to `'pl'` (Polish).
+                                      Use `'en'` for English headings.
 
         Returns:
-            bool: `True` if the file is created successfully. `False` if an error occurs during creation.
+            bool: `True` if the file is successfully created, otherwise `False`.
 
         JSON Structure:
             The generated JSON file will have the following structure:
@@ -215,6 +214,8 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, not
                 "summary": "<note_summary>",
                 "language": "<language>",
                 "video": "<video_file_name>",
+                "docx": "<docx_file_name>",
+                "txt": "<txt_file_name>",
                 "content": [
                     {"type": "img", "val": "<image_file_name>", "timestamp_str": "[HH:MM:SS]"},
                     {"type": "speaker", "val": "<speaker_name>", "timestamp_str": "[HH:MM:SS]"},
@@ -238,6 +239,8 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, not
             ...     "Summary of the meeting",
             ...     note_content,
             ...     "meeting_video.mp4",
+            ...     "meeting_notes.docx",
+            ...     "meeting_notes.txt",
             ...     "meeting_notes.json",
             ...     note_datetime="2024-11-29 10:00:00",
             ...     language='en'
@@ -254,11 +257,11 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, not
             data_content.append({"type": "img", "val": f"{os.path.basename(content['file_path'])}", "timestamp_str": f"{format_timestamp(content['timestamp'])}"})
         elif content['type'] == 'speaker':
             data_content.append({"type": "speaker", "val": f"{content['name']}", "timestamp_str": f"{format_timestamp(content['timestamp'])}"})
-        else:
+        elif content['type'] == 'text':
             data_content.append({"type": "txt", "val": f"{content['value']}", "timestamp_str": f"{format_timestamp(content['timestamp'])}"})
 
     data = {
-        "note_id": os.path.basename(json_file_path)[:-5], # -5 -> .json
+        "note_id": os.path.basename(json_file_path)[:-5], # -5 -> without .json
         "title": note_title,
         "datetime": note_datetime,
         "summary": note_summary,
