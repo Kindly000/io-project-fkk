@@ -3,6 +3,20 @@ import os
 import shutil
 from app_backend.communication_with_www_server import upload_file_on_server
 
+def check_and_create_unsuccessful_uploads_folder():
+    """
+    Checks if the 'unsuccessful_uploads' directory exists in the parent folder.
+    If it does not exist, the directory is created.
+
+    This function ensures that a dedicated folder for unsuccessful uploads
+    is present before further operations that may involve storing files in it.
+
+    Returns:
+        None
+    """
+    if not os.path.exists('../unsuccessful_uploads'):
+        os.mkdir('../unsuccessful_uploads')
+
 
 def save_unsuccessful_upload(note_id: str, file_path: str) -> None:
     """
@@ -49,6 +63,7 @@ def save_unsuccessful_upload(note_id: str, file_path: str) -> None:
     Example:
         >>> save_unsuccessful_upload("80dd89ff24bd287237c31639ed6eff5b6a7e854a9e0b2b919598d1798bccf5bd", "example.txt")
     """
+    check_and_create_unsuccessful_uploads_folder()
     dir_for_unsuccessful_uploads = '../unsuccessful_uploads'
     fail_file_name = os.path.basename(file_path)
     try:
@@ -118,6 +133,7 @@ def send_failed_files() -> None:
     Example:
         >>> send_failed_files()
     """
+    check_and_create_unsuccessful_uploads_folder()
     dir_for_unsuccessful_uploads = '../unsuccessful_uploads'
     json_path = f'{dir_for_unsuccessful_uploads}/failed_files.json'
 
