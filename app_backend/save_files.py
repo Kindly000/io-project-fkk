@@ -236,7 +236,7 @@ def save_files_to_user_directory(
 def save_files(
     note_title: str,
     note_summary: str,
-    note_datetime: str,
+    note_datetime: datetime,
     note_content_img: list,
     note_content_text: list,
     note_content_speaker: list,
@@ -255,7 +255,7 @@ def save_files(
     Args:
         note_title (str): The title of the note.
         note_summary (str): A brief summary of the note.
-        note_datetime (str): The date and time when the note was created.
+        note_datetime (datetime): The date and time when the note was created.
         note_content_img (list): A list of image content elements, each represented as a dictionary.
         note_content_text (list): A list of text content elements, each represented as a dictionary.
         note_content_speaker (list): A list of speaker content elements, each represented as a dictionary.
@@ -285,7 +285,7 @@ def save_files(
         >>> save_files(
         ...     note_title="Project Notes",
         ...     note_summary="Summary of project notes",
-        ...     note_datetime="01-02-2022 11:50:00",
+        ...     note_datetime=datetime(2025, 1, 11, 18, 50, 49, 859943),
         ...     note_content_img=[{'type': 'img', 'timestamp': 45, 'file_path': 'image1.png'}],
         ...     note_content_text=[{'type': 'text', 'timestamp': 60, 'value': 'Text content'}],
         ...     note_content_speaker=[{'type': 'speaker', 'timestamp': 30, 'name': 'Alice'}],
@@ -308,11 +308,11 @@ def save_files(
     note_content.extend(note_content_text)
 
     note_content = sort_note_content(note_content)
-    note_id = create_note_id(note_title, note_datetime, language)
+    note_id = create_note_id(note_title, note_datetime.strftime("%Y-%m-%d %H:%M:%S"), language)
 
-    docx_file_name = f"{note_title} {note_datetime}.docx"
+    docx_file_name = f"{note_title} {note_datetime.strftime("%Y-%m-%d %H-%M-%S")}.docx"
     docx_file_path = f"../tmp/{tmp_dir_name}/{docx_file_name}"
-    txt_file_name =  f"{note_title} {note_datetime}.txt"
+    txt_file_name =  f"{note_title} {note_datetime.strftime("%Y-%m-%d %H-%M-%S")}.txt"
     txt_file_path = f"../tmp/{tmp_dir_name}/{txt_file_name}"
     json_file_path = f"../tmp/{tmp_dir_name}/{note_id}.json"
     video_file_path = f"../tmp/{tmp_dir_name}/{video_file_name}"
@@ -323,11 +323,10 @@ def save_files(
 
     save_files_to_user_directory(directory_path, tmp_dir_name, is_docx_file_created, docx_file_path, is_txt_file_created, txt_file_path, img_files_name, video_file_path)
 
-    if create_json_file(note_title, note_summary, note_content, note_datetime, video_file_name=video_file_name, docx_file_name=docx_file_name, txt_file_name=txt_file_name, json_file_path=json_file_path, language=language):
+    if create_json_file(note_title, note_summary, note_content, note_datetime.strftime("%Y-%m-%d %H:%M:%S"), video_file_name=video_file_name, docx_file_name=docx_file_name, txt_file_name=txt_file_name, json_file_path=json_file_path, language=language):
         threading.Thread(
             send_and_delete_files(note_id, json_file_path, img_files_name, video_file_path, is_docx_file_created,
                                   docx_file_path, is_txt_file_created, txt_file_path, tmp_dir_name)
         )
-
-    google_ = google_cal.Calendar()
-    google_.add_event(note_title, datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), f"https://ioprojekt.atwebpages.com/{note_id}")
+        google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                                        f"https://ioprojekt.atwebpages.com/{note_id}")
