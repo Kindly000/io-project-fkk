@@ -374,14 +374,10 @@ class IoFront(ttk.Frame):
 
         input_window = Toplevel(app)
         input_window.title("File name and directory")
-        input_window.geometry("300x150")
+        input_window.geometry("300x200")
 
         # Pole Entry do wpisania tekstu
-        button = ttk.Button(
-            master=input_window, width=20, text="Choose directory"
-        )
-        button.pack(padx=5, pady=10)
-        button.bind("<Button-1>", lambda x: self.open_directory_picker())
+
         entry_var = ttk.StringVar()
         entry_label = ttk.Label(
             input_window, text="Enter file name:"
@@ -391,10 +387,14 @@ class IoFront(ttk.Frame):
             input_window, textvariable=entry_var
         )
         entry_field.pack(pady=5)
-
+        button = ttk.Button(
+            master=input_window, width=20, text="Choose directory"
+        )
+        button.pack(padx=5, pady=10)
+        button.bind("<Button-1>", lambda x: self.open_directory_picker())
 
         # Przycisk do zatwierdzenia
-        confirm_button = ttk.Button(input_window, text="Zatwierdź")
+        confirm_button = ttk.Button(input_window, text="Submit")
         confirm_button.bind("<Button-1>", lambda x: [save_input(),self.save_name_dir_in_variables()])
         confirm_button.pack(pady=10)
 
