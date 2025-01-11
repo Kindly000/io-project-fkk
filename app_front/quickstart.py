@@ -104,11 +104,11 @@ class Calendar:
                 'location': 'on-line',
                 'description': f"{url}",
                 'start': {
-                    'dateTime': '2015-05-28T09:00:00',#time +8h
+                    'dateTime': date,#time +8h
                     'timeZone': 'Europe/Warsaw',
                 },
                 'end': {
-                    'dateTime': '2015-05-28T17:00:00',
+                    'dateTime': date,
                     'timeZone': 'Europe/Warsaw',
                 },
                 'recurrence': [

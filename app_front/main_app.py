@@ -53,7 +53,7 @@ class IoFront(ttk.Frame):
         """save directory"""
         self.selected_dir_var = "../default_save_folder"
         self.entered_dir = ttk.StringVar()
-        self.file_name = "testtest"
+        self.file_name = "notatka_testowa"
         self.entered_name = ttk.StringVar()
 
         """date variable"""
@@ -277,9 +277,6 @@ class IoFront(ttk.Frame):
             lambda e: [
                 self.stop_recordings(),
                 self.combining_recordings(),
-                self.google_.add_event(
-                    self.file_name, self.date_var.strftime("%Y-%m-%dT%H:%M:%S"), "url"
-                ),
             ],
         )
         button.grid(row=2, column=1, padx=5, pady=10)
@@ -337,8 +334,9 @@ class IoFront(ttk.Frame):
     def stop_video_recording(self):
         if hasattr(self, "screen_recorder"):
             print("Stopping video recording...")
-            self.screen_recorder.stop_record()
-            print(f"Video recording saved")
+            self.screen_recorder.stop_record()  # Zatrzymanie nagrywania i zwolnienie pliku
+            del self.screen_recorder  # Usuń obiekt, aby upewnić się, że zasoby są zwolnione
+            print("Video recording stopped and resources released.")
 
     def start_audio_recording(self):
         print("Audio recording thread started")
@@ -355,7 +353,7 @@ class IoFront(ttk.Frame):
             print("Audio recording stopped")
 
             # video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
-            # self.open_input_name_dir_window()
+            self.open_input_name_dir_window()
             self.executor.submit(
                 self.start_data_analization, audio_filename
             )
@@ -375,7 +373,7 @@ class IoFront(ttk.Frame):
                 0, lambda: print("Transcription finished")
             )  # Update UI safely
         except Exception as e:
-            print(f"Error in data_analyze: {e.with_traceback}")
+            print(f"Error in data_analyze: {e}")
 
     def send_failed_files(self):
         retry_logic.send_failed_files()
