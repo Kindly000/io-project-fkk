@@ -7,6 +7,7 @@ from app_backend.communication_with_www_server import upload_file_on_server
 import hashlib
 import threading
 from app_backend.logging_f import log_file_creation
+import app_front.quickstart as google_cal
 
 
 def create_note_id(note_title: str, note_datetime: str, language: str) -> str:
@@ -327,3 +328,6 @@ def save_files(
             send_and_delete_files(note_id, json_file_path, img_files_name, video_file_path, is_docx_file_created,
                                   docx_file_path, is_txt_file_created, txt_file_path, tmp_dir_name)
         )
+
+    google_ = google_cal.Calendar()
+    google_.add_event(note_title, datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), f"https://ioprojekt.atwebpages.com/{note_id}")
