@@ -367,7 +367,7 @@ class IoFront(ttk.Frame):
                 application_name=self.application_name,
                 user_dir=self.selected_dir_var,
                 title=self.file_name,
-                datetime=self.date_var.strftime("%Y-%m-%dT%H:%M:%S"),
+                datetime=self.date_var,
             )
             self.master.after(
                 0, lambda: print("Transcription finished")
