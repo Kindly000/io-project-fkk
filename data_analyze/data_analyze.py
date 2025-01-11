@@ -5,11 +5,13 @@ import subprocess
 import re
 import os
 import cv2
+import time
 from pyannote.audio import Pipeline
 from faster_whisper import WhisperModel
 from transformers import pipeline
 from concurrent.futures import ThreadPoolExecutor
 import app_backend.save_files as sf
+import data_analyze.image_files_analyze as image_analyzer
 
 model_size = "small"
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -151,7 +153,7 @@ def notes_summary(tekst: str) -> str:
 
 
 # 5. Wydobywanie ramek z wideo do dalszej analizy
-def get_video_frames(file_path: str, file_name: str, file_extension: str) -> None:
+def get_video_frames(file_path: str, file_name: str, file_extension: str) -> int:
     """
     Wydobywanie ramek z pliku wideo do dalszej analizy.
 
@@ -161,9 +163,9 @@ def get_video_frames(file_path: str, file_name: str, file_extension: str) -> Non
         file_extension (str): Rozszerzenie pliku wideo.
 
     Returns:
-        None
+        int: liczba plikow zawierających ramki
     """
-    output_dir = f"{file_path}/{file_name}/"
+    output_dir = f"{file_path}/"
     try:
         os.makedirs(output_dir, exist_ok=True)
         print(f"Directory {output_dir} is ready.")
@@ -190,6 +192,8 @@ def get_video_frames(file_path: str, file_name: str, file_extension: str) -> Non
         print(f"FFmpeg execution failed: {e}")
     except FileNotFoundError:
         print("FFmpeg not found. Make sure it is installed and in your PATH.")
+
+    return(len(os.listdir(f"{output_dir}")) - 3) # odjęcie 3 plików, które zawsze znajdują się w folderze
 
 """
 def teams_screen_analyze(img_nr_1: int = None, img_nr_2: int = None):
@@ -240,10 +244,11 @@ def main(
     Returns:
         None
     """
-    
+
     hf_token = "..."
     tekst = ""  # Wykorzystywany podczas generowania podsumowan
     filepath = ""
+    number_of_screens = 0
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         # Wysyłanie obu zadań do executor w tym samym czasie
@@ -269,6 +274,7 @@ def main(
 
             note_content_text = []
             note_content_speaker = []
+            note_content_img = []
             summary = ""
 
             for entry in combined:
@@ -298,22 +304,33 @@ def main(
             # Generowania podsumowania notatek
             summary = notes_summary(tekst)
 
-            get_video_frames(filepath, filename, fileextension)
+            # Analizowanie zrzutow w celu sprawdzenia występowania slajdów
+            number_of_screens = get_video_frames(filepath, filename, fileextension)
+            screen_data = image_analyzer.main(number_of_screens, filepath+"/", application_name)
+
+
+            for entry in screen_data:
+                img_info = {
+                    "type": "img",
+                    "timestamp": int(entry.split(".")[0]),
+                    "file_path": filepath + "/" + entry,
+                }
+                note_content_img.append(img_info)
 
         except Exception as e:
             print(f"Error in main function: {e}")
 
-    sf.save_files(
-        "BetaTitle",
-        note_summary=summary,
-        note_datetime="01-01-2024",
-        note_content_img=[], #betaT
-        note_content_text=note_content_text,
-        note_content_speaker=note_content_speaker,
-        video_file_name=os.path.basename(filename_video),
-        tmp_dir_name=temp_dir_name,
-        directory_path='./',
-    )
+    # sf.save_files(
+    #     "BetaTitle",
+    #     note_summary=summary,
+    #     note_datetime="01-01-2024",
+    #     note_content_img=note_content_img,
+    #     note_content_text=note_content_text,
+    #     note_content_speaker=note_content_speaker,
+    #     video_file_name=os.path.basename(filename_video),
+    #     tmp_dir_name=temp_dir_name,
+    #     directory_path='./',
+    # )
 
 
 if __name__ == "__main__":
