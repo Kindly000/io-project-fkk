@@ -132,7 +132,7 @@ def send_and_delete_files(
         ... )
 
     Notes:
-        - The function deletes directory '../tmp/{tmp_dir_name}' with all files after uploading, so use this with caution.
+        - The function deletes directory '../tmp/<tmp_dir_name>' with all files after uploading, so use this with caution.
         - Ensure that the `upload_file_on_server` function is working correctly, as this function relies on it for uploads.
         - The `shutil` and `os` modules are used for file operations. Ensure they are imported at the top of the script.
     """
@@ -198,7 +198,7 @@ def save_files_to_user_directory(
     Notes:
         - The `shutil` and `os` modules are used for file operations. Ensure they are imported at the top of the script.
         - The function handles each file type separately and logs any issues during the copying process.
-        - The function assumes that the source files are located in the `../tmp/{tmp_dir_name}` directory for image.
+        - The function assumes that the source files are located in the `../tmp/<tmp_dir_name>` directory for image.
         - The `error_logs/` directory should exist for logging; otherwise, the function will fail to log errors.
     """
     if is_docx_file_created:
