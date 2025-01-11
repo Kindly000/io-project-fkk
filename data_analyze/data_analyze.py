@@ -232,6 +232,9 @@ def main(
     filename_audio: str = "../tmp/testowe_pliki/test_wyklad.wav",
     filename_video: str = "../tmp/testowe_pliki/nagranie_testowe_teams.mp4",
     application_name: str = "MSTeams",
+    user_dir: str = None,
+    title: str = None,
+    datetime: str = None
 ):
     """
     Główna funkcja odpowiedzialna za przetwarzanie audio, wideo oraz generowanie podsumowań.
@@ -320,17 +323,17 @@ def main(
         except Exception as e:
             print(f"Error in main function: {e}")
 
-    # sf.save_files(
-    #     "BetaTitle",
-    #     note_summary=summary,
-    #     note_datetime="01-01-2024",
-    #     note_content_img=note_content_img,
-    #     note_content_text=note_content_text,
-    #     note_content_speaker=note_content_speaker,
-    #     video_file_name=os.path.basename(filename_video),
-    #     tmp_dir_name=temp_dir_name,
-    #     directory_path='./',
-    # )
+    sf.save_files(
+        title,
+        note_summary=summary,
+        note_datetime=datetime,
+        note_content_img=note_content_img,
+        note_content_text=note_content_text,
+        note_content_speaker=note_content_speaker,
+        video_file_name=os.path.basename(filename_video),
+        tmp_dir_name=temp_dir_name,
+        directory_path=user_dir,
+    )
 
 
 if __name__ == "__main__":

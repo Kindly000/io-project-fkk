@@ -341,6 +341,9 @@ class IoFront(ttk.Frame):
                 filename_audio=audio_filename,
                 filename_video=video_filename,
                 application_name=self.application_name,
+                user_dir=self.selected_dir_var,
+                title=self.file_name,
+                datetime=self.
             )
             self.master.after(
                 0, lambda: print("Transcription finished")
