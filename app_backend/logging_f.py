@@ -75,3 +75,43 @@ def log_communication_with_www_server(text: str) -> None:
     check_and_create_error_logs_folder()
     with open(file="../error_logs/communication_with_www_server.log", mode="a", encoding='utf-8') as log:
         log.write(f"{datetime.datetime.now()} {text}")
+
+
+def log_data_analyze(text: str) -> None:
+    """
+    Logs a message related to data analysisfor debugging or tracking purposes.
+
+    This function appends a message to a log file that records relevant events or issues related
+    to data analysis or server interactions. Each log entry includes a timestamp, providing context
+    for when the event took place. This can be valuable for debugging, performance tracking, or
+    understanding the sequence of actions in data analysis processes.
+
+    Args:
+        text (str): The message to be logged. This could include details of data analysis steps,
+                    server communication, or any issues encountered during these processes.
+
+    Returns:
+        None: The function does not return any value but performs a logging operation to a file.
+
+    Example:
+        >>> log_data_analyze("Data analysis process started.")
+        >>> log_data_analyze("Received response from server: 200 OK.")
+
+    Notes:
+        - Ensure that the `check_and_create_error_logs_folder` function exists and is functional
+          to avoid errors when accessing the log file.
+        - The function writes to the log using UTF-8 encoding, ensuring compatibility with a wide range
+          of characters.
+        - Each log entry includes the current timestamp to help track the timing of events.
+
+    Limitations:
+        - This function does not handle file I/O exceptions such as permission issues or disk space problems,
+          which could prevent the log from being written successfully.
+    """
+    check_and_create_error_logs_folder()
+    with open(
+        file="../error_logs/data_analyze.log",
+        mode="a",
+        encoding="utf-8",
+    ) as log:
+        log.write(f"{datetime.datetime.now()} {text}")

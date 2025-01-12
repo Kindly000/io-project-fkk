@@ -10,8 +10,10 @@ from pyannote.audio import Pipeline
 from faster_whisper import WhisperModel
 from transformers import pipeline
 from concurrent.futures import ThreadPoolExecutor
+from app_backend.logging_f import log_data_analyze
 import app_backend.save_files as sf
 import data_analyze.image_files_analyze as image_analyzer
+from datetime import datetime
 
 model_size = "small"
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -27,6 +29,10 @@ def transcribe_audio(file_path: str) -> list[dict]:
 
     Returns:
         list[dict]: Lista segmentów transkrypcji zawierająca czas rozpoczęcia, czas zakończenia i tekst.
+
+    Notes:
+        - Funkcja korzysta z modelu Whisper.
+        - W przypadku wystąpienia błędu informacja jest logowana do pliku za pomocą `log_data_analyze`.
     """
     try:
         model = WhisperModel(model_size, device="cpu", compute_type="int8")
@@ -47,9 +53,11 @@ def transcribe_audio(file_path: str) -> list[dict]:
                     "text": segment.text.strip(),
                 }
             )
+        log_data_analyze(f"Transcription completed successfully for {file_path}.")
         return result_segments
     except Exception as e:
-        print(f"Transcription Error: {e}")
+        log_data_analyze(f"Transcription Error for {file_path}: {e}")
+        return []
 
 
 # 2. Rozpoznawanie rozmówców audio za pomocą pyannote.audio
@@ -63,15 +71,21 @@ def diarize_audio(file_path: str, hf_token: str) -> object:
 
     Returns:
         object: Wynik diarizacji zawierający informacje o rozmówcach.
+
+    Notes:
+        - Funkcja używa modelu pyannote do diarizacji.
+        - W przypadku wystąpienia błędu informacja jest logowana do pliku za pomocą `log_data_analyze`.
     """
     try:
         pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1", use_auth_token=hf_token
         )
         diarization = pipeline(file_path)
+        log_data_analyze(f"Diarization completed successfully for {file_path}.")
         return diarization
     except Exception as e:
-        print(f"Diarization Error: {e}")
+        log_data_analyze(f"Diarization Error for {file_path}: {e}")
+        return None
 
 
 # 3. Łączenie transkrypcji i diarizacji
@@ -87,48 +101,50 @@ def combine_transcription_and_diarization(
 
     Returns:
         list[dict]: Lista połączonych wyników zawierających informacje o czasie i mówiącym.
+
+    Notes:
+        - Funkcja łączy dane na podstawie nakładających się przedziałów czasowych.
+        - Informacje o sukcesie lub błędach są logowane do pliku.
     """
-    combined_results = []
-    previous_segment = None
+    try:
+        combined_results = []
+        previous_segment = None
 
-    for segment in segments:
-        start = segment["start"]
-        end = segment["end"]
-        text = segment["text"]
-        speaker = None
+        for segment in segments:
+            start = segment["start"]
+            end = segment["end"]
+            text = segment["text"]
+            speaker = None
 
-        # Iteruj po wszystkich wynikach diarization
-        for turn, _, spk in diarization.itertracks(yield_label=True):
-            # Sprawdź, czy przedziały czasowe się pokrywają
-            if turn.start < end and turn.end > start:
-                speaker = spk
-                break
+            for turn, _, spk in diarization.itertracks(yield_label=True):
+                if turn.start < end and turn.end > start:
+                    speaker = spk
+                    break
 
-        # Jeśli segment i poprzedni segment mają tego samego mówiącego i ten sam tekst
-        if (
-            previous_segment
-            and previous_segment["speaker"] == speaker
-            and previous_segment["text"] == text
-        ):
-            # Połącz segmenty: połącz czas końcowy poprzedniego segmentu z obecnym
-            previous_segment["end"] = end
-        else:
-            if previous_segment:
-                # Zakończ poprzedni segment
-                combined_results.append(previous_segment)
-            # Rozpocznij nowy segment
-            previous_segment = {
-                "start": start,
-                "end": end,
-                "speaker": speaker,
-                "text": text,
-            }
+            if (
+                previous_segment
+                and previous_segment["speaker"] == speaker
+                and previous_segment["text"] == text
+            ):
+                previous_segment["end"] = end
+            else:
+                if previous_segment:
+                    combined_results.append(previous_segment)
+                previous_segment = {
+                    "start": start,
+                    "end": end,
+                    "speaker": speaker,
+                    "text": text,
+                }
 
-    # Dodaj ostatni segment, jeśli istnieje
-    if previous_segment:
-        combined_results.append(previous_segment)
+        if previous_segment:
+            combined_results.append(previous_segment)
 
-    return combined_results
+        log_data_analyze("Transcription and diarization combined successfully.")
+        return combined_results
+    except Exception as e:
+        log_data_analyze(f"Error combining transcription and diarization: {e}")
+        return []
 
 
 # 4. Generowanie podsumowań notatek
@@ -141,16 +157,24 @@ def notes_summary(tekst: str) -> str:
 
     Returns:
         str: Streszczenie tekstu.
+
+    Notes:
+        - Funkcja korzysta z modelu Facebook BART do generowania podsumowań.
+        - Loguje sukces lub błędy za pomocą `log_data_analyze`.
     """
-    summarizer = pipeline(
-        "summarization",
-        model="facebook/bart-large-cnn",
-        tokenizer="facebook/bart-large-cnn",
-    )
+    try:
+        summarizer = pipeline(
+            "summarization",
+            model="facebook/bart-large-cnn",
+            tokenizer="facebook/bart-large-cnn",
+        )
 
-    summary = summarizer(tekst, max_length=130, min_length=30, do_sample=False)
-
-    return summary[0]["summary_text"]
+        summary = summarizer(tekst, max_length=130, min_length=30, do_sample=False)
+        log_data_analyze("Notes summary generated successfully.")
+        return summary[0]["summary_text"]
+    except Exception as e:
+        log_data_analyze(f"Error generating notes summary: {e}")
+        return ""
 
 
 # 5. Wydobywanie ramek z wideo do dalszej analizy
@@ -164,15 +188,19 @@ def get_video_frames(file_path: str, file_name: str, file_extension: str) -> int
         file_extension (str): Rozszerzenie pliku wideo.
 
     Returns:
-        int: liczba plikow zawierających ramki
+        int: Liczba plików zawierających ramki.
+
+    Notes:
+        - Funkcja wykorzystuje FFmpeg do ekstrakcji ramek z wideo.
+        - Informacje o sukcesie lub błędach są logowane za pomocą `log_data_analyze`.
     """
     output_dir = f"{file_path}/"
     try:
         os.makedirs(output_dir, exist_ok=True)
-        print(f"Directory {output_dir} is ready.")
+        log_data_analyze(f"Directory {output_dir} is ready.")
     except Exception as e:
-        print(f"Failed to create directory {output_dir}: {e}")
-        return
+        log_data_analyze(f"Failed to create directory {output_dir}: {e}")
+        return 0
 
     output_pattern = f"{output_dir}%d.png"
     ffmpeg_command = [
@@ -182,21 +210,25 @@ def get_video_frames(file_path: str, file_name: str, file_extension: str) -> int
         "-vf",
         "fps=1",
         "-frame_pts",
-        "1",  # Use frame presentation timestamps
+        "1",
         output_pattern,
     ]
 
     try:
         subprocess.run(ffmpeg_command, check=True)
-        print(f"Frames successfully extracted to {output_dir}")
+        log_data_analyze(f"Frames successfully extracted to {output_dir}")
     except subprocess.CalledProcessError as e:
-        print(f"FFmpeg execution failed: {e}")
+        log_data_analyze(f"FFmpeg execution failed: {e}")
     except FileNotFoundError:
-        print("FFmpeg not found. Make sure it is installed and in your PATH.")
+        log_data_analyze(
+            "FFmpeg not found. Make sure it is installed and in your PATH."
+        )
+    except Exception as e:
+        log_data_analyze(f"Error generating video frames: {e}")
 
     return (
         len(os.listdir(f"{output_dir}")) - 4
-    )  # odjęcie 3 plików, które zawsze znajdują się w folderze
+    )  # odjęcie 4 plików, które zawsze znajdują się w folderze
 
 
 """
@@ -237,52 +269,62 @@ def main(
     filename_audio: str = "../tmp/testowe_pliki/test_wyklad.wav",
     filename_video: str = "../tmp/testowe_pliki/nagranie_testowe_teams.mp4",
     application_name: str = "MSTeams",
-    user_dir: str = None,
-    title: str = None,
-    datetime: str = None,
+    user_dir: str = "../default_sava_folder",
+    title: str = "test_main_data_analyze",
+    datetime: datetime = datetime(2025, 1, 11, 18, 50, 49, 859943),
+    n_frame: int = 5,
 ):
     """
-    Główna funkcja odpowiedzialna za przetwarzanie audio, wideo oraz generowanie podsumowań.
+    Główna funkcja odpowiedzialna za przetwarzanie danych multimedialnych: audio, wideo oraz generowanie podsumowań.
 
     Args:
-        filename_audio (str): Ścieżka do pliku audio, domyślnie "./testowe_pliki/test_wyklad.wav".
-        filename_video (str): Ścieżka do pliku wideo, domyślnie "./testowe_pliki/nagranie_testowe_teams.mp4".
-        application_name (str): Nazwa aplikacji (np. "MSTeams", "Zoom", "Google Meet").
+        temp_dir_name (str): Nazwa katalogu tymczasowego na wyniki przetwarzania.
+        filename_audio (str): Ścieżka do pliku audio.
+        filename_video (str): Ścieżka do pliku wideo.
+        application_name (str): Nazwa aplikacji źródłowej (np. "MSTeams", "Zoom").
+        user_dir (str): Katalog użytkownika do zapisania wyników. Domyślnie None.
+        title (str): Tytuł notatki. Domyślnie None.
+        datetime (datetime): Data i czas generacji notatki. Domyślnie None.
+        n_frame (int): Określa co która ramka ( z pliku wideo ) ma pozostać w folderze
 
     Returns:
-        None
+        None: Wyniki są zapisywane w wyznaczonym katalogu.
     """
+    try:
+        log_data_analyze("Starting main function.")
 
-    hf_token = "..."
-    tekst = ""  # Wykorzystywany podczas generowania podsumowan
-    filepath = ""
-    number_of_screens = 0
+        hf_token = "..."
+        tekst = ""  # Wykorzystywany podczas generowania podsumowań
+        filepath = ""
+        number_of_screens = 0
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        # Wysyłanie obu zadań do executor w tym samym czasie
-        future_transcription_segments = executor.submit(
-            transcribe_audio, filename_audio
-        )
-        future_diarization_result = executor.submit(
-            diarize_audio, filename_audio, hf_token
-        )
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            log_data_analyze("Submitting transcription and diarization tasks.")
+            future_transcription_segments = executor.submit(
+                transcribe_audio, filename_audio
+            )
+            future_diarization_result = executor.submit(
+                diarize_audio, filename_audio, hf_token
+            )
 
-        # Oczekiwanie na zakończenie zadań i pobranie wyników
-        transcription_segments = future_transcription_segments.result()
-        diarization_result = future_diarization_result.result()
+            # Pobranie wyników zadań równoległych
+            transcription_segments = future_transcription_segments.result()
+            diarization_result = future_diarization_result.result()
+            log_data_analyze("Transcription and diarization completed.")
 
         # Połączenie wyników
         combined = combine_transcription_and_diarization(
             transcription_segments, diarization_result
         )
+        log_data_analyze("Transcription and diarization successfully combined.")
 
         try:
-            # Informacje o plikach wideo
+            # Parsowanie informacji o plikach wideo
             file_name_match = re.search(r"(.+)/([\w]+)(\.[a-zA-Z0-9]+)", filename_video)
             filepath = file_name_match.group(1)
             filename = file_name_match.group(2)
             fileextension = file_name_match.group(3)
-            print(filepath, filename, fileextension)
+            log_data_analyze(f"Video file parsed: {filename_video}.")
 
             note_content_text = []
             note_content_speaker = []
@@ -308,22 +350,23 @@ def main(
                 }
                 note_content_text.append(text)
 
-                tekst = (
-                    tekst
-                    + f"[{entry['start']:.2f}s - {entry['end']:.2f}s] {entry['speaker']}: {entry['text']}\n"
+                tekst += (
+                    f"[{entry['start']:.2f}s - {entry['end']:.2f}s] "
+                    f"{entry['speaker']}: {entry['text']}\n"
                 )
 
-            print(note_content_text)
-            print(note_content_speaker)
+            log_data_analyze("Notes content successfully created.")
 
-            # Generowania podsumowania notatek
+            # Generowanie podsumowania notatek
             summary = notes_summary(tekst)
+            log_data_analyze("Summary generated.")
 
-            # Analizowanie zrzutow w celu sprawdzenia występowania slajdów
+            # Analiza ramek wideo
             number_of_screens = get_video_frames(filepath, filename, fileextension)
             screen_data = image_analyzer.main(
-                number_of_screens, filepath + "/", application_name
+                number_of_screens, filepath + "/", application_name, n_frame
             )
+            log_data_analyze(f"Extracted {number_of_screens} screens for analysis.")
 
             for entry in screen_data:
                 img_info = {
@@ -333,20 +376,27 @@ def main(
                 }
                 note_content_img.append(img_info)
 
-        except Exception as e:
-            print(f"Error in main function: {e}")
+            log_data_analyze("Screen data processed successfully.")
 
-    sf.save_files(
-        title,
-        note_summary=summary,
-        note_datetime=datetime,
-        note_content_img=note_content_img,
-        note_content_text=note_content_text,
-        note_content_speaker=note_content_speaker,
-        video_file_name=os.path.basename(filename_video),
-        tmp_dir_name=temp_dir_name,
-        directory_path=user_dir,
-    )
+        except Exception as e:
+            log_data_analyze(f"Error processing video and generating notes: {e}")
+
+        # Zapis wyników
+        sf.save_files(
+            title,
+            note_summary=summary,
+            note_datetime=datetime,
+            note_content_img=note_content_img,
+            note_content_text=note_content_text,
+            note_content_speaker=note_content_speaker,
+            video_file_name=os.path.basename(filename_video),
+            tmp_dir_name=temp_dir_name,
+            directory_path=user_dir,
+        )
+        log_data_analyze("Files saved successfully. \n")
+
+    except Exception as e:
+        log_data_analyze(f"An error occurred in the main function: {e} \n")
 
 
 if __name__ == "__main__":
