@@ -374,7 +374,7 @@ def main(
                 img_info = {
                     "type": "img",
                     "timestamp": int(entry.split(".")[0]),
-                    "file_path": filepath + "/" + entry,
+                    "file_path": f"../tmp/{temp_dir_name}/{entry}",
                 }
                 note_content_img.append(img_info)
 
