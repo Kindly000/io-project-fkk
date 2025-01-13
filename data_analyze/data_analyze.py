@@ -273,6 +273,7 @@ def main(
     title: str = "test_main_data_analyze",
     datetime: datetime = datetime(2025, 1, 11, 18, 50, 49, 859943),
     n_frame: int = 5,
+    send_to_server: bool = True
 ):
     """
     Główna funkcja odpowiedzialna za przetwarzanie danych multimedialnych: audio, wideo oraz generowanie podsumowań.
@@ -389,9 +390,10 @@ def main(
             note_content_img=note_content_img,
             note_content_text=note_content_text,
             note_content_speaker=note_content_speaker,
-            video_file_name=os.path.basename(filename_video),
+            video_file_path=filename_video,
             tmp_dir_name=temp_dir_name,
             directory_path=user_dir,
+            send_to_server=send_to_server
         )
         log_data_analyze("Files saved successfully. \n")
 
