@@ -2,14 +2,11 @@ from datetime import datetime
 import os.path
 import random
 import shutil
-
-from fontTools.misc.cython import returns
-
 from app_backend.create_files import create_docx_file, create_txt_file, create_json_file
 from app_backend.communication_with_www_server import upload_file_on_server
 import hashlib
 import threading
-from app_backend.logging_f import log_file_creation
+from app_backend.logging_f import log_operations_on_file
 import app_front.quickstart as google_cal
 
 
@@ -90,6 +87,16 @@ def delete_directory(directory_path: str) -> bool:
         shutil.rmtree(directory_path)
         return True
     except Exception as e:
+        log_operations_on_file(f"For delete_directory({directory_path}) - shutil.rmtree Error: {e}")
+        return False
+
+
+def copy_file(file_path: str, destination_file_path: str) -> bool:
+    try:
+        shutil.copyfile(file_path, destination_file_path)
+        return True
+    except Exception as e:
+        log_operations_on_file(f"For copy_file({file_path}, {destination_file_path}) - shutil.copyfile Error: {e}")
         return False
 
 
@@ -160,7 +167,21 @@ def send_and_delete_files(
     delete_directory(f"../tmp/{tmp_dir_name}")
 
 
-def save_files_to_user_directory(
+def save_audio_and_video_files_to_user_directory(
+        directory_path: str,
+        tmp_dir_name: str,
+        audio_file_path: str,
+        video_file_path: str
+) -> None:
+    if not os.path.exists(f'{directory_path}/{tmp_dir_name}'):
+        os.mkdir(f'{directory_path}/{tmp_dir_name}')
+    directory_path = f'{directory_path}/{tmp_dir_name}'
+
+    copy_file(video_file_path, f'{directory_path}/{os.path.basename(audio_file_path)}')
+    copy_file(video_file_path, f'{directory_path}/{os.path.basename(video_file_path)}')
+
+
+def save_final_files_to_user_directory(
         directory_path: str,
         tmp_dir_name: str,
         is_docx_file_created: bool,
@@ -195,16 +216,7 @@ def save_files_to_user_directory(
         - If copying any file fails, the process continues with the next file.
 
     Example:
-        >>> save_files_to_user_directory(
-        ...     directory_path="../user_notes/",
-        ...     tmp_dir_name="notes_id_znadri",
-        ...     is_docx_file_created=True,
-        ...     docx_file_path="note.docx",
-        ...     is_txt_file_created=True,
-        ...     txt_file_path="note.txt",
-        ...     img_files_name=["image1.jpg", "image2.jpg"],
-        ...     video_file_path="video.mp4"
-        ... )
+        >>> save_final_files_to_user_directory(directory_path="../user_notes/",tmp_dir_name="notes_id_znadri",is_docx_file_created=True,docx_file_path="note.docx",is_txt_file_created=True,txt_file_path="note.txt",img_files_name=["image1.jpg", "image2.jpg"],video_file_path="video.mp4")
 
     Notes:
         - The `shutil` and `os` modules are used for file operations. Ensure they are imported at the top of the script.
@@ -212,36 +224,20 @@ def save_files_to_user_directory(
         - The function assumes that the source files are located in the `../tmp/<tmp_dir_name>` directory for image.
         - The `error_logs/` directory should exist for logging; otherwise, the function will fail to log errors.
     """
+    if not os.path.exists(f'{directory_path}/{tmp_dir_name}'):
+        os.mkdir(f'{directory_path}/{tmp_dir_name}')
+    directory_path = f'{directory_path}/{tmp_dir_name}'
+
     if is_docx_file_created:
-        try:
-            shutil.copyfile(docx_file_path, f'{directory_path}/{os.path.basename(docx_file_path)}')
-        except Exception as e:
-            log_file_creation(
-                f"For save_files()->shutil.copyfile({docx_file_path}, {directory_path}/{os.path.basename(docx_file_path)}) - Error: {e} - Cannot copy file\n"
-            )
+        copy_file(docx_file_path, f'{directory_path}/{os.path.basename(docx_file_path)}')
 
     if is_txt_file_created:
-        try:
-            shutil.copyfile(txt_file_path, f'{directory_path}/{os.path.basename(txt_file_path)}')
-        except Exception as e:
-            log_file_creation(
-                f"For save_files()->shutil.copyfile({txt_file_path}, {directory_path}/{os.path.basename(txt_file_path)}) - Error: {e} - Cannot copy file\n"
-            )
+        copy_file(txt_file_path, f'{directory_path}/{os.path.basename(txt_file_path)}')
 
     for img_file_name in img_files_name:
-        try:
-            shutil.copyfile(f"../tmp/{tmp_dir_name}/{img_file_name}", f'{directory_path}/{img_file_name}')
-        except Exception as e:
-            log_file_creation(
-                f"For save_files()->shutil.copyfile(../tmp/{tmp_dir_name}/{img_file_name}, {directory_path}/{img_file_name}) - Error: {e} - Cannot copy file\n"
-            )
+        copy_file(f"../tmp/{tmp_dir_name}/{img_file_name}", f'{directory_path}/{img_file_name}')
 
-    try:
-        shutil.copyfile(video_file_path, f'{directory_path}/{os.path.basename(video_file_path)}')
-    except Exception as e:
-        log_file_creation(
-            f"For save_files()->shutil.copyfile({video_file_path}, {directory_path}/{os.path.basename(video_file_path)}) - Error: {e} - Cannot copy file\n"
-        )
+    copy_file(video_file_path, f'{directory_path}/{os.path.basename(video_file_path)}')
 
 
 def save_files(
@@ -251,7 +247,7 @@ def save_files(
     note_content_img: list,
     note_content_text: list,
     note_content_speaker: list,
-    video_file_name: str,
+    video_file_path: str,
     tmp_dir_name: str,
     directory_path: str,
     send_to_server: bool,
@@ -271,7 +267,7 @@ def save_files(
         note_content_img (list): A list of image content elements, each represented as a dictionary.
         note_content_text (list): A list of text content elements, each represented as a dictionary.
         note_content_speaker (list): A list of speaker content elements, each represented as a dictionary.
-        video_file_name (str): The name of the video file.
+        video_file_path (str): The path to the video file.
         tmp_dir_name (str): The name of tmp directory where are files.
         directory_path (str): The path to the directory where the files should be saved.
         send_to_server (bool): Indicate if files should be sent to server.
@@ -302,16 +298,17 @@ def save_files(
         ...     note_content_img=[{'type': 'img', 'timestamp': 45, 'file_path': 'image1.png'}],
         ...     note_content_text=[{'type': 'text', 'timestamp': 60, 'value': 'Text content'}],
         ...     note_content_speaker=[{'type': 'speaker', 'timestamp': 30, 'name': 'Alice'}],
-        ...     video_file_name="video",
+        ...     video_file_path="video.mp4",
         ...     tmp_dir_name="notes_id_znadri",
         ...     directory_path='../user_notes',
+        ...     send_to_server=True,
         ...     language='en'
         ... )
 
     Notes:
         - Ensure the `python-docx` library is installed for DOCX file creation.
         - Ensure `shutil`, `os`, `threading`, and `datetime` libraries are imported and available.
-        - The `../tmp/{tmp_dir_name}` directory should be writable for temporary file creation.
+        - The `../tmp/<tmp_dir_name>` directory should be writable for temporary file creation.
         - The function assumes that images have the `.png` extension for image processing.
         - The `error_logs/` directory should exist for error logging; otherwise, logging will fail silently.
     """
@@ -328,13 +325,15 @@ def save_files(
     txt_file_name =  f"{note_title} {note_datetime.strftime("%Y-%m-%d %H-%M-%S")}.txt"
     txt_file_path = f"../tmp/{tmp_dir_name}/{txt_file_name}"
     json_file_path = f"../tmp/{tmp_dir_name}/{note_id}.json"
-    video_file_path = f"../tmp/{tmp_dir_name}/{video_file_name}"
+    video_file_name = os.path.basename(video_file_path)
     img_files_name = [f for f in os.listdir(f"../tmp/{tmp_dir_name}") if f.endswith('.png')]
+    print(img_files_name)
 
     is_docx_file_created = create_docx_file(note_title, note_summary, note_content, docx_file_path=docx_file_path, language=language)
     is_txt_file_created = create_txt_file(note_title, note_summary, note_content, txt_file_path=txt_file_path, language=language)
 
-    save_files_to_user_directory(directory_path, tmp_dir_name, is_docx_file_created, docx_file_path, is_txt_file_created, txt_file_path, img_files_name, video_file_path)
+    save_final_files_to_user_directory(directory_path, tmp_dir_name, is_docx_file_created, docx_file_path,
+                                       is_txt_file_created, txt_file_path, img_files_name, video_file_path)
 
     if send_to_server:
         if create_json_file(note_title, note_summary, note_content, note_datetime.strftime("%Y-%m-%d %H:%M:%S"), video_file_name=video_file_name, docx_file_name=docx_file_name, txt_file_name=txt_file_name, json_file_path=json_file_path, language=language):
@@ -345,4 +344,4 @@ def save_files(
             google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
                                             f"https://ioprojekt.atwebpages.com/{note_id}")
     else:
-        delete_directory(f"../tmp{tmp_dir_name}")
+        delete_directory(f"../tmp/{tmp_dir_name}")
