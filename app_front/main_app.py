@@ -25,18 +25,17 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 class IoFront(ttk.Frame):
     def __init__(self, master_window):
+        """Iinitialation of main window"""
         super().__init__(master_window, padding=(20, 10))
         self.grid(row=0, column=0)
 
+        """threading"""
         self.executor = ThreadPoolExecutor(max_workers=3)  # Zarządza wątkami
         self.recording_video = False
         self.recording_audio = False
+
+        """directory to tmp files"""
         self.record_dir = ""
-
-        self.left_container = ttk.LabelFrame(self, text="Recordings")
-        self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
-
-        self.application_name = "MSTeams"  # nazwa wybranej aplikacji do nagrania
 
         """logowanie do google"""
         self.google_ = google_cal.Calendar()
@@ -50,26 +49,25 @@ class IoFront(ttk.Frame):
         # print(self.imported_notes[0]["note_id"])
         self.clicked_note = ""
 
-        """save directory"""
-        self.selected_dir_var = "../default_save_folder"
-        self.entered_dir = ttk.StringVar()
-        self.file_name = "notatka_testowa"
-        self.entered_name = ttk.StringVar()
-
         """date variable"""
         self.date_var = None
         # dodanie listy spotkań
-        self.tree = self.create_treeview()
 
         """variables for stop recording windows"""
         self.frequency_comparison_sec = "5"
         self.selected_download_dir_var = "../default_save_folder"
+        self.selected_dir_var = "../default_save_folder"
+        self.entered_dir = ttk.StringVar()
+        self.file_name = "notatka_testowa"
+        self.entered_name = ttk.StringVar()
+        self.application_name = "MSTeams"  # nazwa wybranej aplikacji do nagrania
 
+
+        """GUI setup"""
+        self.left_container = ttk.LabelFrame(self, text="Recordings")
+        self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
+        self.tree = self.create_treeview()
         self.right_container = ttk.Frame(self)
-
-        # self.drop_menu_app()
-
-        # GUI setup
         self.new_record_container = ttk.LabelFrame(
             self.right_container, text="New recording"
         )
@@ -91,6 +89,7 @@ class IoFront(ttk.Frame):
 
         self.right_container.pack(side=LEFT, padx=20, pady=10, fill=Y)
 
+        """resend failed files function"""
         self.send_failed_files()
 
     def create_treeview(self):
@@ -296,7 +295,8 @@ class IoFront(ttk.Frame):
 
         download_label = ttk.Label(new_window, text="Select dir to local download", font=("Arial", 9))
         download_label.pack(pady=10)
-        button_dir = ttk.Button(new_window, text="Choose directory", command=self.open_download_directory_picker)
+        button_dir = ttk.Button(new_window, text="Choose directory")
+        button_dir.bind("<Button-1>", lambda e: [self.open_download_directory_picker(),button_dir.config(text=self.selected_download_dir_var)])
         button_dir.pack(pady=10)
         download_button = ttk.Button(new_window, text="Download")
         download_button.bind("<Button-1>", lambda e: [print(self.selected_download_dir_var),new_window.destroy()])
@@ -341,7 +341,8 @@ class IoFront(ttk.Frame):
 
         label_dir = ttk.Label(new_window, text="Choose directory for note", font=("Arial", 9))
         label_dir.pack(pady=10)
-        button_dir = ttk.Button(new_window, text="Choose directory", command=self.open_directory_picker)
+        button_dir = ttk.Button(new_window, text="Choose directory")
+        button_dir.bind("<Button-1>", lambda e: [self.open_directory_picker(),button_dir.config(text=self.selected_dir_var)])
         button_dir.pack(pady=10)
 
         label_app = ttk.Label(new_window, text="Choose app", font=("Arial", 9))
@@ -369,12 +370,17 @@ class IoFront(ttk.Frame):
         checkbox_label = ttk.Label(new_window, text="Send to server", font=("Arial", 9))
         checkbox_label.pack(pady=10)
         checkbox_var = BooleanVar()
-        checkbox_var.set(False)
+        checkbox_var.set(True)
         checkbox = ttk.Checkbutton(new_window, variable=checkbox_var)
         checkbox.pack(pady=10)
 
+        """Start processing files button"""
         start_process_button = ttk.Button(new_window, text="Start processing",)
-        start_process_button.bind("<Button-1>", lambda e: [self.save_name_dir_in_variables()])
+        start_process_button.bind("<Button-1>", lambda e: [
+            self.save_name_dir_in_variables(),
+            #placeholder for function
+            new_window.destroy()
+        ])
         start_process_button.pack(pady=10)
 
     def combining_recordings(self):
