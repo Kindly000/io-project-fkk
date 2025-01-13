@@ -35,6 +35,7 @@ class IoFront(ttk.Frame):
 
         """directory to tmp files"""
         self.record_dir = ""
+        self.analyze_dir = ""
 
         """logowanie do google"""
         self.google_ = google_cal.Calendar()
@@ -50,6 +51,7 @@ class IoFront(ttk.Frame):
 
         """date variable"""
         self.date_var = None
+        self.date_var_analyze = None
         # dodanie listy spotkań
 
         """variables for processing recording windows from main"""
@@ -65,7 +67,6 @@ class IoFront(ttk.Frame):
         self.existing_mp4_file_to_process_var = ttk.StringVar()
         self.existing_wav_file_to_process = "" #sciezka do pliku
         self.existing_mp4_file_to_process = "" #sciezka do pliku
-
 
 
         """GUI setup"""
@@ -452,7 +453,7 @@ class IoFront(ttk.Frame):
             "<Button-1>",
             lambda e: [
                 validate_title() and self.save_name_dir_in_variables_existing_record(),
-                self.executor.submit(self.start_data_analyze) if validate_title() else None,
+                self.executor.submit(self.start_data_analyze, self.record_dir, self.date_var) if validate_title() else None,
                 new_window.destroy() if validate_title() else None,
             ],
         )
@@ -479,12 +480,10 @@ class IoFront(ttk.Frame):
 
         entry_path_wav = ttk.Entry(new_window, width=30, state="normal", textvariable=self.existing_wav_file_to_process_var)
         entry_path_wav.insert(0, f"file.wav")
-        # self.existing_wav_file_to_process = r'D:/JK/Studia/S5/IO/IO-fkk-c/audio_output.wav'
         entry_path_wav.pack(pady=10)
 
         entry_path_avi = ttk.Entry(new_window, width=30, state="normal", textvariable=self.existing_mp4_file_to_process_var)
         entry_path_avi.insert(0, f"file.mp4")
-        # self.existing_mp4_file_to_process = r'D:/JK/Studia/S5/IO/IO-fkk-c/combined.mp4'
 
         entry_path_avi.pack(pady=10)
 
@@ -579,6 +578,14 @@ class IoFront(ttk.Frame):
         nested_dir = Path(f"../tmp/{self.record_dir}")
         nested_dir.mkdir(parents=True, exist_ok=True)
 
+    #JKV
+    def new_directory_for_analyze(self):
+        self.date_var_analyze = datetime.now()
+        date_current = self.date_var_analyze.strftime("%Y-%m-%d_%H-%M-%S")
+        self.analyze_dir = f"files_for_notes_{date_current}"
+        nested_dir = Path(f"../tmp/{self.analyze_dir}")
+        nested_dir.mkdir(parents=True, exist_ok=True)
+
     def start_recordings(self):
         # Ustaw flagi na True, aby rozpocząć nagrywanie
         self.recording_video = True
@@ -629,16 +636,16 @@ class IoFront(ttk.Frame):
             print("Audio recording stopped")
             # video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
 
-    def start_data_analyze(self):
+    def start_data_analyze(self, temp_dir_name, note_datetime):
         try:
             data_analyze.main(
-                temp_dir_name=self.record_dir,
+                temp_dir_name=temp_dir_name,
                 filename_audio=self.existing_wav_file_to_process,
                 filename_video=self.existing_mp4_file_to_process,
                 application_name=self.existing_record_app_name,
                 user_dir=self.existing_record_selected_dir_var,
                 title=self.existing_record_file_name,
-                datetime=self.date_var,
+                datetime=note_datetime,
                 n_frame=int(self.existing_record_frequency_comparison_sec),
                 send_to_server=self.existing_record_send_to_server_from_new_window
             )
@@ -676,7 +683,7 @@ class IoFront(ttk.Frame):
         self.existing_mp4_file_to_process = self.existing_mp4_file_to_process_var.get()
         print([self.existing_wav_file_to_process, self.existing_mp4_file_to_process, self.existing_record_file_name, self.existing_record_selected_dir_var, self.existing_record_app_name, self.existing_record_frequency_comparison_sec, self.existing_record_send_to_server_from_new_window])
 
-    #JKV
+    #JKV - for Download
     def save_audio_and_video_files(self):
         sf.save_audio_and_video_files_to_user_directory(
             self.selected_download_dir_var,
@@ -687,8 +694,8 @@ class IoFront(ttk.Frame):
 
     #JKV
     def placeholder(self):
-        self.new_directory()
-        self.executor.submit(self.start_data_analyze)
+        self.new_directory_for_analyze()
+        self.executor.submit(self.start_data_analyze, self.analyze_dir, self.date_var_analyze)
 
 
 if __name__ == "__main__":
