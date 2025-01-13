@@ -3,7 +3,6 @@ from concurrent.futures import ThreadPoolExecutor
 from tkinter import filedialog, BooleanVar
 from tkinter import Toplevel
 import re
-
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from pathlib import Path
@@ -19,7 +18,6 @@ import app_backend.communication_with_www_server as com_www_server
 import app_front.quickstart as google_cal
 
 import app_backend.retry_logic as retry_logic
-
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -67,6 +65,17 @@ class IoFront(ttk.Frame):
 
 
         """variables for processing recording windows from main"""
+        self.existing_record_frequency_comparison_sec = "5" #co ile sekund
+        self.existing_record_selected_dir_var = "../default_save_folder" #nazwa folderu
+        self.existing_record_file_name = "notatka_testowa" #nazwa notatki
+        self.existing_record_entered_name = ttk.StringVar()
+        self.existing_record_app_name = "MSTeams" #nazwa aplikacji
+        self.existing_record_send_to_server_from_new_window_var = BooleanVar()
+        self.existing_record_send_to_server_from_new_window = True #czy wysylac
+        self.existing_wav_file_to_process_var = ttk.StringVar()
+        self.existing_mp4_file_to_process_var = ttk.StringVar()
+        self.existing_wav_file_to_process = "" #sciezka do pliku
+        self.existing_mp4_file_to_process = "" #sciezka do pliku
 
 
 
@@ -88,13 +97,13 @@ class IoFront(ttk.Frame):
         )
         self.open_in_browser_button()
         self.refresh_button()
+        self.process_files_main_app_button()
         self.action_container.pack(padx=5, pady=10)
 
         self.search_container = ttk.LabelFrame(self.right_container, text="Search")
         self.search_entry = self.create_entry()
         self.create_search_button()
         self.search_container.pack(padx=5, pady=10)
-
         self.right_container.pack(side=LEFT, padx=20, pady=10, fill=Y)
 
         """resend failed files function"""
@@ -170,7 +179,7 @@ class IoFront(ttk.Frame):
         button.bind(
             "<Button-1>",
             lambda x: [
-                self.start_processing_button_new_window()
+                self.start_processing_button_main_app()
             ]
         )
 
@@ -193,6 +202,23 @@ class IoFront(ttk.Frame):
 
         def on_click(option):
             self.application_name = option
+            mb.config(text=option)
+            print(option)
+
+        for option in options:
+            inside_menu.add_radiobutton(
+                label=option, command=lambda x=option: on_click(x)
+            )
+        mb["menu"] = inside_menu
+
+    def existing_record_drop_menu_app(self, master):
+        mb = ttk.Menubutton(master=master, width=16, text="Application")
+        mb.pack(padx=5, pady=10)
+        options = ["MSTeams", "Zoom", "Google Meet"]
+        inside_menu = ttk.Menu(mb, tearoff=0)
+
+        def on_click(option):
+            self.existing_record_app_name = option
             mb.config(text=option)
             print(option)
 
@@ -448,31 +474,31 @@ class IoFront(ttk.Frame):
             title = entry_title.get()
             # Definicja regex dla poprawnych nazw (np. tylko litery, cyfry, myślniki, podkreślenia)
             if not re.match(r"^[\w\-. ]+$", title):
-                validation_label.config( text="Nazwa może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia!", bootstyle="danger",)
+                validation_label.config(text="Nazwa może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia!", bootstyle="danger",)
                 return False
             validation_label.config(text="Nazwa poprawna!", bootstyle="success")
             return True
 
         new_window = Toplevel(self.new_record_container)
-        new_window.title("Details")
+        new_window.title("Process existing recording")
         new_window.geometry("300x700")
 
         # Dodanie treści do nowego okna
         label_paths = ttk.Label(new_window, text="Paths to files", font=("Arial", 9))
         label_paths.pack(pady=10)
 
-        entry_path_wav = ttk.Entry(new_window, width=30, state="normal")
-        entry_path_wav.insert(0, f"../tmp/{self.record_dir}/audio_output.wav")
+        entry_path_wav = ttk.Entry(new_window, width=30, state="normal", textvariable=self.existing_wav_file_to_process_var)
+        entry_path_wav.insert(0, f"file.wav")
         entry_path_wav.pack(pady=10)
 
-        entry_path_avi = ttk.Entry(new_window, width=30, state="normal")
-        entry_path_avi.insert(0, f"../tmp/{self.record_dir}/video_output.avi")
+        entry_path_avi = ttk.Entry(new_window, width=30, state="normal", textvariable=self.existing_mp4_file_to_process_var)
+        entry_path_avi.insert(0, f"file.mp4")
         entry_path_avi.pack(pady=10)
 
         label_title = ttk.Label(new_window, text="Enter note title", font=("Arial", 9))
         label_title.pack(pady=10)
 
-        entry_title = ttk.Entry(new_window, width=30, textvariable=self.entered_name)
+        entry_title = ttk.Entry(new_window, width=30, textvariable=self.existing_record_entered_name)
         entry_title.insert(0, f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
         entry_title.pack(pady=10)
 
@@ -487,15 +513,15 @@ class IoFront(ttk.Frame):
         button_dir.bind(
             "<Button-1>",
             lambda e: [
-                self.open_directory_picker(),
-                button_dir.config(text=self.selected_dir_var),
+                self.existing_record_open_directory_picker(),
+                button_dir.config(text=self.existing_record_selected_dir_var),
             ],
         )
         button_dir.pack(pady=10)
 
         label_app = ttk.Label(new_window, text="Choose app", font=("Arial", 9))
         label_app.pack(pady=10)
-        self.drop_menu_app(new_window)
+        self.existing_record_drop_menu_app(new_window)
 
         label_seconds = ttk.Label(
             new_window, text="Enter frequency of comparison", font=("Arial", 9)
@@ -508,7 +534,7 @@ class IoFront(ttk.Frame):
         inside_menu_sec = ttk.Menu(mb_sec, tearoff=0)
 
         def on_click_sec(option):
-            self.frequency_comparison_sec = option
+            self.existing_record_frequency_comparison_sec = option
             print(option)
 
         for option in options_sec:
@@ -519,8 +545,8 @@ class IoFront(ttk.Frame):
 
         checkbox_label = ttk.Label(new_window, text="Send to server", font=("Arial", 9))
         checkbox_label.pack(pady=10)
-        self.send_to_server_from_new_window_var.set(True)
-        checkbox = ttk.Checkbutton(new_window, variable=self.send_to_server_from_new_window_var)
+        self.existing_record_send_to_server_from_new_window_var.set(True)
+        checkbox = ttk.Checkbutton(new_window, variable=self.existing_record_send_to_server_from_new_window_var)
         checkbox.pack(pady=10)
 
         # JKV for start_data_analization
@@ -542,7 +568,7 @@ class IoFront(ttk.Frame):
         start_process_button.bind(
             "<Button-1>",
             lambda e: [
-                validate_title() and self.save_name_dir_in_variables(),
+                validate_title() and self.save_name_dir_in_variables_existing_record(),
                 new_window.destroy() if validate_title() else None,
             ],
         )
@@ -651,6 +677,12 @@ class IoFront(ttk.Frame):
         if selected_directory:
             self.selected_dir_var = selected_directory
 
+    def existing_record_open_directory_picker(self):
+        """Funkcja otwierająca okienko do wyboru katalogu."""
+        selected_directory = filedialog.askdirectory(title="Choose directory")
+        if selected_directory:
+            self.existing_record_selected_dir_var = selected_directory
+
     def open_download_directory_picker(self):
         """Funkcja otwierająca okienko do wyboru katalogu."""
         selected_directory = filedialog.askdirectory(title="Choose directory")
@@ -672,6 +704,14 @@ class IoFront(ttk.Frame):
             int(self.frequency_comparison_sec),
             self.send_to_server_from_new_window
         )
+
+    def save_name_dir_in_variables_existing_record(self):
+        self.existing_record_file_name = self.existing_record_entered_name.get()
+        self.existing_record_send_to_server_from_new_window = self.existing_record_send_to_server_from_new_window_var.get()
+        self.existing_wav_file_to_process = self.existing_wav_file_to_process_var.get()
+        self.existing_mp4_file_to_process = self.existing_mp4_file_to_process_var.get()
+        print([self.existing_wav_file_to_process, self.existing_mp4_file_to_process, self.existing_record_file_name, self.existing_record_selected_dir_var, self.existing_record_app_name, self.existing_record_frequency_comparison_sec, self.existing_record_send_to_server_from_new_window])
+
 
     def funkcja_do_zapisu_plikow_jkv(self, chosen_dir, tmp_dir):
         print("sigma")
