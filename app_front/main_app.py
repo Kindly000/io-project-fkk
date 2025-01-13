@@ -1,6 +1,6 @@
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
-from tkinter import filedialog
+from tkinter import filedialog, BooleanVar
 from tkinter import Toplevel
 
 import ttkbootstrap as ttk
@@ -58,13 +58,16 @@ class IoFront(ttk.Frame):
 
         """date variable"""
         self.date_var = None
-
         # dodanie listy spotkań
         self.tree = self.create_treeview()
 
+        """variables for stop recording windows"""
+        self.frequency_comparison_sec = "5"
+        self.selected_download_dir_var = "../default_save_folder"
+
         self.right_container = ttk.Frame(self)
 
-        self.drop_menu_app()
+        # self.drop_menu_app()
 
         # GUI setup
         self.new_record_container = ttk.LabelFrame(
@@ -156,8 +159,8 @@ class IoFront(ttk.Frame):
         button.pack(padx=5, pady=10)
         return button
 
-    def drop_menu_app(self):
-        mb = ttk.Menubutton(master=self.right_container, width=16, text="Application")
+    def drop_menu_app(self, master):
+        mb = ttk.Menubutton(master=master, width=16, text="Application")
         mb.pack(padx=5, pady=10)
         options = ["MSTeams", "Zoom", "Google Meet"]
         inside_menu = ttk.Menu(mb, tearoff=0)
@@ -235,7 +238,7 @@ class IoFront(ttk.Frame):
             self.tree.delete(i)
 
         for i in data:
-            print(i)
+            # print(i)
             if int(index) % 2 == 1:
                 self.tree.insert(
                     "",
@@ -263,7 +266,10 @@ class IoFront(ttk.Frame):
             master=self.new_record_container, width=20, text="Start recording"
         )
         button.bind(
-            "<Button-1>", lambda e: [self.new_directory(), self.start_recordings()]
+            "<Button-1>", lambda e: [
+                # self.new_directory(),
+                # self.start_recordings()
+            ]
         )
         button.grid(row=1, column=1, padx=5, pady=10)
         return button
@@ -275,12 +281,101 @@ class IoFront(ttk.Frame):
         button.bind(
             "<Button-1>",
             lambda e: [
-                self.stop_recordings(),
-                self.combining_recordings(),
+                # self.stop_recordings(),
+                # self.combining_recordings(),
+                self.stop_recording_button_new_window(),
             ],
         )
         button.grid(row=2, column=1, padx=5, pady=10)
         return button
+
+    def stop_recording_button_new_window(self):
+        new_window = Toplevel(self.new_record_container)
+        new_window.title("Choose action")
+        new_window.geometry("400x300")
+
+        download_label = ttk.Label(new_window, text="Select dir to local download", font=("Arial", 9))
+        download_label.pack(pady=10)
+        button_dir = ttk.Button(new_window, text="Choose directory", command=self.open_download_directory_picker)
+        button_dir.pack(pady=10)
+        download_button = ttk.Button(new_window, text="Download")
+        download_button.bind("<Button-1>", lambda e: [print(self.selected_download_dir_var),new_window.destroy()])
+        download_button.pack(pady=10)
+        info_label = ttk.Label(new_window,text="Download files locally, later still you can make notes from them",font=("Arial", 9), bootstyle="secondary")
+        info_label.pack(pady=10)
+
+        process_recording_label = ttk.Label(new_window, text="Process recording", font=("Arial", 9))
+        process_recording_label.pack(pady=10)
+        process_recording_button = ttk.Button(new_window, text="Process recording")
+        process_recording_button.pack(pady=10)
+        process_recording_button.bind(
+            "<Button-1>",
+            lambda e: [
+                self.start_processing_button_new_window(),
+                new_window.destroy()
+            ]
+        )
+
+    def start_processing_button_new_window(self):
+        new_window = Toplevel(self.new_record_container)
+        new_window.title("Details")
+        new_window.geometry("300x700")
+
+        # Dodanie treści do nowego okna
+        label_paths = ttk.Label(new_window, text="Paths to files", font=("Arial", 9))
+        label_paths.pack(pady=10)
+        entry_path_wav = ttk.Entry(new_window, width=30, state="normal")
+        entry_path_wav.insert(0,f"../tmp/{self.record_dir}/audio_output.wav")
+        entry_path_wav.config(state="readonly")
+        entry_path_wav.pack(pady=10)
+        entry_path_avi = ttk.Entry(new_window, width=30, state="normal")
+        entry_path_avi.insert(0, f"../tmp/{self.record_dir}/video_output.avi")
+        entry_path_avi.config(state="readonly")
+        entry_path_avi.pack(pady=10)
+
+        label_title = ttk.Label(new_window, text="Enter note title", font=("Arial", 9))
+        label_title.pack(pady=10)
+        entry_title = ttk.Entry(new_window, width=30, textvariable=self.entered_name)
+        entry_title.insert(0, f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+        entry_title.pack(pady=10)
+
+        label_dir = ttk.Label(new_window, text="Choose directory for note", font=("Arial", 9))
+        label_dir.pack(pady=10)
+        button_dir = ttk.Button(new_window, text="Choose directory", command=self.open_directory_picker)
+        button_dir.pack(pady=10)
+
+        label_app = ttk.Label(new_window, text="Choose app", font=("Arial", 9))
+        label_app.pack(pady=10)
+        self.drop_menu_app(new_window)
+
+        label_seconds = ttk.Label(new_window, text="Enter frequency of comparison", font=("Arial", 9))
+        label_seconds.pack(pady=10)
+        mb_sec = ttk.Menubutton(new_window, width=16, text="Seconds")
+        mb_sec.pack(padx=5, pady=10)
+        options_sec = ["5", "6", "7", "9", "10"]
+        inside_menu_sec = ttk.Menu(mb_sec, tearoff=0)
+
+        def on_click_sec(option):
+            self.frequency_comparison_sec = option
+            print(option)
+
+        for option in options_sec:
+            inside_menu_sec.add_radiobutton(
+                label=option, command=lambda x=option: on_click_sec(x)
+            )
+        mb_sec["menu"] = inside_menu_sec
+
+
+        checkbox_label = ttk.Label(new_window, text="Send to server", font=("Arial", 9))
+        checkbox_label.pack(pady=10)
+        checkbox_var = BooleanVar()
+        checkbox_var.set(False)
+        checkbox = ttk.Checkbutton(new_window, variable=checkbox_var)
+        checkbox.pack(pady=10)
+
+        start_process_button = ttk.Button(new_window, text="Start processing",)
+        start_process_button.bind("<Button-1>", lambda e: [self.save_name_dir_in_variables()])
+        start_process_button.pack(pady=10)
 
     def combining_recordings(self):
         self.executor.submit(self._combining_recordings)
@@ -353,7 +448,6 @@ class IoFront(ttk.Frame):
             print("Audio recording stopped")
 
             # video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
-            self.open_input_name_dir_window()
             self.executor.submit(
                 self.start_data_analization, audio_filename
             )
@@ -384,42 +478,18 @@ class IoFront(ttk.Frame):
         if selected_directory:
             self.selected_dir_var = selected_directory
 
+    def open_download_directory_picker(self):
+        """Funkcja otwierająca okienko do wyboru katalogu."""
+        selected_directory = filedialog.askdirectory(title="Choose directory")
+        if selected_directory:
+            self.selected_download_dir_var = selected_directory
+
     def save_name_dir_in_variables(self):
         self.file_name = self.entered_name.get()
         print([self.file_name, self.selected_dir_var])
 
-    def open_input_name_dir_window(self):
-        """Funkcja otwierająca nowe okienko z polem Entry do wpisania tekstu."""
-
-        def save_input():
-            """Zapisuje wpisany tekst do zmiennej i zamyka okienko."""
-            entered_text = entry_var.get()
-            if entered_text:
-                self.entered_name.set(entered_text)
-            input_window.destroy()
-
-        input_window = Toplevel(app)
-        input_window.title("File name and directory")
-        input_window.geometry("300x200")
-        input_window.grab_set()
-
-        # Pole Entry do wpisania tekstu
-
-        entry_var = ttk.StringVar()
-        entry_label = ttk.Label(input_window, text="Enter file name:")
-        entry_label.pack(pady=5)
-        entry_field = ttk.Entry(input_window, textvariable=entry_var)
-        entry_field.pack(pady=5)
-        button = ttk.Button(master=input_window, width=20, text="Choose directory")
-        button.pack(padx=5, pady=10)
-        button.bind("<Button-1>", lambda x: self.open_directory_picker())
-
-        # Przycisk do zatwierdzenia
-        confirm_button = ttk.Button(input_window, text="Submit")
-        confirm_button.bind(
-            "<Button-1>", lambda x: [save_input(), self.save_name_dir_in_variables()]
-        )
-        confirm_button.pack(pady=10)
+    def funkcja_do_zapisu_plikow_jkv(self, chosen_dir, tmp_dir):
+        print("sigma")
 
 
 if __name__ == "__main__":
