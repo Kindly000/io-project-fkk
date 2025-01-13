@@ -294,8 +294,8 @@ class IoFront(ttk.Frame):
         )
         button.bind(
             "<Button-1>", lambda e: [
-                # self.new_directory(),
-                # self.start_recordings()
+                self.new_directory(),
+                self.start_recordings()
             ]
         )
         button.grid(row=1, column=1, padx=5, pady=10)
@@ -308,8 +308,8 @@ class IoFront(ttk.Frame):
         button.bind(
             "<Button-1>",
             lambda e: [
-                # self.stop_recordings(),
-                # self.combining_recordings(),
+                self.stop_recordings(),
+                self.combining_recordings(),
                 self.stop_recording_button_new_window(),
             ],
         )
@@ -523,6 +523,17 @@ class IoFront(ttk.Frame):
         checkbox = ttk.Checkbutton(new_window, variable=self.send_to_server_from_new_window_var)
         checkbox.pack(pady=10)
 
+        # JKV for start_data_analization
+        # temp_dir_name = self.record_dir
+        # audio_filename = entry_path_wav.get()
+        # print()
+        # filename_video = f"../tmp/{self.record_dir}/combined.mp4"
+        # application_name = self.application_name
+        # user_dir = self.selected_dir_var
+        # title = self.file_name
+        # n_frame = int(self.frequency_comparison_sec)
+        # send_to_server = self.send_to_server_from_new_window_var.get()
+
         """Start processing files button"""
         start_process_button = ttk.Button(
             new_window,
@@ -532,6 +543,17 @@ class IoFront(ttk.Frame):
             "<Button-1>",
             lambda e: [
                 validate_title() and self.save_name_dir_in_variables(),
+                self.executor.submit(
+                    self.start_data_analization,
+                    self.record_dir,
+                    entry_path_wav.get(),
+                    f"../tmp/{self.record_dir}/combined.mp4",
+                    self.application_name,
+                    self.selected_dir_var,
+                    self.file_name,
+                    int(self.frequency_comparison_sec),
+                    self.send_to_server_from_new_window
+                ) if validate_title() else None,
                 new_window.destroy() if validate_title() else None,
             ],
         )
@@ -606,23 +628,25 @@ class IoFront(ttk.Frame):
             print("Stopping audio recording...")
             audio_filename = self.audio_recorder.stop_recording()
             print("Audio recording stopped")
-
             # video_filename = f"../tmp/{self.record_dir}/video_output.avi"  # Zakładając, że to nazwa pliku wideo
-            self.executor.submit(
-                self.start_data_analization, audio_filename
-            )
 
-    def start_data_analization(self, audio_filename):
+    def start_data_analization(self, temp_dir_name, audio_filename, filename_video, application_name, user_dir, title,
+                               n_frame, send_to_server):
+        print("XD")
         try:
+            print("S")
             data_analyze.main(
-                temp_dir_name=self.record_dir,
+                temp_dir_name=temp_dir_name,
                 filename_audio=audio_filename,
-                filename_video=f"../tmp/{self.record_dir}/combined.mp4",
-                application_name=self.application_name,
-                user_dir=self.selected_dir_var,
-                title=self.file_name,
+                filename_video=filename_video,
+                application_name=application_name,
+                user_dir=user_dir,
+                title=title,
                 datetime=self.date_var,
+                n_frame=n_frame,
+                send_to_server=send_to_server
             )
+            print("K")
             self.master.after(
                 0, lambda: print("Transcription finished")
             )  # Update UI safely

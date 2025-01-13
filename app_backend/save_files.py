@@ -2,6 +2,9 @@ from datetime import datetime
 import os.path
 import random
 import shutil
+
+from fontTools.misc.cython import returns
+
 from app_backend.create_files import create_docx_file, create_txt_file, create_json_file
 from app_backend.communication_with_www_server import upload_file_on_server
 import hashlib
@@ -82,6 +85,14 @@ def sort_note_content(note_content: list) -> list:
     return sorted(note_content, key=lambda x: (x['timestamp'], type_order[x['type']]))
 
 
+def delete_directory(directory_path: str) -> bool:
+    try:
+        shutil.rmtree(directory_path)
+        return True
+    except Exception as e:
+        return False
+
+
 def send_and_delete_files(
         note_id: str,
         json_file_path: str,
@@ -146,7 +157,7 @@ def send_and_delete_files(
     if is_docx_txt_created:
         upload_file_on_server(note_id, txt_file_path)
 
-    shutil.rmtree(f"../tmp/{tmp_dir_name}")
+    delete_directory(f"../tmp/{tmp_dir_name}")
 
 
 def save_files_to_user_directory(
@@ -243,6 +254,7 @@ def save_files(
     video_file_name: str,
     tmp_dir_name: str,
     directory_path: str,
+    send_to_server: bool,
     language: str = 'pl'
 ) -> None:
     """
@@ -262,6 +274,7 @@ def save_files(
         video_file_name (str): The name of the video file.
         tmp_dir_name (str): The name of tmp directory where are files.
         directory_path (str): The path to the directory where the files should be saved.
+        send_to_server (bool): Indicate if files should be sent to server.
         language (str, optional): The language for the document headings (`'pl'` for Polish or `'en'` for English).
                                   Defaults to `'pl'`.
 
@@ -323,10 +336,13 @@ def save_files(
 
     save_files_to_user_directory(directory_path, tmp_dir_name, is_docx_file_created, docx_file_path, is_txt_file_created, txt_file_path, img_files_name, video_file_path)
 
-    if create_json_file(note_title, note_summary, note_content, note_datetime.strftime("%Y-%m-%d %H:%M:%S"), video_file_name=video_file_name, docx_file_name=docx_file_name, txt_file_name=txt_file_name, json_file_path=json_file_path, language=language):
-        threading.Thread(
-            send_and_delete_files(note_id, json_file_path, img_files_name, video_file_path, is_docx_file_created,
-                                  docx_file_path, is_txt_file_created, txt_file_path, tmp_dir_name)
-        )
-        google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
-                                        f"https://ioprojekt.atwebpages.com/{note_id}")
+    if send_to_server:
+        if create_json_file(note_title, note_summary, note_content, note_datetime.strftime("%Y-%m-%d %H:%M:%S"), video_file_name=video_file_name, docx_file_name=docx_file_name, txt_file_name=txt_file_name, json_file_path=json_file_path, language=language):
+            threading.Thread(
+                send_and_delete_files(note_id, json_file_path, img_files_name, video_file_path, is_docx_file_created,
+                                      docx_file_path, is_txt_file_created, txt_file_path, tmp_dir_name)
+            )
+            google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                                            f"https://ioprojekt.atwebpages.com/{note_id}")
+    else:
+        delete_directory(f"../tmp{tmp_dir_name}")
