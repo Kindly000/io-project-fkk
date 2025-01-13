@@ -178,7 +178,7 @@ def notes_summary(tekst: str) -> str:
 
 
 # 5. Wydobywanie ramek z wideo do dalszej analizy
-def get_video_frames(file_path: str, file_name: str, file_extension: str) -> int:
+def get_video_frames(file_path: str, file_name: str, file_extension: str, temp_dir_name: str) -> int:
     """
     Wydobywanie ramek z pliku wideo do dalszej analizy.
 
@@ -186,6 +186,7 @@ def get_video_frames(file_path: str, file_name: str, file_extension: str) -> int
         file_path (str): Ścieżka do folderu, w którym znajduje się plik wideo.
         file_name (str): Nazwa pliku wideo.
         file_extension (str): Rozszerzenie pliku wideo.
+        temp_dir_name (str): folder w tmp, w którym mają zapisać się zdjęcia
 
     Returns:
         int: Liczba plików zawierających ramki.
@@ -194,7 +195,7 @@ def get_video_frames(file_path: str, file_name: str, file_extension: str) -> int
         - Funkcja wykorzystuje FFmpeg do ekstrakcji ramek z wideo.
         - Informacje o sukcesie lub błędach są logowane za pomocą `log_data_analyze`.
     """
-    output_dir = f"{file_path}/"
+    output_dir = f"../tmp/{temp_dir_name}/"
     try:
         os.makedirs(output_dir, exist_ok=True)
         log_data_analyze(f"Directory {output_dir} is ready.")
@@ -363,9 +364,9 @@ def main(
             log_data_analyze("Summary generated.")
 
             # Analiza ramek wideo
-            number_of_screens = get_video_frames(filepath, filename, fileextension)
+            number_of_screens = get_video_frames(filepath, filename, fileextension, temp_dir_name)
             screen_data = image_analyzer.main(
-                number_of_screens, filepath + "/", application_name, n_frame
+                number_of_screens, f"../tmp/{temp_dir_name}", application_name, n_frame
             )
             log_data_analyze(f"Extracted {number_of_screens} screens for analysis.")
 

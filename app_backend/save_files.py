@@ -327,7 +327,6 @@ def save_files(
     json_file_path = f"../tmp/{tmp_dir_name}/{note_id}.json"
     video_file_name = os.path.basename(video_file_path)
     img_files_name = [f for f in os.listdir(f"../tmp/{tmp_dir_name}") if f.endswith('.png')]
-    print(img_files_name)
 
     is_docx_file_created = create_docx_file(note_title, note_summary, note_content, docx_file_path=docx_file_path, language=language)
     is_txt_file_created = create_txt_file(note_title, note_summary, note_content, txt_file_path=txt_file_path, language=language)
