@@ -2,6 +2,7 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from tkinter import filedialog, BooleanVar
 from tkinter import Toplevel
+import re
 
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -67,6 +68,7 @@ class IoFront(ttk.Frame):
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
         self.tree = self.create_treeview()
+        self.create_scrollbar_for_treeview()
         self.right_container = ttk.Frame(self)
         self.new_record_container = ttk.LabelFrame(
             self.right_container, text="New recording"
@@ -146,6 +148,14 @@ class IoFront(ttk.Frame):
         print(self.tree.item(clickedItem)["values"])
         self.clicked_note = self.tree.item(clickedItem)["values"][0]
         return
+
+    def create_scrollbar_for_treeview(self):
+        scrollbar = ttk.Scrollbar(
+            master=self.left_container, orient="vertical", command=self.tree.yview
+        )
+        scrollbar.grid(row=0,rowspan=5, column=4, sticky="ns")
+        self.tree.configure(yscrollcommand=scrollbar.set)
+
 
     def create_entry(self):
         entry = ttk.Entry(master=self.search_container, width=20)
@@ -316,7 +326,22 @@ class IoFront(ttk.Frame):
             ]
         )
 
+    import re
+    from tkinter import Toplevel, BooleanVar
+    from tkinter import ttk
+    from datetime import datetime
+
     def start_processing_button_new_window(self):
+        def validate_title():
+            """Sprawdza, czy tytuł spełnia wymagania."""
+            title = entry_title.get()
+            # Definicja regex dla poprawnych nazw (np. tylko litery, cyfry, myślniki, podkreślenia)
+            if not re.match(r"^[\w\-. ]+$", title):
+                validation_label.config( text="Nazwa może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia!", bootstyle="danger",)
+                return False
+            validation_label.config(text="Nazwa poprawna!", bootstyle="success")
+            return True
+
         new_window = Toplevel(self.new_record_container)
         new_window.title("Details")
         new_window.geometry("300x700")
@@ -324,10 +349,12 @@ class IoFront(ttk.Frame):
         # Dodanie treści do nowego okna
         label_paths = ttk.Label(new_window, text="Paths to files", font=("Arial", 9))
         label_paths.pack(pady=10)
+
         entry_path_wav = ttk.Entry(new_window, width=30, state="normal")
-        entry_path_wav.insert(0,f"../tmp/{self.record_dir}/audio_output.wav")
+        entry_path_wav.insert(0, f"../tmp/{self.record_dir}/audio_output.wav")
         entry_path_wav.config(state="readonly")
         entry_path_wav.pack(pady=10)
+
         entry_path_avi = ttk.Entry(new_window, width=30, state="normal")
         entry_path_avi.insert(0, f"../tmp/{self.record_dir}/video_output.avi")
         entry_path_avi.config(state="readonly")
@@ -335,22 +362,37 @@ class IoFront(ttk.Frame):
 
         label_title = ttk.Label(new_window, text="Enter note title", font=("Arial", 9))
         label_title.pack(pady=10)
+
         entry_title = ttk.Entry(new_window, width=30, textvariable=self.entered_name)
         entry_title.insert(0, f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
         entry_title.pack(pady=10)
 
+        # Etykieta do wyświetlania wyników walidacji
+        validation_label = ttk.Label(new_window, text="", font=("Arial", 9))
+        validation_label.pack(pady=5)
+
         label_dir = ttk.Label(new_window, text="Choose directory for note", font=("Arial", 9))
         label_dir.pack(pady=10)
+
         button_dir = ttk.Button(new_window, text="Choose directory")
-        button_dir.bind("<Button-1>", lambda e: [self.open_directory_picker(),button_dir.config(text=self.selected_dir_var)])
+        button_dir.bind(
+            "<Button-1>",
+            lambda e: [
+                self.open_directory_picker(),
+                button_dir.config(text=self.selected_dir_var),
+            ],
+        )
         button_dir.pack(pady=10)
 
         label_app = ttk.Label(new_window, text="Choose app", font=("Arial", 9))
         label_app.pack(pady=10)
         self.drop_menu_app(new_window)
 
-        label_seconds = ttk.Label(new_window, text="Enter frequency of comparison", font=("Arial", 9))
+        label_seconds = ttk.Label(
+            new_window, text="Enter frequency of comparison", font=("Arial", 9)
+        )
         label_seconds.pack(pady=10)
+
         mb_sec = ttk.Menubutton(new_window, width=16, text="Seconds")
         mb_sec.pack(padx=5, pady=10)
         options_sec = ["5", "6", "7", "9", "10"]
@@ -366,7 +408,6 @@ class IoFront(ttk.Frame):
             )
         mb_sec["menu"] = inside_menu_sec
 
-
         checkbox_label = ttk.Label(new_window, text="Send to server", font=("Arial", 9))
         checkbox_label.pack(pady=10)
         checkbox_var = BooleanVar()
@@ -375,12 +416,17 @@ class IoFront(ttk.Frame):
         checkbox.pack(pady=10)
 
         """Start processing files button"""
-        start_process_button = ttk.Button(new_window, text="Start processing",)
-        start_process_button.bind("<Button-1>", lambda e: [
-            self.save_name_dir_in_variables(),
-            #placeholder for function
-            new_window.destroy()
-        ])
+        start_process_button = ttk.Button(
+            new_window,
+            text="Start processing",
+        )
+        start_process_button.bind(
+            "<Button-1>",
+            lambda e: [
+                validate_title() and self.save_name_dir_in_variables(),
+                new_window.destroy() if validate_title() else None,
+            ],
+        )
         start_process_button.pack(pady=10)
 
     def combining_recordings(self):
