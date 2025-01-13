@@ -1,5 +1,6 @@
 import os
 import re
+from app_backend.logging_f import log_operations_on_file
 
 
 def find_word_in_notes(directory_path: str, word: str) -> list[str]:
@@ -40,8 +41,8 @@ def find_word_in_notes(directory_path: str, word: str) -> list[str]:
                         if re.search(pattern, line, re.IGNORECASE):
                             matching_files.append(filename)
                             break
-            except (UnicodeDecodeError, FileNotFoundError) as e:
-                print(f"Nie można otworzyć pliku {filename}: {e}")
+            except Exception as e:
+                log_operations_on_file(f"For find_word_in_notes({directory_path}, {word}) - Error: {e}")
 
     return matching_files
 

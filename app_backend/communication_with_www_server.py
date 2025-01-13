@@ -45,7 +45,7 @@ def get_info_of_notes_from_server(url: str = f"{URL}/api/get_notes_list") -> [di
         return response.json()
 
     except Exception as e:
-        log_communication_with_www_server(f"For get_info_of_notes_from_server({url}) - Error: {e}\n")
+        log_communication_with_www_server(f"For get_info_of_notes_from_server({url}) - Error: {e}")
         return None
 
 
@@ -98,7 +98,7 @@ def upload_file_on_server(note_id: str, file_path: str, url: str = f"{URL}/api/u
         print(e)
         return False
     except Exception as e:
-        log_communication_with_www_server(f"For upload_file_on_server({note_id}, {file_path}, {url}) - Error: {e}\n")
+        log_communication_with_www_server(f"For upload_file_on_server({note_id}, {file_path}, {url}) - Error: {e}")
         from app_backend.retry_logic import save_unsuccessful_upload
         save_unsuccessful_upload(note_id, file_path)
         return False
@@ -142,5 +142,5 @@ def get_info_of_notes_from_server_if_note_contain_search_word(search_word: str, 
         return response.json()
 
     except Exception as e:
-        log_communication_with_www_server(f"For get_info_of_notes_from_server_if_note_contain_search_word({search_word}, {url}) - Error: {e}\n")
+        log_communication_with_www_server(f"For get_info_of_notes_from_server_if_note_contain_search_word({search_word}, {url}) - Error: {e}")
         return None

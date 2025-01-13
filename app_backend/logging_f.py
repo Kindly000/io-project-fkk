@@ -14,7 +14,7 @@ def check_and_create_error_logs_folder():
         os.mkdir('../error_logs')
 
 
-def log_file_creation(text: str) -> None:
+def log_operations_on_file(text: str) -> None:
     """
     Logs a message to a file for tracking errors or events related to file creation.
 
@@ -29,8 +29,8 @@ def log_file_creation(text: str) -> None:
         None: This function does not return a value. It performs a file-writing operation for logging purposes.
 
     Example:
-        >>> log_file_creation("File creation process started.")
-        >>> log_file_creation("Error: Unable to create the file due to insufficient permissions.")
+        >>> log_operations_on_file("File creation process started.")
+        >>> log_operations_on_file("Error: Unable to create the file due to insufficient permissions.")
 
     Notes:
         - Ensure that the `check_and_create_error_logs_folder` funkcion exists to avoid any issues when writing the log file.
@@ -41,8 +41,8 @@ def log_file_creation(text: str) -> None:
         - The function does not handle potential file I/O errors such as permission issues or disk space limitations.
     """
     check_and_create_error_logs_folder()
-    with open(file="../error_logs/file_creation.log", mode="a", encoding='utf-8') as log:
-        log.write(f"{datetime.datetime.now()} {text}")
+    with open(file="../error_logs/operations_on_file.log", mode="a", encoding='utf-8') as log:
+        log.write(f"{datetime.datetime.now()} {text}\n")
 
 
 def log_communication_with_www_server(text: str) -> None:
@@ -74,7 +74,7 @@ def log_communication_with_www_server(text: str) -> None:
     """
     check_and_create_error_logs_folder()
     with open(file="../error_logs/communication_with_www_server.log", mode="a", encoding='utf-8') as log:
-        log.write(f"{datetime.datetime.now()} {text}")
+        log.write(f"{datetime.datetime.now()} {text}\n")
 
 
 def log_data_analyze(text: str) -> None:
@@ -114,4 +114,4 @@ def log_data_analyze(text: str) -> None:
         mode="a",
         encoding="utf-8",
     ) as log:
-        log.write(f"{datetime.datetime.now()} {text}")
+        log.write(f"{datetime.datetime.now()} {text}\n")

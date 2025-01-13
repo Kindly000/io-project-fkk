@@ -1,7 +1,9 @@
 import json
 import os
-import shutil
 from app_backend.communication_with_www_server import upload_file_on_server
+from app_backend.logging_f import log_operations_on_file
+from app_backend.save_files import delete_directory, copy_file
+
 
 def check_and_create_unsuccessful_uploads_folder():
     """
@@ -69,9 +71,9 @@ def save_unsuccessful_upload(note_id: str, file_path: str) -> None:
     try:
         if not os.path.exists(f'{dir_for_unsuccessful_uploads}/{note_id}'):
             os.mkdir(f'{dir_for_unsuccessful_uploads}/{note_id}')
-        shutil.copyfile(file_path, f'{dir_for_unsuccessful_uploads}/{note_id}/{fail_file_name}')
-    except shutil.SameFileError as e:
-        pass
+        copy_file(file_path, f'{dir_for_unsuccessful_uploads}/{note_id}/{fail_file_name}')
+    except Exception as e:
+        log_operations_on_file(f"For save_unsuccessful_upload({note_id}, {file_path}) - os.mkdir Error: {e}")
 
     json_path = f'{dir_for_unsuccessful_uploads}/failed_files.json'
     if os.path.exists(json_path):
@@ -162,8 +164,10 @@ def send_failed_files() -> None:
                     failed_dir_content.append(dir_content)
             except FileNotFoundError:
                 pass
+            except Exception as e:
+                log_operations_on_file(f"For send_failed_files() - os.remove Error: {e}")
         if len(failed_dir_content) == 0:
-            shutil.rmtree(f'{dir_for_unsuccessful_uploads}/{element["dir_name"]}')
+            delete_directory(f'{dir_for_unsuccessful_uploads}/{element["dir_name"]}')
         else:
             element["dir_content"] = failed_dir_content
             failed_elements.append(element)

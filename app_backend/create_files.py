@@ -3,7 +3,7 @@ import os
 from docx import Document
 from docx.shared import Inches
 
-from app_backend.logging_f import log_file_creation
+from app_backend.logging_f import log_operations_on_file
 
 
 def format_timestamp(seconds: int) -> str:
@@ -109,7 +109,7 @@ def create_docx_file(note_title: str, note_summary: str,  note_content: list, do
         docx_file.save(docx_file_path)
         return True
     except Exception as e:
-        log_file_creation(f"For create_docx_file() - Error: {e}\n")
+        log_operations_on_file(f"For create_docx_file() - Error: {e}")
         return False
 
 
@@ -171,7 +171,7 @@ def create_txt_file(note_title: str, note_summary: str, note_content: list, txt_
                     txt_file.write(f"{format_timestamp(content['timestamp'])} {content['value']}\n")
         return True
     except Exception as e:
-        log_file_creation(f"For create_txt_file() - Error: {e}\n")
+        log_operations_on_file(f"For create_txt_file() - Error: {e}")
         return False
 
 
@@ -277,5 +277,5 @@ def create_json_file(note_title: str, note_summary: str, note_content: list, not
             json.dump(data, f, ensure_ascii=False, indent=4)
         return True
     except Exception as e:
-        log_file_creation(f"For create_json_file() - Error: {e}\n")
+        log_operations_on_file(f"For create_json_file() - Error: {e}")
         return False
