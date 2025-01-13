@@ -1,7 +1,10 @@
 import requests
 from app_backend.logging_f import log_communication_with_www_server
 
+# Request Warning will not show up in console
+requests.packages.urllib3.disable_warnings()
 
+# URL of WEB Server:
 URL = "https://ioprojekt.atwebpages.com"
 # URL = "https://localhost"
 
@@ -15,7 +18,7 @@ def get_info_of_notes_from_server(url: str = f"{URL}/api/get_notes_list") -> [di
 
     Args:
         url (str): The URL of the API endpoint to fetch notes information from. Defaults to a predefined URL:
-                   `https://ioprojekt.atwebpages.com//api/get_notes_info`.
+                   `https://ioprojekt.atwebpages.com//api/get_notes_list`.
 
     Returns:
         dict | None: A dictionary representing the JSON response if the request is successful,
