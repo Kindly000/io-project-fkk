@@ -543,17 +543,6 @@ class IoFront(ttk.Frame):
             "<Button-1>",
             lambda e: [
                 validate_title() and self.save_name_dir_in_variables(),
-                self.executor.submit(
-                    self.start_data_analization,
-                    self.record_dir,
-                    entry_path_wav.get(),
-                    f"../tmp/{self.record_dir}/combined.mp4",
-                    self.application_name,
-                    self.selected_dir_var,
-                    self.file_name,
-                    int(self.frequency_comparison_sec),
-                    self.send_to_server_from_new_window
-                ) if validate_title() else None,
                 new_window.destroy() if validate_title() else None,
             ],
         )
@@ -672,9 +661,22 @@ class IoFront(ttk.Frame):
         self.file_name = self.entered_name.get()
         self.send_to_server_from_new_window = self.send_to_server_from_new_window_var.get()
         print([self.file_name, self.selected_dir_var, self.application_name, self.frequency_comparison_sec, self.send_to_server_from_new_window])
+        self.executor.submit(
+            self.start_data_analization,
+            self.record_dir,
+            f"../tmp/{self.record_dir}/audio_output.wav",
+            f"../tmp/{self.record_dir}/combined.mp4",
+            self.application_name,
+            self.selected_dir_var,
+            self.file_name,
+            int(self.frequency_comparison_sec),
+            self.send_to_server_from_new_window
+        )
 
     def funkcja_do_zapisu_plikow_jkv(self, chosen_dir, tmp_dir):
         print("sigma")
+
+
 
 
 if __name__ == "__main__":
