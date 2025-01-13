@@ -62,6 +62,12 @@ class IoFront(ttk.Frame):
         self.file_name = "notatka_testowa"
         self.entered_name = ttk.StringVar()
         self.application_name = "MSTeams"  # nazwa wybranej aplikacji do nagrania
+        self.send_to_server_from_new_window_var = BooleanVar()
+        self.send_to_server_from_new_window = True
+
+
+        """variables for processing recording windows from main"""
+
 
 
         """GUI setup"""
@@ -156,6 +162,17 @@ class IoFront(ttk.Frame):
         scrollbar.grid(row=0,rowspan=5, column=4, sticky="ns")
         self.tree.configure(yscrollcommand=scrollbar.set)
 
+    def process_files_main_app_button(self):
+        button = ttk.Button(
+            master=self.action_container, width=20, text="Process files"
+        )
+        button.grid(row=1, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
+        button.bind(
+            "<Button-1>",
+            lambda x: [
+                self.start_processing_button_new_window()
+            ]
+        )
 
     def create_entry(self):
         entry = ttk.Entry(master=self.search_container, width=20)
@@ -176,6 +193,7 @@ class IoFront(ttk.Frame):
 
         def on_click(option):
             self.application_name = option
+            mb.config(text=option)
             print(option)
 
         for option in options:
@@ -326,11 +344,6 @@ class IoFront(ttk.Frame):
             ]
         )
 
-    import re
-    from tkinter import Toplevel, BooleanVar
-    from tkinter import ttk
-    from datetime import datetime
-
     def start_processing_button_new_window(self):
         def validate_title():
             """Sprawdza, czy tytuł spełnia wymagania."""
@@ -400,6 +413,7 @@ class IoFront(ttk.Frame):
 
         def on_click_sec(option):
             self.frequency_comparison_sec = option
+            mb_sec.config(text=option)
             print(option)
 
         for option in options_sec:
@@ -410,9 +424,103 @@ class IoFront(ttk.Frame):
 
         checkbox_label = ttk.Label(new_window, text="Send to server", font=("Arial", 9))
         checkbox_label.pack(pady=10)
-        checkbox_var = BooleanVar()
-        checkbox_var.set(True)
-        checkbox = ttk.Checkbutton(new_window, variable=checkbox_var)
+        self.send_to_server_from_new_window_var.set(True)
+        checkbox = ttk.Checkbutton(new_window, variable=self.send_to_server_from_new_window_var)
+        checkbox.pack(pady=10)
+
+        """Start processing files button"""
+        start_process_button = ttk.Button(
+            new_window,
+            text="Start processing",
+        )
+        start_process_button.bind(
+            "<Button-1>",
+            lambda e: [
+                validate_title() and self.save_name_dir_in_variables(),
+                new_window.destroy() if validate_title() else None,
+            ],
+        )
+        start_process_button.pack(pady=10)
+
+    def start_processing_button_main_app(self):
+        def validate_title():
+            """Sprawdza, czy tytuł spełnia wymagania."""
+            title = entry_title.get()
+            # Definicja regex dla poprawnych nazw (np. tylko litery, cyfry, myślniki, podkreślenia)
+            if not re.match(r"^[\w\-. ]+$", title):
+                validation_label.config( text="Nazwa może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia!", bootstyle="danger",)
+                return False
+            validation_label.config(text="Nazwa poprawna!", bootstyle="success")
+            return True
+
+        new_window = Toplevel(self.new_record_container)
+        new_window.title("Details")
+        new_window.geometry("300x700")
+
+        # Dodanie treści do nowego okna
+        label_paths = ttk.Label(new_window, text="Paths to files", font=("Arial", 9))
+        label_paths.pack(pady=10)
+
+        entry_path_wav = ttk.Entry(new_window, width=30, state="normal")
+        entry_path_wav.insert(0, f"../tmp/{self.record_dir}/audio_output.wav")
+        entry_path_wav.pack(pady=10)
+
+        entry_path_avi = ttk.Entry(new_window, width=30, state="normal")
+        entry_path_avi.insert(0, f"../tmp/{self.record_dir}/video_output.avi")
+        entry_path_avi.pack(pady=10)
+
+        label_title = ttk.Label(new_window, text="Enter note title", font=("Arial", 9))
+        label_title.pack(pady=10)
+
+        entry_title = ttk.Entry(new_window, width=30, textvariable=self.entered_name)
+        entry_title.insert(0, f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+        entry_title.pack(pady=10)
+
+        # Etykieta do wyświetlania wyników walidacji
+        validation_label = ttk.Label(new_window, text="", font=("Arial", 9))
+        validation_label.pack(pady=5)
+
+        label_dir = ttk.Label(new_window, text="Choose directory for note", font=("Arial", 9))
+        label_dir.pack(pady=10)
+
+        button_dir = ttk.Button(new_window, text="Choose directory")
+        button_dir.bind(
+            "<Button-1>",
+            lambda e: [
+                self.open_directory_picker(),
+                button_dir.config(text=self.selected_dir_var),
+            ],
+        )
+        button_dir.pack(pady=10)
+
+        label_app = ttk.Label(new_window, text="Choose app", font=("Arial", 9))
+        label_app.pack(pady=10)
+        self.drop_menu_app(new_window)
+
+        label_seconds = ttk.Label(
+            new_window, text="Enter frequency of comparison", font=("Arial", 9)
+        )
+        label_seconds.pack(pady=10)
+
+        mb_sec = ttk.Menubutton(new_window, width=16, text="Seconds")
+        mb_sec.pack(padx=5, pady=10)
+        options_sec = ["5", "6", "7", "9", "10"]
+        inside_menu_sec = ttk.Menu(mb_sec, tearoff=0)
+
+        def on_click_sec(option):
+            self.frequency_comparison_sec = option
+            print(option)
+
+        for option in options_sec:
+            inside_menu_sec.add_radiobutton(
+                label=option, command=lambda x=option: on_click_sec(x)
+            )
+        mb_sec["menu"] = inside_menu_sec
+
+        checkbox_label = ttk.Label(new_window, text="Send to server", font=("Arial", 9))
+        checkbox_label.pack(pady=10)
+        self.send_to_server_from_new_window_var.set(True)
+        checkbox = ttk.Checkbutton(new_window, variable=self.send_to_server_from_new_window_var)
         checkbox.pack(pady=10)
 
         """Start processing files button"""
@@ -538,7 +646,8 @@ class IoFront(ttk.Frame):
 
     def save_name_dir_in_variables(self):
         self.file_name = self.entered_name.get()
-        print([self.file_name, self.selected_dir_var])
+        self.send_to_server_from_new_window = self.send_to_server_from_new_window_var.get()
+        print([self.file_name, self.selected_dir_var, self.application_name, self.frequency_comparison_sec, self.send_to_server_from_new_window])
 
     def funkcja_do_zapisu_plikow_jkv(self, chosen_dir, tmp_dir):
         print("sigma")
