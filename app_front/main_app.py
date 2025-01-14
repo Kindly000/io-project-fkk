@@ -482,12 +482,12 @@ class IoFront(ttk.Frame):
 
         def existing_record_wav_files_directory_picker():
             """Funkcja otwierająca okienko do wyboru katalogu."""
-            selected_directory = filedialog.askdirectory(title="Choose directory")
+            selected_directory = filedialog.askopenfilename(title="Choose file")
             if selected_directory:
                 self.existing_wav_file_to_process = selected_directory
                 self.existing_wav_file_to_process_var.set(selected_directory)
 
-        button_wav_dir = ttk.Button(new_window, text="Choose directory")
+        button_wav_dir = ttk.Button(new_window, text="Choose .wav file")
         button_wav_dir.bind(
             "<Button-1>",
             lambda e: [
@@ -499,20 +499,20 @@ class IoFront(ttk.Frame):
 
         def existing_record_mp4_files_directory_picker():
             """Funkcja otwierająca okienko do wyboru katalogu."""
-            selected_directory = filedialog.askdirectory(title="Choose directory")
+            selected_directory = filedialog.askopenfilename(title="Choose file")
             if selected_directory:
                 self.existing_mp4_file_to_process = selected_directory
                 self.existing_mp4_file_to_process_var.set(selected_directory)
 
-        button_wav_dir = ttk.Button(new_window, text="Choose directory")
-        button_wav_dir.bind(
+        button_mp4_dir = ttk.Button(new_window, text="Choose .mp4 file")
+        button_mp4_dir.bind(
             "<Button-1>",
             lambda e: [
                 existing_record_mp4_files_directory_picker(),
-                button_wav_dir.config(text=self.existing_mp4_file_to_process),
+                button_mp4_dir.config(text=self.existing_mp4_file_to_process),
             ],
         )
-        button_wav_dir.pack(pady=10)
+        button_mp4_dir.pack(pady=10)
 
         label_title = ttk.Label(new_window, text="Enter note title", font=("Arial", 9))
         label_title.pack(pady=10)
