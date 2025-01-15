@@ -69,10 +69,13 @@ class IoFront(ttk.Frame):
         self.existing_mp4_file_to_process = "" #sciezka do pliku
 
         """GUI setup"""
+        """left container"""
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
         self.tree = self.create_treeview()
         self.create_scrollbar_for_treeview()
+
+        """right container"""
         self.right_container = ttk.Frame(self)
         self.new_record_container = ttk.LabelFrame(
             self.right_container, text="New recording"
@@ -81,6 +84,7 @@ class IoFront(ttk.Frame):
         self.stop_recording_button()
         self.new_record_container.pack(padx=5, pady=10)
 
+        """action container"""
         self.action_container = ttk.LabelFrame(
             self.right_container, text="Manage recording"
         )
@@ -88,7 +92,7 @@ class IoFront(ttk.Frame):
         self.refresh_button()
         self.process_files_main_app_button()
         self.action_container.pack(padx=5, pady=10)
-
+        """search container and entry and button"""
         self.search_container = ttk.LabelFrame(self.right_container, text="Search")
         self.search_entry = self.create_entry()
         self.create_search_button()
@@ -100,6 +104,7 @@ class IoFront(ttk.Frame):
         
         master_window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
+    """create treeview and scrollbar for it"""
     def create_treeview(self):
         columns = ["id", "date", "name"]
         tree = ttk.Treeview(
@@ -149,12 +154,14 @@ class IoFront(ttk.Frame):
 
         return tree
 
+    """create element for treeview"""
     def tree_on_click_element(self, event):
         clickedItem = self.tree.focus()
         print(self.tree.item(clickedItem)["values"])
         self.clicked_note = self.tree.item(clickedItem)["values"][0]
         return
 
+    """create scrollbar for treeview"""
     def create_scrollbar_for_treeview(self):
         scrollbar = ttk.Scrollbar(
             master=self.left_container, orient="vertical", command=self.tree.yview
@@ -162,6 +169,7 @@ class IoFront(ttk.Frame):
         scrollbar.grid(row=0,rowspan=5, column=4, sticky="ns")
         self.tree.configure(yscrollcommand=scrollbar.set)
 
+    """create button for processing existing files"""
     def process_files_main_app_button(self):
         button = ttk.Button(
             master=self.action_container, width=20, text="Process files"
@@ -174,17 +182,20 @@ class IoFront(ttk.Frame):
             ]
         )
 
+    """create entry widged"""
     def create_entry(self):
         entry = ttk.Entry(master=self.search_container, width=20)
         entry.pack(padx=5, pady=10)
         return entry
 
+    """create search button for treeview and entry"""
     def create_search_button(self):
         button = ttk.Button(master=self.search_container, width=20, text="Search")
         button.bind("<Button-1>", lambda x: self.on_click_search())
         button.pack(padx=5, pady=10)
         return button
 
+    """create drop menu to choose application for recording"""
     def drop_menu_app(self, master):
         mb = ttk.Menubutton(master=master, width=16, text="Application")
         mb.pack(padx=5, pady=10)
@@ -202,6 +213,7 @@ class IoFront(ttk.Frame):
             )
         mb["menu"] = inside_menu
 
+    """create drop menu to choose application for recording for processing existing files window"""
     def existing_record_drop_menu_app(self, master):
         mb = ttk.Menubutton(master=master, width=16, text="Application")
         mb.pack(padx=5, pady=10)
@@ -219,6 +231,7 @@ class IoFront(ttk.Frame):
             )
         mb["menu"] = inside_menu
 
+    """create button for opening recording in browser for main window"""
     def open_in_browser_button(self):
         button = ttk.Button(
             master=self.action_container, width=20, text="Open in browser"
@@ -232,6 +245,7 @@ class IoFront(ttk.Frame):
         )
         return button
 
+    """create refresh button for treeview for main window"""
     def refresh_button(self):
         button = ttk.Button(master=self.action_container, width=20, text="Refresh")
         button.grid(row=5, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
@@ -240,6 +254,7 @@ class IoFront(ttk.Frame):
         )
         return button
 
+    """create function to send data to server on click refresh button for main window"""
     def on_click_refresh(self):
         data = com_www_server.get_info_of_notes_from_server()["notes"]
         print(data)
@@ -271,6 +286,7 @@ class IoFront(ttk.Frame):
 
         return
 
+    """create data search function for treeview for main window on click search button"""
     def on_click_search(self):
         data = ""
         get_text = self.search_entry.get()
@@ -311,6 +327,7 @@ class IoFront(ttk.Frame):
 
         return
 
+    """create button to start recording for main window, creates new directory for recording"""
     def start_recording_button(self):
         button = ttk.Button(
             master=self.new_record_container, width=20, text="Start recording"
@@ -324,6 +341,7 @@ class IoFront(ttk.Frame):
         button.grid(row=1, column=1, padx=5, pady=10)
         return button
 
+    """create button to stop recording for main window, combines recordings, opens new window for further actions"""
     def stop_recording_button(self):
         button = ttk.Button(
             master=self.new_record_container, width=20, text="Stop recording"
@@ -339,17 +357,18 @@ class IoFront(ttk.Frame):
         button.grid(row=2, column=1, padx=5, pady=10)
         return button
 
+    """new action window after finishing recording """
     def stop_recording_button_new_window(self):
 
+        """check if combined.mp4 file is present"""
         def check_file_presence():
-            """Sprawdza, czy plik combined.mp4 istnieje, i odblokowuje przyciski."""
-            if self.record_dir:  # Sprawdzamy, czy katalog jest ustawiony
+            if self.record_dir:
                 file_path = os.path.join("../tmp/",self.record_dir, "combined.mp4")
                 if os.path.isfile(file_path):
-                    # print(f"File found: {file_path}")
-                    return  # Zatrzymujemy dalsze sprawdzanie, gdy plik zostanie znaleziony
+                    return  True
                 else:
                     print(f"File not found: {file_path}")
+                    return False
             else:
                 print("Record directory not set.")
 
