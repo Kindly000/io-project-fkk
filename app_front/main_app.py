@@ -90,6 +90,8 @@ class IoFront(ttk.Frame):
 
         self.send_failed_files()
 
+        master_window.protocol("WM_DELETE_WINDOW", self.on_closing)
+
     def create_treeview(self):
         columns = ["id", "date", "name"]
         tree = ttk.Treeview(
@@ -420,6 +422,16 @@ class IoFront(ttk.Frame):
             "<Button-1>", lambda x: [save_input(), self.save_name_dir_in_variables()]
         )
         confirm_button.pack(pady=10)
+
+    def on_closing(self):
+        """Zamyka aplikację i kończy wszystkie zadania w ThreadPoolExecutor."""
+        print("Shutting down executor...")
+        self.stop_video_recording()
+        self.stop_audio_recording()
+        self.executor.shutdown(wait=False)  # Czeka na zakończenie wszystkich zadań
+        print("Executor shut down. Closing application.")
+        self.master.destroy()  # Zamyka główne okno aplikacji
+        sys.exit()
 
 
 if __name__ == "__main__":
