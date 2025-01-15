@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import webbrowser
 import os
+import sys
 import app_front.class_record as rec_vid
 import app_front.class_audio as rec_aud
 from data_analyze import data_analyze
@@ -798,11 +799,14 @@ class IoFront(ttk.Frame):
 
     """function to close application with threads"""
     def on_closing(self):
+        """Zamyka aplikację i kończy wszystkie zadania w ThreadPoolExecutor."""
         print("Shutting down executor...")
-        self.executor.shutdown(wait=False)
+        self.stop_video_recording()
+        self.stop_audio_recording()
+        self.executor.shutdown(wait=False)  # Czeka na zakończenie wszystkich zadań
         print("Executor shut down. Closing application.")
-        self.master.destroy()
-        os._exit(1)
+        self.master.destroy()  # Zamyka główne okno aplikacji
+        sys.exit()
 
 """create main app window"""
 if __name__ == "__main__":

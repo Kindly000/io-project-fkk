@@ -6,6 +6,8 @@ import re
 import os
 import cv2
 import time
+import os
+from openai import OpenAI
 from pyannote.audio import Pipeline
 from faster_whisper import WhisperModel
 from transformers import pipeline
@@ -159,26 +161,54 @@ def notes_summary(tekst: str) -> str:
         str: Streszczenie tekstu.
 
     Notes:
-        - Funkcja korzysta z modelu Facebook BART do generowania podsumowań.
+        - Funkcja korzysta z API CHatGPT-4o do generowania podsumowań.
         - Loguje sukces lub błędy za pomocą `log_data_analyze`.
     """
     try:
-        summarizer = pipeline(
-            "summarization",
-            model="facebook/bart-large-cnn",
-            tokenizer="facebook/bart-large-cnn",
+        # summarizer = pipeline(
+        #     "summarization",
+        #     model="facebook/bart-large-cnn",
+        #     tokenizer="facebook/bart-large-cnn",
+        # )
+
+        # summary = summarizer(tekst, max_length=130, min_length=30, do_sample=False)
+        # log_data_analyze("Notes summary generated successfully.")
+        # return summary[0]["summary_text"]
+
+        print(tekst)
+
+        client = OpenAI(
+            base_url="https://models.inference.ai.azure.com",
+            api_key="...",
         )
 
-        summary = summarizer(tekst, max_length=130, min_length=30, do_sample=False)
-        log_data_analyze("Notes summary generated successfully.")
-        return summary[0]["summary_text"]
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Podsumuj transkrypcje nagrania wideo którą ci przekaże poniżej ( jeżeli nie będzie tekstu do podsumowania zwróć odpowiedź: \"Brak tekstu do podsumowania\"):",
+                },
+                {
+                    "role": "user",
+                    "content": tekst,
+                },
+            ],
+            model="gpt-4o",
+            temperature=0.5,
+            max_tokens=4096,
+            top_p=1,
+        )
+
+        return response.choices[0].message.content
     except Exception as e:
         log_data_analyze(f"Error generating notes summary: {e}")
         return ""
 
 
 # 5. Wydobywanie ramek z wideo do dalszej analizy
-def get_video_frames(file_path: str, file_name: str, file_extension: str, temp_dir_name: str) -> int:
+def get_video_frames(
+    file_path: str, file_name: str, file_extension: str, temp_dir_name: str
+) -> int:
     """
     Wydobywanie ramek z pliku wideo do dalszej analizy.
 
@@ -274,7 +304,7 @@ def main(
     title: str = "test_main_data_analyze",
     datetime: datetime = datetime(2025, 1, 11, 18, 50, 49, 859943),
     n_frame: int = 5,
-    send_to_server: bool = True
+    send_to_server: bool = True,
 ):
     """
     Główna funkcja odpowiedzialna za przetwarzanie danych multimedialnych: audio, wideo oraz generowanie podsumowań.
@@ -364,7 +394,9 @@ def main(
             log_data_analyze("Summary generated.")
 
             # Analiza ramek wideo
-            number_of_screens = get_video_frames(filepath, filename, fileextension, temp_dir_name)
+            number_of_screens = get_video_frames(
+                filepath, filename, fileextension, temp_dir_name
+            )
             screen_data = image_analyzer.main(
                 number_of_screens, f"../tmp/{temp_dir_name}", application_name, n_frame
             )
@@ -394,7 +426,7 @@ def main(
             video_file_path=filename_video,
             tmp_dir_name=temp_dir_name,
             directory_path=user_dir,
-            send_to_server=send_to_server
+            send_to_server=send_to_server,
         )
         log_data_analyze("Files saved successfully. \n")
 
