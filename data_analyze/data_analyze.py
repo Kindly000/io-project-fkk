@@ -161,7 +161,7 @@ def notes_summary(tekst: str) -> str:
         str: Streszczenie tekstu.
 
     Notes:
-        - Funkcja korzysta z modelu Facebook BART do generowania podsumowań.
+        - Funkcja korzysta z API CHatGPT-4o do generowania podsumowań.
         - Loguje sukces lub błędy za pomocą `log_data_analyze`.
     """
     try:
