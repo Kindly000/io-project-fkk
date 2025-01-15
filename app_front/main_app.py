@@ -1,6 +1,6 @@
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
-from tkinter import filedialog, BooleanVar
+from tkinter import filedialog, BooleanVar, Button
 from tkinter import Toplevel
 import re
 import ttkbootstrap as ttk
@@ -333,15 +333,30 @@ class IoFront(ttk.Frame):
         return button
 
     def stop_recording_button_new_window(self):
+
         def check_file_presence():
             """Sprawdza, czy plik combined.mp4 istnieje, i odblokowuje przyciski."""
-            file_path = os.path.join(self.record_dir, "combined.mp4")
-            if os.path.isfile(file_path):
-                download_button.config(state="normal")
-                process_recording_button.config(state="normal")
+            if self.record_dir:  # Sprawdzamy, czy katalog jest ustawiony
+                file_path = os.path.join("../tmp/",self.record_dir, "combined.mp4")
+                if os.path.isfile(file_path):
+                    # print(f"File found: {file_path}")
+                    return  # Zatrzymujemy dalsze sprawdzanie, gdy plik zostanie znaleziony
+                else:
+                    print(f"File not found: {file_path}")
             else:
-                # Jeśli pliku nie ma, ponownie sprawdź po 1000 ms (1 sekunda)
-                new_window.after(1000, check_file_presence)
+                print("Record directory not set.")
+
+            # Sprawdzamy ponownie po 1000 ms (1 sekunda)
+        def check_file_and_process():
+            if check_file_presence():
+                self.start_processing_button_new_window(),
+                new_window.destroy()
+
+        def check_file_and_download():
+            if check_file_presence():
+                print(self.selected_download_dir_var)
+                self.save_audio_and_video_files()
+
 
         new_window = Toplevel(self.new_record_container)
         new_window.title("Choose action")
@@ -352,31 +367,30 @@ class IoFront(ttk.Frame):
         download_label.pack(pady=10)
 
         button_dir = ttk.Button(new_window, text="Choose directory")
-        button_dir.bind("<Button-1>", lambda e: [self.open_download_directory_picker(),
-                                                 button_dir.config(text=self.selected_download_dir_var)])
+        button_dir.bind("<Button-1>",
+                        lambda e: [self.open_download_directory_picker(),
+                                button_dir.config(text=self.selected_download_dir_var)
+                                ])
         button_dir.pack(pady=10)
 
-        download_button = ttk.Button(new_window, text="Download", state="disabled")  # Przycisk początkowo zablokowany
+        download_button = ttk.Button(new_window, text="Download")  # Przycisk początkowo zablokowany
         download_button.bind("<Button-1>",
-                             lambda e: [print(self.selected_download_dir_var), self.save_audio_and_video_files()])
+                             lambda e: [check_file_and_download(),])
         download_button.pack(pady=10)
 
-        info_label = ttk.Label(new_window, text="Download files locally, later still you can make notes from them",
-                               font=("Arial", 9), bootstyle="secondary")
+        info_label = ttk.Label(new_window, text="Download files locally, later still you can make notes from them", font=("Arial", 9), bootstyle="secondary")
         info_label.pack(pady=10)
 
         # Label i przycisk do przetwarzania nagrania
         process_recording_label = ttk.Label(new_window, text="Process recording", font=("Arial", 9))
         process_recording_label.pack(pady=10)
 
-        process_recording_button = ttk.Button(new_window, text="Process recording",
-                                              state="disabled")  # Przycisk początkowo zablokowany
+        process_recording_button = ttk.Button(new_window, text="Process recording")
         process_recording_button.pack(pady=10)
         process_recording_button.bind(
             "<Button-1>",
             lambda e: [
-                self.start_processing_button_new_window(),
-                new_window.destroy()
+                check_file_and_process()
             ]
         )
 
