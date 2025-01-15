@@ -421,6 +421,9 @@ class IoFront(ttk.Frame):
             if not re.match(r"^[\w\-. ]+$", title):
                 validation_label.config( text="Nazwa może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia!", bootstyle="danger",)
                 return False
+            if(title == ""):
+                validation_label.config(text="Nie może być pusta",bootstyle="danger", )
+                return False
             validation_label.config(text="Nazwa poprawna!", bootstyle="success")
             return True
 
@@ -527,6 +530,9 @@ class IoFront(ttk.Frame):
             title = entry_title.get()
             if not re.match(r"^[\w\-. ]+$", title):
                 validation_label.config(text="Nazwa może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia!", bootstyle="danger",)
+                return False
+            if (title == ""):
+                validation_label.config(text="Nie może być pusta", bootstyle="danger", )
                 return False
             validation_label.config(text="Nazwa poprawna!", bootstyle="success")
             return True
@@ -774,8 +780,8 @@ class IoFront(ttk.Frame):
 
     """function to get values from different variables"""
     def save_name_dir_in_variables_existing_record(self):
-        if(self.existing_record_entered_name.get()==""):
-            self.existing_record_entered_name.set(f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+        # if(self.existing_record_entered_name.get()==""):
+        #     self.existing_record_entered_name.set(f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
         self.existing_record_file_name = self.existing_record_entered_name.get()
         self.existing_record_send_to_server_from_new_window = self.existing_record_send_to_server_from_new_window_var.get()
         self.existing_wav_file_to_process = self.existing_wav_file_to_process_var.get()
