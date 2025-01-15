@@ -363,12 +363,12 @@ class IoFront(ttk.Frame):
 
             """check if file is present and start processing if so"""
         def check_file_and_process():
-            if check_file_presence():
+            # if check_file_presence():
                 self.start_processing_button_new_window(),
                 new_window.destroy()
 
         def check_file_and_download():
-            if check_file_presence():
+            # if check_file_presence():
                 print(self.selected_download_dir_var)
                 self.save_audio_and_video_files()
 
@@ -449,7 +449,7 @@ class IoFront(ttk.Frame):
         label_title.pack(pady=10)
 
         entry_title = ttk.Entry(new_window, width=30, textvariable=self.existing_record_entered_name)
-        entry_title.insert(0, f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+        # entry_title.insert(0, f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
         entry_title.pack(pady=10)
 
         validation_label = ttk.Label(new_window, text="", font=("Arial", 9))
@@ -578,7 +578,7 @@ class IoFront(ttk.Frame):
         label_title.pack(pady=10)
 
         entry_title = ttk.Entry(new_window, width=30, textvariable=self.existing_record_entered_name)
-        entry_title.insert(0, f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+        # entry_title.insert(0, f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
         entry_title.pack(pady=10)
 
         validation_label = ttk.Label(new_window, text="", font=("Arial", 9))
@@ -773,6 +773,8 @@ class IoFront(ttk.Frame):
 
     """function to get values from different variables"""
     def save_name_dir_in_variables_existing_record(self):
+        if(self.existing_record_entered_name.get()==""):
+            self.existing_record_entered_name.set(f"New_Note_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
         self.existing_record_file_name = self.existing_record_entered_name.get()
         self.existing_record_send_to_server_from_new_window = self.existing_record_send_to_server_from_new_window_var.get()
         self.existing_wav_file_to_process = self.existing_wav_file_to_process_var.get()
