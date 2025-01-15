@@ -68,7 +68,6 @@ class IoFront(ttk.Frame):
         self.existing_wav_file_to_process = "" #sciezka do pliku
         self.existing_mp4_file_to_process = "" #sciezka do pliku
 
-
         """GUI setup"""
         self.left_container = ttk.LabelFrame(self, text="Recordings")
         self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
@@ -98,6 +97,8 @@ class IoFront(ttk.Frame):
 
         """resend failed files function"""
         self.send_failed_files()
+        
+        master_window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def create_treeview(self):
         columns = ["id", "date", "name"]
@@ -271,36 +272,42 @@ class IoFront(ttk.Frame):
         return
 
     def on_click_search(self):
+        data = ""
         get_text = self.search_entry.get()
-        data = com_www_server.get_info_of_notes_from_server_if_note_contain_search_word(
+        if com_www_server.get_info_of_notes_from_server_if_note_contain_search_word(
             get_text
-        )["notes"]
+        ) is not None:
+            data = com_www_server.get_info_of_notes_from_server_if_note_contain_search_word(
+                get_text
+            )["notes"]
         # print(data)
-        index = 0
-        for i in self.tree.get_children():
-            self.tree.delete(i)
 
-        for i in data:
-            # print(i)
-            if int(index) % 2 == 1:
-                self.tree.insert(
-                    "",
-                    "end",
-                    values=[i["note_id"], i["datetime"], i["title"]],
-                    tags="change_bg",
-                    iid=index,
-                )
-            else:
-                self.tree.insert(
-                    "",
-                    "end",
-                    values=[i["note_id"], i["datetime"], i["title"]],
-                    iid=index,
-                )
-            self.tree.bind("<<TreeviewSelect>>", self.tree_on_click_element)
-            # tree.bind("<Button-3>", self.identify_item)
+        if data != "":
+            index = 0
+            for i in self.tree.get_children():
+                self.tree.delete(i)
 
-            index += 1
+            for i in data:
+                # print(i)
+                if int(index) % 2 == 1:
+                    self.tree.insert(
+                        "",
+                        "end",
+                        values=[i["note_id"], i["datetime"], i["title"]],
+                        tags="change_bg",
+                        iid=index,
+                    )
+                else:
+                    self.tree.insert(
+                        "",
+                        "end",
+                        values=[i["note_id"], i["datetime"], i["title"]],
+                        iid=index,
+                    )
+                self.tree.bind("<<TreeviewSelect>>", self.tree_on_click_element)
+                # tree.bind("<Button-3>", self.identify_item)
+
+                index += 1
 
         return
 
@@ -356,7 +363,6 @@ class IoFront(ttk.Frame):
             if check_file_presence():
                 print(self.selected_download_dir_var)
                 self.save_audio_and_video_files()
-
 
         new_window = Toplevel(self.new_record_container)
         new_window.title("Choose action")
@@ -642,7 +648,7 @@ class IoFront(ttk.Frame):
         nested_dir = Path(f"../tmp/{self.record_dir}")
         nested_dir.mkdir(parents=True, exist_ok=True)
 
-    #JKV
+    # JKV
     def new_directory_for_analyze(self):
         self.date_var_analyze = datetime.now()
         date_current = self.date_var_analyze.strftime("%Y-%m-%d_%H-%M-%S")
@@ -747,7 +753,7 @@ class IoFront(ttk.Frame):
         self.existing_mp4_file_to_process = self.existing_mp4_file_to_process_var.get()
         print([self.existing_wav_file_to_process, self.existing_mp4_file_to_process, self.existing_record_file_name, self.existing_record_selected_dir_var, self.existing_record_app_name, self.existing_record_frequency_comparison_sec, self.existing_record_send_to_server_from_new_window])
 
-    #JKV - for Download
+    # JKV - for Download
     def save_audio_and_video_files(self):
         sf.save_audio_and_video_files_to_user_directory(
             self.selected_download_dir_var,
@@ -756,10 +762,19 @@ class IoFront(ttk.Frame):
             self.existing_mp4_file_to_process
         )
 
-    #JKV
+    # JKV
     def placeholder(self):
         self.new_directory_for_analyze()
         self.executor.submit(self.start_data_analyze, self.analyze_dir, self.date_var_analyze)
+
+
+    def on_closing(self):
+        """Zamyka aplikację i kończy wszystkie zadania w ThreadPoolExecutor."""
+        print("Shutting down executor...")
+        self.executor.shutdown(wait=False)  # Czeka na zakończenie wszystkich zadań
+        print("Executor shut down. Closing application.")
+        self.master.destroy()  # Zamyka główne okno aplikacji
+        os._exit(1)
 
 
 if __name__ == "__main__":
