@@ -5,28 +5,31 @@ from app_backend.logging_f import log_operations_on_file
 
 def find_word_in_notes(directory_path: str, word: str) -> list[str]:
     """
-    Searches for a specific word in all `.txt` files within a given directory.
+    Finds all text files in a directory that contain a specified word.
 
-    This function scans each `.txt` file in the specified directory and checks if the
-    given word appears in the file's content. The search is case-insensitive and matches
-    whole words only (not substrings). If the word is found in a file, the filename is
-    added to the result list.
+    This function scans all `.txt` files in a given directory and searches for a word, ensuring that the word
+    is matched as a whole word (using word boundaries). If a file contains the word, it is added to the list of
+    matching files. The function is case-insensitive and will return a list of filenames that contain the word.
 
     Args:
-        directory_path (str): The path to the directory containing `.txt` files to search.
-        word (str): The word to search for within the files.
+        directory_path (str): The path to the directory containing the `.txt` files to be searched.
+        word (str): The word to search for within the text files.
 
     Returns:
-        list: A list of filenames where the word was found.
+        list[str]: A list of filenames (as strings) of the `.txt` files that contain the specified word.
+
+    Error Handling:
+        - Logs file operation errors using `log_operations_on_file`.
 
     Notes:
-        - If a file cannot be opened due to encoding or file access issues, an error message
-          will be printed, and the file will be skipped.
-        - The function uses regular expressions to ensure whole-word matching.
+        - The search is case-insensitive.
+        - The word is matched as a whole word using word boundaries (`\b`).
+        - This function only processes files with a `.txt` extension.
 
     Example:
-        >>> find_word_in_notes('/path/to/directory', 'example')
-        ['file1.txt', 'file2.txt']
+        >>> matching_files = find_word_in_notes("/path/to/notes", "important")
+        >>> print(matching_files)
+        ['note1.txt', 'note3.txt']
     """
     matching_files = []
     pattern = r'\b' + re.escape(word) + r'\b'
@@ -42,7 +45,7 @@ def find_word_in_notes(directory_path: str, word: str) -> list[str]:
                             matching_files.append(filename)
                             break
             except Exception as e:
-                log_operations_on_file(f"For find_word_in_notes({directory_path}, {word}) - Error: {e}")
+                log_operations_on_file(f"[ERROR] find_word_in_notes({directory_path}, {word}): {repr(e)}")
 
     return matching_files
 

@@ -5,7 +5,7 @@ from app_backend.logging_f import log_operations_on_file
 from app_backend.save_files import delete_directory, copy_file
 
 
-def check_and_create_unsuccessful_uploads_folder():
+def check_and_create_unsuccessful_uploads_folder() -> None:
     """
     Checks if the 'unsuccessful_uploads' directory exists in the parent folder.
     If it does not exist, the directory is created.
@@ -15,55 +15,45 @@ def check_and_create_unsuccessful_uploads_folder():
 
     Returns:
         None
+
+    Example:
+        >>> check_and_create_unsuccessful_uploads_folder()
     """
     if not os.path.exists('../unsuccessful_uploads'):
         os.mkdir('../unsuccessful_uploads')
 
 
-def save_unsuccessful_upload(note_id: str, file_path: str) -> None:
+def save_unsuccessful_upload(note_id: str, file_path: str) -> bool:
     """
-    Saves details of an unsuccessful file upload for a given note.
+        Saves an unsuccessful file upload by storing it in a specific directory and updating a JSON log.
 
-    This function handles two primary tasks:
-    1. Copies the file associated with the unsuccessful upload to a dedicated directory,
-       creating a subdirectory for the specific note ID if it doesn't already exist.
-    2. Updates a JSON file (`failed_files.json`) to log the details of the unsuccessful upload,
-       including the note ID and file name.
+        This function handles the case when a file upload fails. It saves the file to a designated folder
+        (`../unsuccessful_uploads`) organized by `note_id`, and updates a JSON file (`failed_files.json`)
+        to keep track of the failed uploads. If a folder for the `note_id` doesn't exist, it is created.
+        The file is copied to the appropriate folder and the JSON log is updated with the new failed upload.
 
-    Args:
-        note_id (str): The unique identifier of the note associated with the upload.
-        file_path (str): The path to the file that failed to upload.
+        Args:
+            note_id (str): The unique identifier of the note related to the failed upload.
+            file_path (str): The local path of the file that failed to upload.
 
-    Directory structure:
-        - Files are stored under `../unsuccessful_uploads/<note_id>/<file_name>`.
-        - The JSON log file is stored at `../unsuccessful_uploads/failed_files.json`.
+        Returns:
+            bool: `True` if the file was successfully saved and the JSON file was updated. `False` if an error occurred.
 
-    JSON log format:
-        {
-            "elements": [
-                {
-                    "dir_name": "<note_id>",
-                    "dir_content": [
-                        {
-                            "note_id": "<note_id>",
-                            "file_name": "<file_name>"
-                        }
-                    ]
-                }
-            ]
-        }
+        Error Handling:
+            - Logs errors during file operations using `log_operations_on_file`.
 
-    Notes:
-        - If the JSON file already contains an entry for the specified note ID,
-          the new file is appended to the existing entry.
-        - If the file is already located at the target path, it will silently skip copying.
-        - If the `../unsuccessful_uploads` or subdirectories do not exist, they are created automatically.
+        Notes:
+            - The function ensures the existence of the `unsuccessful_uploads` folder before saving the file.
+            - If a directory for a specific `note_id` does not exist, it is created.
+            - Updates or creates a JSON file `failed_files.json` to track the failed uploads.
+            - Uses the `copy_file` function to move the file to the appropriate directory.
 
-    Exceptions:
-        - Silently handles `shutil.SameFileError` if the source and destination file paths are the same.
-
-    Example:
-        >>> save_unsuccessful_upload("80dd89ff24bd287237c31639ed6eff5b6a7e854a9e0b2b919598d1798bccf5bd", "example.txt")
+        Example:
+            >>> success = save_unsuccessful_upload("80dd89ff24bd287237c31639ed6eff5b6a7e854a9e0b2b919598d1798bccf5bd", "example.pdf")
+            >>> if success:
+            ...     print("Failed upload saved successfully.")
+            ... else:
+            ...     print("Failed to save the unsuccessful upload.")
     """
     check_and_create_unsuccessful_uploads_folder()
     dir_for_unsuccessful_uploads = '../unsuccessful_uploads'
@@ -71,9 +61,11 @@ def save_unsuccessful_upload(note_id: str, file_path: str) -> None:
     try:
         if not os.path.exists(f'{dir_for_unsuccessful_uploads}/{note_id}'):
             os.mkdir(f'{dir_for_unsuccessful_uploads}/{note_id}')
-        copy_file(file_path, f'{dir_for_unsuccessful_uploads}/{note_id}/{fail_file_name}')
+        if not copy_file(file_path, f'{dir_for_unsuccessful_uploads}/{note_id}/{fail_file_name}'):
+            return False
     except Exception as e:
-        log_operations_on_file(f"For save_unsuccessful_upload({note_id}, {file_path}) - os.mkdir Error: {e}")
+        log_operations_on_file(f"[ERROR] save_unsuccessful_upload({note_id}, {file_path}): {repr(e)}")
+        return False
 
     json_path = f'{dir_for_unsuccessful_uploads}/failed_files.json'
     if os.path.exists(json_path):
@@ -107,47 +99,48 @@ def save_unsuccessful_upload(note_id: str, file_path: str) -> None:
 
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+    return True
 
 
 def send_failed_files() -> None:
     """
-    Attempts to upload files stored in a directory for unsuccessful uploads.
+        Attempts to re-upload failed files and updates the status of the upload process.
 
-    This function processes a JSON file located in the `../unsuccessful_uploads` directory
-    that tracks failed file uploads. For each entry in the JSON file:
-    - Attempts to re-upload the files using the `upload_file_on_server` function.
-    - If a file is successfully uploaded, it is deleted from the local filesystem.
-    - If all files in a directory are successfully uploaded, the directory is removed.
-    - If some files in a directory still fail to upload, the JSON file is updated to reflect the remaining files.
+        This function checks for any previously failed uploads stored in `failed_files.json` within the `unsuccessful_uploads` directory.
+        It attempts to re-upload each failed file using the `upload_file_on_server` function. If the upload is successful, the file is deleted.
+        If the upload fails again, the file is retained for future attempts. After processing all files, the function updates the JSON file
+        to reflect the current status of each failed upload, removing any successfully re-uploaded files and directories.
 
-    If the JSON file does not exist or contains no elements, the function exits without performing any action.
+        Returns:
+            None
 
-    Exceptions:
-        - `FileNotFoundError`: If a file listed in the JSON is not found during upload, it is ignored.
+        Error Handling:
+            - Logs errors during file uploads using `log_operations_on_file`.
+            - Handles `FileNotFoundError` gracefully if a file to upload is missing.
 
-    Notes:
-        - The `upload_file_on_server` function must be implemented separately and is assumed to handle the actual upload logic.
-        - The function modifies the `failed_files.json` file to reflect the current status of uploads.
+        Notes:
+            - The function reads and updates the `failed_files.json` file, which tracks failed uploads.
+            - Deletes the directory for a `note_id` if all files within that directory have been successfully re-uploaded.
+            - Retains and re-attempts uploading any files that fail during the re-upload process.
+            - Utilizes the `upload_file_on_server` function for uploading and `delete_directory` for cleaning up empty directories.
 
-    Returns:
-        None
-
-    Example:
-        >>> send_failed_files()
+        Example:
+            >>> send_failed_files()
+            >>> # This will attempt to re-upload any files that failed during a previous upload attempt.
     """
     check_and_create_unsuccessful_uploads_folder()
     dir_for_unsuccessful_uploads = '../unsuccessful_uploads'
     json_path = f'{dir_for_unsuccessful_uploads}/failed_files.json'
 
     if not os.path.exists(json_path):
-        return
+        return None
 
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     elements = data["elements"]
     if len(elements) == 0:
-        return
+        return None
 
     failed_elements = []
     for element in elements:
@@ -165,7 +158,8 @@ def send_failed_files() -> None:
             except FileNotFoundError:
                 pass
             except Exception as e:
-                log_operations_on_file(f"For send_failed_files() - os.remove Error: {e}")
+                log_operations_on_file(f"[ERROR] send_failed_files(): {repr(e)}")
+
         if len(failed_dir_content) == 0:
             delete_directory(f'{dir_for_unsuccessful_uploads}/{element["dir_name"]}')
         else:
@@ -175,3 +169,4 @@ def send_failed_files() -> None:
     data["elements"] = failed_elements
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+    return None

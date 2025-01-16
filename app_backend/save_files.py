@@ -6,8 +6,9 @@ from app_backend.create_files import create_docx_file, create_txt_file, create_j
 from app_backend.communication_with_www_server import upload_file_on_server
 import hashlib
 import threading
-from app_backend.logging_f import log_operations_on_file
+from app_backend.logging_f import log_operations_on_file, app_logs
 import app_front.quickstart as google_cal
+from app_backend.retry_logic import save_unsuccessful_upload
 
 
 def create_note_id(note_title: str, note_datetime: str, language: str) -> str:
@@ -26,16 +27,16 @@ def create_note_id(note_title: str, note_datetime: str, language: str) -> str:
     Returns:
         str: A unique SHA-256 hash string that serves as the ID for the note.
 
-    Example:
-        >>> note_id = create_note_id("Meeting Notes", "01-02-2022 11:50:00", "en")
-        >>> print(note_id)
-        '5f4d2b89f...<hash_value>...'
-
     Notes:
         - This function uses the `hashlib` module to create the SHA-256 hash.
         - The function includes a random integer between 0 and 10,000 to increase the likelihood of uniqueness.
         - Ensure that the `hashlib` library is imported for this function to work properly.
         - The function returns a string of 64 hexadecimal characters.
+
+    Example:
+        >>> note_id = create_note_id("Meeting Notes", "01-02-2022 11:50:00", "en")
+        >>> print(note_id)
+        '5f4d2b89f...<hash_value>...'
     """
     v = f"{note_title}{language}{note_datetime}{str(random.randint(0,10000))}"
     hash_object = hashlib.sha256(v.encode('utf-8'))
@@ -61,6 +62,11 @@ def sort_note_content(note_content: list) -> list:
     Returns:
         list: A new list of note content elements sorted first by timestamp and then by type.
 
+    Notes:
+        - The function assumes that all dictionaries in the input list have the keys `type` and `timestamp`.
+        - The sorting order for types is predefined: `img` is sorted first, then `speaker`, and `text` last.
+        - This function uses a lambda function as the sorting key to achieve multi-level sorting.
+
     Example:
         >>> note_content = [
         ...     {'type': 'speaker', 'timestamp': 120, 'name': 'Alice'},
@@ -72,35 +78,85 @@ def sort_note_content(note_content: list) -> list:
         [{'type': 'img', 'timestamp': 60, 'file_path': 'image.jpg'},
          {'type': 'speaker', 'timestamp': 120, 'name': 'Alice'},
          {'type': 'text', 'timestamp': 120, 'value': 'Some text content'}]
-
-    Notes:
-        - The function assumes that all dictionaries in the input list have the keys `type` and `timestamp`.
-        - The sorting order for types is predefined: `img` is sorted first, then `speaker`, and `text` last.
-        - This function uses a lambda function as the sorting key to achieve multi-level sorting.
     """
     type_order = {'img': 0, 'speaker': 1, 'text': 2}
     return sorted(note_content, key=lambda x: (x['timestamp'], type_order[x['type']]))
 
 
 def delete_directory(directory_path: str) -> bool:
+    """
+    Deletes a directory and its contents.
+
+    This function attempts to delete a specified directory along with all its files and subdirectories.
+    If the operation is successful, it returns `True`. If an error occurs during the deletion process,
+    it logs the error and returns `False`.
+
+    Args:
+        directory_path (str): The path to the directory to be deleted.
+
+    Returns:
+        bool: `True` if the directory was deleted successfully. `False` if an error occurred.
+
+    Error Handling:
+        - Logs errors during the directory deletion process using `log_operations_on_file`.
+
+    Notes:
+        - Uses `shutil.rmtree()` to recursively delete the directory and its contents.
+        - Ensure that the provided `directory_path` is correct to avoid accidental deletions.
+
+    Example:
+        >>> success = delete_directory("/path/to/directory")
+        >>> if success:
+        ...     print("Directory deleted successfully.")
+        ... else:
+        ...     print("Failed to delete the directory.")
+    """
     try:
         shutil.rmtree(directory_path)
         return True
     except Exception as e:
-        log_operations_on_file(f"For delete_directory({directory_path}) - shutil.rmtree Error: {e}")
+        log_operations_on_file(f"[ERROR] delete_directory({directory_path}): {repr(e)}")
         return False
 
 
 def copy_file(file_path: str, destination_file_path: str) -> bool:
+    """
+    Copies a file from one location to another.
+
+    This function copies a file from the specified source (`file_path`) to the destination (`destination_file_path`).
+    If the copy operation is successful, it returns `True`. If an error occurs during the copying process,
+    it logs the error and returns `False`.
+
+    Args:
+        file_path (str): The path to the source file to be copied.
+        destination_file_path (str): The path to the destination where the file should be copied.
+
+    Returns:
+        bool: `True` if the file was copied successfully. `False` if an error occurred.
+
+    Error Handling:
+        - Logs errors during the file copy process using `log_operations_on_file`.
+
+    Notes:
+        - Uses `shutil.copyfile()` to copy the file.
+        - Ensure that both the source and destination file paths are valid.
+
+    Example:
+        >>> success = copy_file("example.txt", "/path/to/destination/example.txt")
+        >>> if success:
+        ...     print("File copied successfully.")
+        ... else:
+        ...     print("Failed to copy the file.")
+    """
     try:
         shutil.copyfile(file_path, destination_file_path)
         return True
     except Exception as e:
-        log_operations_on_file(f"For copy_file({file_path}, {destination_file_path}) - shutil.copyfile Error: {e}")
+        log_operations_on_file(f"[ERROR] copy_file({file_path}, {destination_file_path}): {repr(e)}")
         return False
 
 
-def send_and_delete_files(
+def send_files_on_server_with_delete_directory(
         note_id: str,
         json_file_path: str,
         img_files_name: list,
@@ -112,57 +168,58 @@ def send_and_delete_files(
         tmp_dir_name: str
 ) -> None:
     """
-    Sends files to a server and deletes them from the local temporary directory after uploading.
+    Uploads multiple files to a server and deletes the temporary directory.
 
-    This function handles the upload of various files associated with a specific note to the server.
-    It uploads the JSON file, image files, and video file, and optionally uploads a DOCX or TXT file if created.
-    Once all the files are uploaded, it deletes all files from the temporary directory to clean up.
+    This function uploads a set of files (such as images, JSON, video, and optional text and DOCX files)
+    associated with a specific note to the server. If any file fails to upload, it is saved for a retry later.
+    After all files are processed, it deletes the temporary directory used for storing the files.
 
     Args:
-        note_id (str): The unique identifier of the note for which the files are being uploaded.
-        json_file_path (str): The path to the JSON file that contains note data.
-        img_files_name (list): A list of names of image files to be uploaded.
+        note_id (str): The unique identifier of the note associated with the files.
+        json_file_path (str): The path to the JSON file to be uploaded.
+        img_files_name (list): A list of image file names to be uploaded.
         video_file_path (str): The path to the video file to be uploaded.
-        is_docx_file_created (bool): A flag indicating whether a DOCX file has been created.
+        is_docx_file_created (bool): A flag indicating if the DOCX file is created and should be uploaded.
         docx_file_path (str): The path to the DOCX file to be uploaded (if created).
-        is_docx_txt_created (bool): A flag indicating whether a TXT file has been created.
+        is_docx_txt_created (bool): A flag indicating if the TXT file is created and should be uploaded.
         txt_file_path (str): The path to the TXT file to be uploaded (if created).
-        tmp_dir_name (str): The name of tmp directory where are files.
+        tmp_dir_name (str): The name of the temporary directory containing the files to be uploaded.
 
     Returns:
-        None: This function does not return a value. It performs file uploads and deletes files locally.
+        None
 
-    Behavior on Failure:
-        - The function assumes that the `upload_file_on_server` function handles errors during file upload.
-        - If any file cannot be uploaded, the function does not retry or log the failure.
-
-    Example:
-        >>> send_and_delete_files(
-        ...     note_id="12345",
-        ...     json_file_path="note_data.json",
-        ...     img_files_name=["image1.jpg", "image2.jpg"],
-        ...     video_file_path="video.mp4",
-        ...     is_docx_file_created=True,
-        ...     docx_file_path="note.docx",
-        ...     is_docx_txt_created=True,
-        ...     txt_file_path="note.txt"
-        ...     tmp_dir_name="notes_id_znadri"
-        ... )
+    Error Handling:
+        - Logs failed uploads using `app_logs`.
+        - Saves failed uploads for later retries using `save_unsuccessful_upload`.
+        - The function will log each step of the upload process, including success or failure.
 
     Notes:
-        - The function deletes directory '../tmp/<tmp_dir_name>' with all files after uploading, so use this with caution.
-        - Ensure that the `upload_file_on_server` function is working correctly, as this function relies on it for uploads.
-        - The `shutil` and `os` modules are used for file operations. Ensure they are imported at the top of the script.
+        - The function attempts to upload all specified files, including images, video, and text files.
+        - If any file fails to upload, it is saved for a retry attempt.
+        - Deletes the temporary directory once all file uploads are completed.
+
+    Example:
+        >>> send_files_on_server_with_delete_directory("12345", "note.json", ["img1.jpg", "img2.jpg"], "video.mp4", True, "note.docx", True, "note.txt", "tmp123")
+        >>> # This will upload the files associated with the note and delete the temporary directory.
     """
-    upload_file_on_server(note_id, json_file_path)
-    upload_file_on_server(note_id, video_file_path)
-    for img_file in img_files_name:
-        upload_file_on_server(note_id, f"../tmp/{tmp_dir_name}/{img_file}")
+    files_to_send = [f"../tmp/{tmp_dir_name}/{img_file}" for img_file in img_files_name]
+    files_to_send.append(json_file_path)
+    files_to_send.append(video_file_path)
 
     if is_docx_file_created:
-        upload_file_on_server(note_id, docx_file_path)
+        files_to_send.append(docx_file_path)
     if is_docx_txt_created:
-        upload_file_on_server(note_id, txt_file_path)
+        files_to_send.append(txt_file_path)
+
+    for file_path in files_to_send:
+        if not upload_file_on_server(note_id, file_path):
+            app_logs(f"[FAILED] Upload file {os.path.basename(file_path)}")
+            if not save_unsuccessful_upload(note_id, file_path):
+                app_logs(f"[FAILED] Save unsuccessful uploaded file {os.path.basename(file_path)}")
+            else:
+                app_logs(f"[SUCCESS] Save unsuccessful uploaded file {os.path.basename(file_path)}")
+        else:
+            app_logs(f"[SUCCESS] Upload file {os.path.basename(file_path)}")
 
     delete_directory(f"../tmp/{tmp_dir_name}")
 
@@ -172,13 +229,57 @@ def save_audio_and_video_files_to_user_directory(
         tmp_dir_name: str,
         audio_file_path: str,
         video_file_path: str
-) -> None:
+) -> bool:
+    """
+    Saves audio and video files to a user directory with detailed logging.
+
+    This function creates a subdirectory within the specified directory path if it does not already exist.
+    It then attempts to copy the specified audio and video files into this subdirectory. Logs are generated
+    to indicate the success or failure of each operation.
+
+    Args:
+        directory_path (str): The base directory path where the files will be saved.
+        tmp_dir_name (str): The name of the temporary subdirectory to be created within the base directory.
+        audio_file_path (str): The path to the audio file to be copied.
+        video_file_path (str): The path to the video file to be copied.
+
+    Returns:
+        bool: `True` if both files are successfully copied to the directory. `False` otherwise.
+
+    Error Handling:
+        - Uses the `copy_file` function for copying files, which handles file copy errors.
+        - Logs errors and successes for each file operation using `app_logs`.
+
+    Notes:
+        - Ensures the directory structure is created before attempting to copy files.
+        - Generates logs for each file, indicating whether the operation was successful or failed.
+        - Returns `False` if any of the file copy operations fail, but continues to process remaining files.
+
+    Example:
+        >>> success = save_audio_and_video_files_to_user_directory("/user/files", "tmp123", "audio.mp3", "video.mp4")
+        >>> if success:
+        ...     print("Files saved successfully.")
+        ... else:
+        ...     print("Failed to save files.")
+    """
+
     if not os.path.exists(f'{directory_path}/{tmp_dir_name}'):
         os.mkdir(f'{directory_path}/{tmp_dir_name}')
     directory_path = f'{directory_path}/{tmp_dir_name}'
+    return_value = True
+    if not copy_file(video_file_path, f'{directory_path}/{os.path.basename(video_file_path)}'):
+        app_logs(f"[FAILED] Save {os.path.basename(video_file_path)} in {directory_path}")
+        return_value = False
+    else:
+        app_logs(f"[SUCCESS] Save {os.path.basename(video_file_path)} in {directory_path}")
 
-    copy_file(video_file_path, f'{directory_path}/{os.path.basename(audio_file_path)}')
-    copy_file(video_file_path, f'{directory_path}/{os.path.basename(video_file_path)}')
+    if not copy_file(audio_file_path, f'{directory_path}/{os.path.basename(audio_file_path)}'):
+        app_logs(f"[FAILED] Save {os.path.basename(audio_file_path)} in {directory_path}")
+        return_value = False
+    else:
+        app_logs(f"[SUCCESS] Save {os.path.basename(video_file_path)} in {directory_path}")
+
+    return return_value
 
 
 def save_final_files_to_user_directory(
@@ -190,54 +291,67 @@ def save_final_files_to_user_directory(
         txt_file_path: str,
         img_files_name: list,
         video_file_path: str
-) -> None:
+) -> bool:
     """
-    Copies specific files to a user-specified directory and logs any errors encountered during the process.
+    Saves final files, including documents, images, and videos, to a user directory with logging.
 
-    This function checks if DOCX, TXT, image, and video files have been created and, if so, attempts to copy
-    them to the specified directory. Any failures during the copying process are logged with detailed error
-    messages to the file creation log.
+    This function creates a subdirectory within the specified directory path if it does not already exist.
+    It then attempts to copy the specified files (e.g., images, documents, and video) into this subdirectory.
+    Success or failure of each file operation is logged.
 
     Args:
-        directory_path (str): The path to the directory where the files should be saved.
-        tmp_dir_name (str): The name of tmp directory where are files.
-        is_docx_file_created (bool): A flag indicating if the DOCX file was created.
-        docx_file_path (str): The path to the DOCX file to be copied.
-        is_txt_file_created (bool): A flag indicating if the TXT file was created.
-        txt_file_path (str): The path to the TXT file to be copied.
-        img_files_name (list): A list of image file names to be copied from the temporary directory.
-        video_file_path (str): The path to the video file to be uploaded.
+        directory_path (str): The base directory path where the files will be saved.
+        tmp_dir_name (str): The name of the temporary subdirectory to be created within the base directory.
+        is_docx_file_created (bool): Whether a DOCX file is to be saved.
+        docx_file_path (str): The path to the DOCX file to be copied (if created).
+        is_txt_file_created (bool): Whether a TXT file is to be saved.
+        txt_file_path (str): The path to the TXT file to be copied (if created).
+        img_files_name (list): A list of image file names to be saved.
+        video_file_path (str): The path to the video file to be copied.
 
     Returns:
-        None: This function does not return a value. It performs file copying and logging.
+        bool: `True` if all files are successfully copied to the directory. `False` if any file fails to copy.
 
-    Behavior on Failure:
-        - Logs the error to `error_logs/file_creation.log` with a timestamp, indicating the source of the failure.
-        - If copying any file fails, the process continues with the next file.
-
-    Example:
-        >>> save_final_files_to_user_directory(directory_path="../user_notes/",tmp_dir_name="notes_id_znadri",is_docx_file_created=True,docx_file_path="note.docx",is_txt_file_created=True,txt_file_path="note.txt",img_files_name=["image1.jpg", "image2.jpg"],video_file_path="video.mp4")
+    Error Handling:
+        - Uses the `copy_file` function for copying files, which handles file copy errors.
+        - Logs errors and successes for each file operation using `app_logs`.
 
     Notes:
-        - The `shutil` and `os` modules are used for file operations. Ensure they are imported at the top of the script.
-        - The function handles each file type separately and logs any issues during the copying process.
-        - The function assumes that the source files are located in the `../tmp/<tmp_dir_name>` directory for image.
-        - The `error_logs/` directory should exist for logging; otherwise, the function will fail to log errors.
+        - Ensures the directory structure is created before attempting to copy files.
+        - Checks for the existence of optional files (e.g., DOCX and TXT) and includes them if present.
+        - Continues processing remaining files even if some file operations fail.
+
+    Example:
+        >>> success = save_final_files_to_user_directory(
+        ...     "/user/files", "tmp123", True, "document.docx", True, "summary.txt",
+        ...     ["image1.png", "image2.jpg"], "video.mp4"
+        ... )
+        >>> if success:
+        ...     print("Files saved successfully.")
+        ... else:
+        ...     print("Failed to save some files.")
     """
     if not os.path.exists(f'{directory_path}/{tmp_dir_name}'):
         os.mkdir(f'{directory_path}/{tmp_dir_name}')
     directory_path = f'{directory_path}/{tmp_dir_name}'
 
+    files_path_to_save = [f"../tmp/{tmp_dir_name}/{img_file_name}" for img_file_name in img_files_name]
     if is_docx_file_created:
-        copy_file(docx_file_path, f'{directory_path}/{os.path.basename(docx_file_path)}')
-
+        files_path_to_save.append(docx_file_path)
     if is_txt_file_created:
-        copy_file(txt_file_path, f'{directory_path}/{os.path.basename(txt_file_path)}')
+        files_path_to_save.append(txt_file_path)
 
-    for img_file_name in img_files_name:
-        copy_file(f"../tmp/{tmp_dir_name}/{img_file_name}", f'{directory_path}/{img_file_name}')
+    files_path_to_save.append(video_file_path)
 
-    copy_file(video_file_path, f'{directory_path}/{os.path.basename(video_file_path)}')
+    return_value = True
+    for file_path in files_path_to_save:
+        if not copy_file(file_path, f"{directory_path}/{os.path.basename(file_path)}"):
+            app_logs(f"[FAILED] Save {os.path.basename(file_path)} in {directory_path}")
+            return_value = False
+        else:
+            app_logs(f"[SUCCESS] Save file {os.path.basename(file_path)} in {directory_path}")
+
+    return return_value
 
 
 def save_files(
@@ -254,63 +368,59 @@ def save_files(
     language: str = 'pl'
 ) -> None:
     """
-    Saves structured content from a note to specified directories and prepares files for upload to a server.
+    Saves and manages files related to a note, including DOCX, TXT, JSON, and video files, with options
+    for local storage and server upload.
 
-    This function organizes and compiles content from different parts of a note, creates various file formats
-    (e.g., DOCX, TXT, JSON) and saves them to a designated directory. It then initiates a background process to
-    upload the files to a server while handling file creation and potential errors.
+    This function processes and organizes note content, creates files, and stores them locally.
+    If specified, it also handles sending files to a server and adds an event to Google Calendar.
 
     Args:
         note_title (str): The title of the note.
-        note_summary (str): A brief summary of the note.
-        note_datetime (datetime): The date and time when the note was created.
-        note_content_img (list): A list of image content elements, each represented as a dictionary.
-        note_content_text (list): A list of text content elements, each represented as a dictionary.
-        note_content_speaker (list): A list of speaker content elements, each represented as a dictionary.
-        video_file_path (str): The path to the video file.
-        tmp_dir_name (str): The name of tmp directory where are files.
-        directory_path (str): The path to the directory where the files should be saved.
-        send_to_server (bool): Indicate if files should be sent to server.
-        language (str, optional): The language for the document headings (`'pl'` for Polish or `'en'` for English).
-                                  Defaults to `'pl'`.
+        note_summary (str): A summary of the note's content.
+        note_datetime (datetime): The datetime of the note.
+        note_content_img (list): List of image-related content for the note.
+        note_content_text (list): List of text-related content for the note.
+        note_content_speaker (list): List of speaker-related content for the note.
+        video_file_path (str): Path to the video file associated with the note.
+        tmp_dir_name (str): Temporary directory name for processing files.
+        directory_path (str): The base directory for saving final files.
+        send_to_server (bool): Flag indicating whether files should be uploaded to the server.
+        language (str, optional): Language setting for file creation. Defaults to 'pl'.
 
     Returns:
-        None: This function does not return a value. It performs file creation, saving, and initiates an upload.
+        None
 
-    File Creation Process:
-        - Organizes content into a single list and sorts it based on timestamp and type.
-        - Generates a unique note ID and paths for DOCX, TXT, and JSON files.
-        - Creates a DOCX and a TXT file with the note's content.
-        - Copies the created files and other media (images and video) to the specified directory.
+    Workflow:
+        1. Combines and sorts all note content (images, text, speakers).
+        2. Generates a unique note ID based on the title, datetime, and language.
+        3. Creates DOCX and TXT files based on the note content.
+        4. Saves all processed files to a user-specified directory.
+        5. If `send_to_server` is True:
+            - Creates a JSON metadata file for the note.
+            - Uploads all files (including JSON, DOCX, TXT, images, and video) to the server.
+            - Deletes the temporary processing directory after upload.
+            - Adds a calendar event with a link to the note's server location.
+        6. If `send_to_server` is False, deletes the temporary directory after processing.
 
-    Upload Process:
-        - Initiates a background thread to upload the created files (JSON, DOCX, TXT, images, and video) to the server.
-        - Deletes temporary files after uploading to maintain a clean working directory.
-
-    Behavior on Failure:
-        - Logs errors related to file creation, saving, or uploading with timestamps to `error_logs/file_creation.log`.
+    Error Handling:
+        - Ensures temporary directories are deleted in both local and server workflows.
+        - Logs successes and failures at each step using `app_logs`.
+        - Handles file creation and upload failures gracefully.
 
     Example:
         >>> save_files(
-        ...     note_title="Project Notes",
-        ...     note_summary="Summary of project notes",
-        ...     note_datetime=datetime(2025, 1, 11, 18, 50, 49, 859943),
-        ...     note_content_img=[{'type': 'img', 'timestamp': 45, 'file_path': 'image1.png'}],
-        ...     note_content_text=[{'type': 'text', 'timestamp': 60, 'value': 'Text content'}],
-        ...     note_content_speaker=[{'type': 'speaker', 'timestamp': 30, 'name': 'Alice'}],
-        ...     video_file_path="video.mp4",
-        ...     tmp_dir_name="notes_id_znadri",
-        ...     directory_path='../user_notes',
+        ...     note_title="Meeting Notes",
+        ...     note_summary="Discussion about project milestones.",
+        ...     note_datetime=datetime(2025, 1, 15, 14, 30),
+        ...     note_content_img=[{"file_path": "image1.png", "timestamp": 123}],
+        ...     note_content_text=[{"value": "Initial project proposal", "timestamp": 345}],
+        ...     note_content_speaker=[{"name": "Alice", "timestamp": 456}],
+        ...     video_file_path="meeting_video.mp4",
+        ...     tmp_dir_name="temp123",
+        ...     directory_path="/user/notes",
         ...     send_to_server=True,
-        ...     language='en'
+        ...     language="en"
         ... )
-
-    Notes:
-        - Ensure the `python-docx` library is installed for DOCX file creation.
-        - Ensure `shutil`, `os`, `threading`, and `datetime` libraries are imported and available.
-        - The `../tmp/<tmp_dir_name>` directory should be writable for temporary file creation.
-        - The function assumes that images have the `.png` extension for image processing.
-        - The `error_logs/` directory should exist for error logging; otherwise, logging will fail silently.
     """
     note_content = []
     note_content.extend(note_content_img)
@@ -337,8 +447,9 @@ def save_files(
     if send_to_server:
         if create_json_file(note_title, note_summary, note_content, note_datetime.strftime("%Y-%m-%d %H:%M:%S"), video_file_name=video_file_name, docx_file_name=docx_file_name, txt_file_name=txt_file_name, json_file_path=json_file_path, language=language):
             threading.Thread(
-                send_and_delete_files(note_id, json_file_path, img_files_name, video_file_path, is_docx_file_created,
-                                      docx_file_path, is_txt_file_created, txt_file_path, tmp_dir_name)
+                send_files_on_server_with_delete_directory(note_id, json_file_path, img_files_name, video_file_path,
+                                                           is_docx_file_created, docx_file_path, is_txt_file_created,
+                                                           txt_file_path, tmp_dir_name)
             )
             google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
                                             f"https://ioprojekt.atwebpages.com/{note_id}")
