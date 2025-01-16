@@ -8,7 +8,6 @@ import hashlib
 import threading
 from app_backend.logging_f import log_operations_on_file, app_logs
 import app_front.quickstart as google_cal
-from app_backend.retry_logic import save_unsuccessful_upload
 
 
 def create_note_id(note_title: str, note_datetime: str, language: str) -> str:
@@ -211,6 +210,7 @@ def send_files_on_server_with_delete_directory(
     if is_docx_txt_created:
         files_to_send.append(txt_file_path)
 
+    from app_backend.retry_logic import save_unsuccessful_upload
     for file_path in files_to_send:
         if not upload_file_on_server(note_id, file_path):
             app_logs(f"[FAILED] Upload file {os.path.basename(file_path)}")
