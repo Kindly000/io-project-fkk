@@ -364,7 +364,7 @@ class IoFront(ttk.Frame):
 
             """check if file is present and start processing if so"""
         def check_file_and_process():
-            if check_file_presence():
+            # if check_file_presence():
                 self.start_processing_button_new_window(),
                 new_window.destroy()
 
@@ -548,7 +548,7 @@ class IoFront(ttk.Frame):
 
         """button to choose .wav file directory"""
         def existing_record_wav_files_directory_picker():
-            selected_directory = filedialog.askopenfilename(title="Choose file")
+            selected_directory = filedialog.askopenfilename(title="Choose file", filetypes=[("WAV files", "*.wav")] )
             if selected_directory:
                 self.existing_wav_file_to_process = selected_directory
                 self.existing_wav_file_to_process_var.set(selected_directory)
@@ -565,7 +565,7 @@ class IoFront(ttk.Frame):
 
         """button to choose .mp4 file directory"""
         def existing_record_mp4_files_directory_picker():
-            selected_directory = filedialog.askopenfilename(title="Choose file")
+            selected_directory = filedialog.askopenfilename(title="Choose file", filetypes=[("MP4 files", "*.mp4")])
             if selected_directory:
                 self.existing_mp4_file_to_process = selected_directory
                 self.existing_mp4_file_to_process_var.set(selected_directory)
