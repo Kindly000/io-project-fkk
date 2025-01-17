@@ -364,7 +364,7 @@ class IoFront(ttk.Frame):
 
             """check if file is present and start processing if so"""
         def check_file_and_process():
-            # if check_file_presence():
+            if check_file_presence():
                 self.start_processing_button_new_window(),
                 new_window.destroy()
 
