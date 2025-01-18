@@ -37,9 +37,10 @@ class AudioRecorder:
 
         # Raise an error if 'Stereo Mix' device is not found
         if self.device_index is None:
-            raise ValueError(
-                "No 'Stereo Mix' device found. Please ensure it's enabled."
-            )
+            # raise ValueError(
+            #     "No 'Stereo Mix' device found. Please ensure it's enabled."
+            # )
+            logg.app_logs(f"No 'Stereo Mix' device found. Please ensure it's enabled.")
 
     def find_input_device(self):
         """
