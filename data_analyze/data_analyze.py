@@ -37,8 +37,8 @@ def transcribe_audio(file_path: str) -> list[dict]:
         - W przypadku wystąpienia błędu informacja jest logowana do pliku za pomocą `log_data_analyze`.
     """
     try:
-        app_logs("Rozpoczęto transkrypcję audio.")
-        
+        app_logs("[INFO] Audio transcription started.")
+
         model = WhisperModel(model_size, device="cpu", compute_type="int8")
         segments, _ = model.transcribe(
             file_path,
@@ -58,7 +58,7 @@ def transcribe_audio(file_path: str) -> list[dict]:
                 }
             )
         log_data_analyze(f"Transcription completed successfully for {file_path}.")
-        app_logs("[SUCCESS] Pomyślnie zakończono transkrypcję audio.")
+        app_logs("[SUCCESS] Audio transcription completed successfully.")
         return result_segments
     except Exception as e:
         log_data_analyze(f"Transcription Error for {file_path}: {e}")
@@ -82,14 +82,14 @@ def diarize_audio(file_path: str, hf_token: str) -> object:
         - W przypadku wystąpienia błędu informacja jest logowana do pliku za pomocą `log_data_analyze`.
     """
     try:
-        app_logs("Rozpoczęto diaryzację audio.")
-        
+        app_logs("[INFO] Audio diarization started.")
+
         pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1", use_auth_token=hf_token
         )
         diarization = pipeline(file_path)
         log_data_analyze(f"Diarization completed successfully for {file_path}.")
-        app_logs("[SUCCESS] Pomyślnie zakończono diaryzację audio.")
+        app_logs("[SUCCESS] Audio diarization completed successfully.")
         return diarization
     except Exception as e:
         log_data_analyze(f"Diarization Error for {file_path}: {e}")
@@ -115,8 +115,8 @@ def combine_transcription_and_diarization(
         - Informacje o sukcesie lub błędach są logowane do pliku.
     """
     try:
-        app_logs("Rozpoczęto łączenie transkrypcji i diaryzacji.")
-        
+        app_logs("[INFO] Transcription and diarization merging has begun.")
+
         combined_results = []
         previous_segment = None
 
@@ -151,7 +151,7 @@ def combine_transcription_and_diarization(
             combined_results.append(previous_segment)
 
         log_data_analyze("Transcription and diarization combined successfully.")
-        app_logs("[SUCCESS] Pomyślnie zakończono łączenie transkrypcji i diaryzacji")
+        app_logs("[SUCCESS] Transcription and diarization merge completed successfully")
         return combined_results
     except Exception as e:
         log_data_analyze(f"Error combining transcription and diarization: {e}")
@@ -185,7 +185,7 @@ def notes_summary(tekst: str) -> str:
         # return summary[0]["summary_text"]
 
         # print(tekst)
-        app_logs("Rozpoczęto generowanie podsumowań notatek.")
+        app_logs("[INFO] Note summaries have started generating.")
 
         client = OpenAI(
             base_url="https://models.inference.ai.azure.com",
@@ -196,7 +196,7 @@ def notes_summary(tekst: str) -> str:
             messages=[
                 {
                     "role": "system",
-                    "content": "Podsumuj transkrypcje nagrania wideo którą ci przekaże poniżej ( jeżeli nie będzie tekstu do podsumowania zwróć odpowiedź: \"Brak tekstu do podsumowania\"):",
+                    "content": 'Podsumuj transkrypcje nagrania wideo którą ci przekaże poniżej ( jeżeli nie będzie tekstu do podsumowania zwróć odpowiedź: "Brak tekstu do podsumowania"):',
                 },
                 {
                     "role": "user",
@@ -209,7 +209,7 @@ def notes_summary(tekst: str) -> str:
             top_p=1,
         )
 
-        app_logs("[SUCCESS] Pomyślnie zakończono generowanie podsumowań notatek.")
+        app_logs("[SUCCESS] Note summary generation completed successfully.")
         return response.choices[0].message.content
     except Exception as e:
         log_data_analyze(f"Error generating notes summary: {e}")
@@ -236,7 +236,7 @@ def get_video_frames(
         - Funkcja wykorzystuje FFmpeg do ekstrakcji ramek z wideo.
         - Informacje o sukcesie lub błędach są logowane za pomocą `log_data_analyze`.
     """
-    app_logs("Rozpoczęto generowanie ramek z pliku wideo.")
+    app_logs("[INFO] Started generating frames from video file.")
     output_dir = f"../tmp/{temp_dir_name}/"
     try:
         os.makedirs(output_dir, exist_ok=True)
@@ -259,7 +259,7 @@ def get_video_frames(
 
     try:
         subprocess.run(ffmpeg_command, check=True)
-        app_logs("[SUCCESS] Pomyślnie wygenerowano ramki z pliku wideo.")
+        app_logs("[SUCCESS] Successfully generated frames from video file.")
         log_data_analyze(f"Frames successfully extracted to {output_dir}")
     except subprocess.CalledProcessError as e:
         log_data_analyze(f"FFmpeg execution failed: {e}")
