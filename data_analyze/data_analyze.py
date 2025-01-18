@@ -202,7 +202,7 @@ def notes_summary(tekst: str) -> str:
         return response.choices[0].message.content
     except Exception as e:
         log_data_analyze(f"Error generating notes summary: {e}")
-        return ""
+        return "Wystąpił błąd przy generowaniu podsumowania"
 
 
 # 5. Wydobywanie ramek z wideo do dalszej analizy
