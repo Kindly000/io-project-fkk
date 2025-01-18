@@ -170,3 +170,149 @@ def send_failed_files() -> None:
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
     return None
+
+
+def save_failed_calendar_event(event_title: str, event_datatime: str, event_url: str) -> bool:
+    """
+        Saves failed calendar event details to a JSON file for retrying later.
+
+        This function handles the storage of calendar events that failed to be added successfully,
+        storing their details in a structured JSON file within the unsuccessful uploads directory.
+
+        Args:
+            event_title (str): The title of the calendar event.
+            event_datatime (str): The datetime of the event in ISO 8601 format.
+            event_url (str): The URL associated with the event.
+
+        Returns:
+            bool: True if the event was successfully recorded in the JSON file, False otherwise.
+
+        Workflow:
+            1. Ensures that the `unsuccessful_uploads` directory exists.
+            2. Reads the existing JSON file (`failed_calendar_events.json`) or initializes a new structure.
+            3. Checks if the event details already exist in the file:
+                - If not, appends the event details to the list.
+            4. Writes the updated data back to the JSON file.
+
+        Notes:
+            - Prevents duplication of events by ensuring new events are only added if they do not already exist.
+            - Uses `json.dump` with `ensure_ascii=False` to support non-ASCII characters in event details.
+
+        Example:
+            >>> save_failed_calendar_event(
+            ...     event_title="Team Sync-Up",
+            ...     event_datatime="2025-01-15T15:00:00",
+            ...     event_url="https://calendar.example.com/event/12345"
+            ... )
+            True
+    """
+    check_and_create_unsuccessful_uploads_folder()
+    dir_for_unsuccessful_uploads = '../unsuccessful_uploads'
+
+    json_path = f'{dir_for_unsuccessful_uploads}/failed_calendar_events.json'
+    if os.path.exists(json_path):
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = {"elements": []}
+
+    new_element = {
+        "event_title": event_title,
+        "event_datatime": event_datatime,
+        "event_url": event_url
+    }
+
+    if new_element not in data["elements"]:
+        data["elements"].append(new_element)
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    return True
+
+
+def add_failed_calendar_events() -> None:
+    """
+        Attempts to re-add previously failed calendar events to Google Calendar.
+
+        This function reads from a JSON file containing details of failed calendar events
+        and tries to add them to the calendar using the Google Calendar API.
+        Any events that still fail to be added are preserved for retrying later.
+
+        Workflow:
+            1. Ensures the `unsuccessful_uploads` directory exists.
+            2. Reads the `failed_calendar_events.json` file to get a list of failed events.
+            3. Iterates through each event and attempts to add it to Google Calendar:
+                - Uses the `google_cal.Calendar().add_event()` method.
+                - If successful, the event is removed from the list.
+                - If unsuccessful, the event remains in the list for another retry.
+            4. Updates the JSON file with the remaining failed events.
+
+        Returns:
+            None: This function modifies the JSON file directly and does not return a value.
+
+        Notes:
+            - Skips processing if the JSON file does not exist or contains no elements.
+            - The `google_cal` module is imported dynamically to handle event creation.
+            - Maintains a JSON file to persist failed events for future retries.
+
+        Example:
+            >>> add_failed_calendar_events()
+            # Attempts to re-add failed calendar events and updates the JSON file accordingly.
+    """
+    check_and_create_unsuccessful_uploads_folder()
+    dir_for_unsuccessful_uploads = '../unsuccessful_uploads'
+    json_path = f'{dir_for_unsuccessful_uploads}/failed_calendar_events.json'
+
+    if not os.path.exists(json_path):
+        return None
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    elements = data["elements"]
+    if len(elements) == 0:
+        return None
+
+    failed_elements = []
+    import app_front.quickstart as google_cal
+    for element in elements:
+        if not google_cal.Calendar().add_event(element["event_title"], element["event_datatime"], element["event_url"]):
+            failed_elements.append(element)
+
+    data["elements"] = failed_elements
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    return None
+
+
+def retry_logic() -> None:
+    """
+        Executes retry logic for previously failed operations.
+
+        This function is responsible for retrying the upload of files and the addition of
+        calendar events that previously failed. It sequentially calls the following functions:
+            1. `send_failed_files`: Handles the re-upload of files saved in the
+               `../unsuccessful_uploads` directory.
+            2. `add_failed_calendar_events`: Attempts to add failed calendar events
+               from the `failed_calendar_events.json` file to Google Calendar.
+
+        Workflow:
+            - Calls `send_failed_files` to retry file uploads.
+            - Calls `add_failed_calendar_events` to retry adding calendar events.
+
+        Returns:
+            None: This function performs actions and does not return any value.
+
+        Notes:
+            - Designed to be a central point for retrying failed operations.
+            - Depends on the presence of data in the `../unsuccessful_uploads` directory
+              and associated JSON files.
+            - Logs errors encountered during retries via the respective helper functions.
+
+        Example:
+            >>> retry_logic()
+            # Reattempts the upload of failed files and the addition of failed calendar events.
+    """
+    send_failed_files()
+    add_failed_calendar_events()
+    return None

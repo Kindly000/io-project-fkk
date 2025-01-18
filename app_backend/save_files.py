@@ -451,7 +451,16 @@ def save_files(
                                                            is_docx_file_created, docx_file_path, is_txt_file_created,
                                                            txt_file_path, tmp_dir_name)
             )
-            google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
-                                            f"https://ioprojekt.atwebpages.com/{note_id}")
+            if not google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                                                   f"https://ioprojekt.atwebpages.com/{note_id}"):
+                from app_backend.retry_logic import save_failed_calendar_event
+                app_logs(f"[FAILED] Add calendar event about note: {note_title}")
+                if not save_failed_calendar_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                                           f"https://ioprojekt.atwebpages.com/{note_id}"):
+                    app_logs(f"[FAILED] Save unsuccessful add calendar event about note: {note_title}")
+                else:
+                    app_logs(f"[SUCCESS] Save unsuccessful add calendar event about note: {note_title}")
+            else:
+                app_logs(f"[SUCCESS] Add calendar event about note: {note_title}")
     else:
         delete_directory(f"../tmp/{tmp_dir_name}")

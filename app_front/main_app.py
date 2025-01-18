@@ -94,7 +94,7 @@ class IoFront(ttk.Frame):
         self.right_container.pack(side=LEFT, padx=20, pady=10, fill=Y)
 
         """resend failed files function"""
-        self.send_failed_files()
+        self.retry_logic()
         
         master_window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -243,7 +243,7 @@ class IoFront(ttk.Frame):
         button = ttk.Button(master=self.action_container, width=20, text="Refresh")
         button.grid(row=5, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
         button.bind(
-            "<Button-1>", lambda x: [self.on_click_refresh(), self.send_failed_files()]
+            "<Button-1>", lambda x: [self.on_click_refresh(), self.retry_logic()]
         )
         return button
 
@@ -766,8 +766,8 @@ class IoFront(ttk.Frame):
             print(f"Error in data_analyze: {e}")
 
     """function to retry sending files from server"""
-    def send_failed_files(self):
-        retry_logic.send_failed_files()
+    def retry_logic(self):
+        retry_logic.retry_logic()
 
     """function to open directory picker in analysis window"""
     def open_directory_picker(self):
