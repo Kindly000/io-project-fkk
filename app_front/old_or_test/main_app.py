@@ -1,6 +1,6 @@
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
-from tkinter import filedialog, BooleanVar, Button, Toplevel
+from tkinter import filedialog, BooleanVar, Toplevel
 import re
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -10,7 +10,7 @@ import webbrowser
 import os
 import sys
 import app_front.class_record as rec_vid
-import app_front.class_audio as rec_aud
+import app_front.old_or_test.class_audio_old_comms as rec_aud
 from data_analyze import data_analyze
 import app_backend.communication_with_www_server as com_www_server
 import app_backend.logging_f as logg
@@ -51,9 +51,9 @@ class IoFront(ttk.Frame):
         self.date_var_analyze = None
 
         """variables for processing recording windows from main"""
-        self.selected_download_dir_var = "../default_save_folder"
+        self.selected_download_dir_var = "../../default_save_folder"
         self.existing_record_frequency_comparison_sec = "5"
-        self.existing_record_selected_dir_var = "../default_save_folder"
+        self.existing_record_selected_dir_var = "../../default_save_folder"
         self.existing_record_file_name = "notatka_testowa"
         self.existing_record_entered_name = ttk.StringVar()
         self.existing_record_app_name = "MSTeams"
@@ -189,6 +189,8 @@ class IoFront(ttk.Frame):
         button.bind("<Button-1>", lambda x: self.on_click_search())
         button.pack(padx=5, pady=10)
         return button
+
+    """otu"""
 
     """create drop menu to choose application for recording"""
     def drop_menu_app(self, master):
@@ -367,7 +369,7 @@ class IoFront(ttk.Frame):
         """check if combined.mp4 file is present"""
         def check_file_presence():
             if self.record_dir:
-                file_path = os.path.join("../tmp/",self.record_dir, "combined.mp4")
+                file_path = os.path.join("../../tmp/", self.record_dir, "combined.mp4")
                 if os.path.isfile(file_path):
                     return  True
                 else:
@@ -425,6 +427,8 @@ class IoFront(ttk.Frame):
             ]
         )
         check_file_presence()
+
+    """otu 2"""
 
     """record processing window after finishing recording"""
     def start_processing_button_new_window(self):
@@ -675,6 +679,8 @@ class IoFront(ttk.Frame):
         )
         start_process_button.pack(pady=10)
 
+    """otu 3"""
+
     """function to run in thread combine audio and video files"""
     def combining_recordings(self):
         self.executor.submit(self._combining_recordings)
@@ -842,6 +848,6 @@ class IoFront(ttk.Frame):
 if __name__ == "__main__":
     app = ttk.Window("io_app", "superhero", resizable=(True, True))
     app.geometry("880x550")
-    app.iconphoto(True, ttk.PhotoImage(file="assets/icon.png"))
+    app.iconphoto(True, ttk.PhotoImage(file="../assets/icon.png"))
     IoFront(app)
     app.mainloop()
