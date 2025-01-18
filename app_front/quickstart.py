@@ -133,11 +133,11 @@ class Calendar:
             return True
 
 
-        except HttpError as error:
-            print(f"An error occurred: {error}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
         return False
 
 
 
 if __name__ == "__main__":
-  Calendar().add_event("test","2021-01-01","https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+  print(Calendar().add_event("test", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),"https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
