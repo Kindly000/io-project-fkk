@@ -91,7 +91,7 @@ class Calendar:
             exit(-1)
 
 
-    def add_event(self,title,date,url) -> bool:
+    def add_event(self,title,date,url) -> dir:
         try:
             # Refer to the Python quickstart on how to setup the environment:
             # https://developers.google.com/calendar/quickstart/python
@@ -130,12 +130,12 @@ class Calendar:
             event = service.events().insert(calendarId='primary', body=event).execute()
             print('Event created: %s' % (event.get('htmlLink')))
             'Event created: %s' % (event.get('htmlLink'))
-            return True
+            return {"is_created": True, "link": event.get('htmlLink')}
 
 
         except Exception as e:
             print(f"An error occurred: {e}")
-        return False
+        return {"is_created": False, "link": None}
 
 
 

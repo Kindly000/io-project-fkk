@@ -13,6 +13,7 @@ import app_front.class_record as rec_vid
 import app_front.class_audio as rec_aud
 from data_analyze import data_analyze
 import app_backend.communication_with_www_server as com_www_server
+import app_backend.logging_f as logg
 import app_backend.save_files as sf
 import app_front.quickstart as google_cal
 import app_backend.retry_logic as retry_logic
@@ -812,6 +813,7 @@ class IoFront(ttk.Frame):
 
     """function to save audio and video files to user directory"""
     def save_audio_and_video_files(self):
+        logg.app_logs(f"[INFO] Start saving files to user directory {self.selected_download_dir_var}")
         sf.save_audio_and_video_files_to_user_directory(
             self.selected_download_dir_var,
             self.record_dir,

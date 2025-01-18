@@ -210,6 +210,7 @@ def send_files_on_server_with_delete_directory(
     if is_docx_txt_created:
         files_to_send.append(txt_file_path)
 
+    app_logs(f"[INFO] Start uploading files on server")
     from app_backend.retry_logic import save_unsuccessful_upload
     for file_path in files_to_send:
         if not upload_file_on_server(note_id, file_path):
@@ -268,16 +269,16 @@ def save_audio_and_video_files_to_user_directory(
     directory_path = f'{directory_path}/{tmp_dir_name}'
     return_value = True
     if not copy_file(video_file_path, f'{directory_path}/{os.path.basename(video_file_path)}'):
-        app_logs(f"[FAILED] Save {os.path.basename(video_file_path)} in {directory_path}")
+        app_logs(f"[FAILED] Save file {os.path.basename(video_file_path)}")
         return_value = False
     else:
-        app_logs(f"[SUCCESS] Save {os.path.basename(video_file_path)} in {directory_path}")
+        app_logs(f"[SUCCESS] Save file {os.path.basename(video_file_path)}")
 
     if not copy_file(audio_file_path, f'{directory_path}/{os.path.basename(audio_file_path)}'):
-        app_logs(f"[FAILED] Save {os.path.basename(audio_file_path)} in {directory_path}")
+        app_logs(f"[FAILED] Save file {os.path.basename(audio_file_path)}")
         return_value = False
     else:
-        app_logs(f"[SUCCESS] Save {os.path.basename(video_file_path)} in {directory_path}")
+        app_logs(f"[SUCCESS] Save file {os.path.basename(audio_file_path)}")
 
     return return_value
 
@@ -346,10 +347,10 @@ def save_final_files_to_user_directory(
     return_value = True
     for file_path in files_path_to_save:
         if not copy_file(file_path, f"{directory_path}/{os.path.basename(file_path)}"):
-            app_logs(f"[FAILED] Save {os.path.basename(file_path)} in {directory_path}")
+            app_logs(f"[FAILED] Save {os.path.basename(file_path)}")
             return_value = False
         else:
-            app_logs(f"[SUCCESS] Save file {os.path.basename(file_path)} in {directory_path}")
+            app_logs(f"[SUCCESS] Save file {os.path.basename(file_path)}")
 
     return return_value
 
@@ -366,7 +367,7 @@ def save_files(
     directory_path: str,
     send_to_server: bool,
     language: str = 'pl'
-) -> None:
+) -> str:
     """
     Saves and manages files related to a note, including DOCX, TXT, JSON, and video files, with options
     for local storage and server upload.
@@ -388,7 +389,7 @@ def save_files(
         language (str, optional): Language setting for file creation. Defaults to 'pl'.
 
     Returns:
-        None
+        str: Information about proccess
 
     Workflow:
         1. Combines and sorts all note content (images, text, speakers).
@@ -422,6 +423,7 @@ def save_files(
         ...     language="en"
         ... )
     """
+    info_message = ""
     note_content = []
     note_content.extend(note_content_img)
     note_content.extend(note_content_speaker)
@@ -438,29 +440,51 @@ def save_files(
     video_file_name = os.path.basename(video_file_path)
     img_files_name = [f for f in os.listdir(f"../tmp/{tmp_dir_name}") if f.endswith('.png')]
 
-    is_docx_file_created = create_docx_file(note_title, note_summary, note_content, docx_file_path=docx_file_path, language=language)
-    is_txt_file_created = create_txt_file(note_title, note_summary, note_content, txt_file_path=txt_file_path, language=language)
+    if create_docx_file(note_title, note_summary, note_content, docx_file_path=docx_file_path, language=language):
+        app_logs(f"[SUCCESS] Create DOCX file {docx_file_name}")
+        is_docx_file_created = True
+    else:
+        app_logs(f"[FAILED] Create DOCX file {docx_file_name}")
+        is_docx_file_created = False
 
-    save_final_files_to_user_directory(directory_path, tmp_dir_name, is_docx_file_created, docx_file_path,
-                                       is_txt_file_created, txt_file_path, img_files_name, video_file_path)
+    if create_txt_file(note_title, note_summary, note_content, txt_file_path=txt_file_path, language=language):
+        app_logs(f"[SUCCESS] Create TXT file {txt_file_name}")
+        is_txt_file_created = True
+    else:
+        app_logs(f"[FAILED] Create TXT file {txt_file_name}")
+        is_txt_file_created = False
+
+    app_logs(f"[INFO] Start saving files to user directory {directory_path}")
+    info_message = "Files has been saved in chosen directory.\n" \
+        if (save_final_files_to_user_directory(directory_path, tmp_dir_name, is_docx_file_created,
+                                               docx_file_path,is_txt_file_created,txt_file_path, img_files_name,
+                                               video_file_path)) \
+        else "Not all files has been saved in chosen directory. See logs.log to learn more.\n"
 
     if send_to_server:
         if create_json_file(note_title, note_summary, note_content, note_datetime.strftime("%Y-%m-%d %H:%M:%S"), video_file_name=video_file_name, docx_file_name=docx_file_name, txt_file_name=txt_file_name, json_file_path=json_file_path, language=language):
+            app_logs(f"[SUCCESS] Create JSON file")
             threading.Thread(
                 send_files_on_server_with_delete_directory(note_id, json_file_path, img_files_name, video_file_path,
                                                            is_docx_file_created, docx_file_path, is_txt_file_created,
                                                            txt_file_path, tmp_dir_name)
             )
-            if not google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
-                                                   f"https://ioprojekt.atwebpages.com/{note_id}"):
+            calendar_add_event_return = google_cal.Calendar().add_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),f"https://ioprojekt.atwebpages.com/{note_id}")
+            if not calendar_add_event_return["is_created"]:
                 from app_backend.retry_logic import save_failed_calendar_event
-                app_logs(f"[FAILED] Add calendar event about note: {note_title}")
+                app_logs(f"[FAILED] Create event in Google Calendar")
                 if not save_failed_calendar_event(note_title, note_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
                                            f"https://ioprojekt.atwebpages.com/{note_id}"):
-                    app_logs(f"[FAILED] Save unsuccessful add calendar event about note: {note_title}")
+                    app_logs(f"[FAILED] Save unsuccessful created Google Calendar event regarding {note_title} note")
+                    info_message += "Critical error when trying to create event in your Google Calendar. See logs.log to learn more.\n"
                 else:
-                    app_logs(f"[SUCCESS] Save unsuccessful add calendar event about note: {note_title}")
+                    app_logs(f"[SUCCESS] Save unsuccessful created Google Calendar event regarding {note_title} note")
+                    info_message += f"Event has not been added into your Google Calendar.\nCheck your Internet connection and click Refresh in main window."
             else:
-                app_logs(f"[SUCCESS] Add calendar event about note: {note_title}")
+                app_logs(f"[SUCCESS] Create event in Google Calendar")
+                info_message += f"See created event in your Google Calendar:\n{calendar_add_event_return["link"]}"
+        else:
+            app_logs(f"[FAILED] Create JSON file")
     else:
         delete_directory(f"../tmp/{tmp_dir_name}")
+    return info_message

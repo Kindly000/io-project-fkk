@@ -13,6 +13,7 @@ from faster_whisper import WhisperModel
 from transformers import pipeline
 from concurrent.futures import ThreadPoolExecutor
 from app_backend.logging_f import log_data_analyze, app_logs
+from app_front.notification_window import create_notification_window
 import app_backend.save_files as sf
 import data_analyze.image_files_analyze as image_analyzer
 from datetime import datetime
@@ -428,8 +429,9 @@ def main(
         except Exception as e:
             log_data_analyze(f"Error processing video and generating notes: {e}")
 
+        info_message = "Processing finished.\n"
         # Zapis wyników
-        sf.save_files(
+        info_message += sf.save_files(
             title,
             note_summary=summary,
             note_datetime=datetime,
@@ -441,6 +443,7 @@ def main(
             directory_path=user_dir,
             send_to_server=send_to_server,
         )
+        create_notification_window(info_message)
         log_data_analyze("Files saved successfully. \n")
 
     except Exception as e:
