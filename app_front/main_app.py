@@ -322,6 +322,7 @@ class IoFront(ttk.Frame):
         button = ttk.Button(
             master=self.new_record_container, width=20, text="Start recording"
         )
+        print("asdasdasd")
         button.bind(
             "<Button-1>", lambda e: [
                 self.new_directory(),
