@@ -534,6 +534,9 @@ class IoFront(ttk.Frame):
             if (title == ""):
                 validation_label.config(text="Nie może być pusta", bootstyle="danger", )
                 return False
+            if (self.existing_wav_file_to_process =="" or self.existing_mp4_file_to_process == ""):
+                validation_label.config(text="Nie może być pusta", bootstyle="danger", )
+                return False
             validation_label.config(text="Nazwa poprawna!", bootstyle="success")
             return True
 
@@ -552,6 +555,9 @@ class IoFront(ttk.Frame):
             if selected_directory:
                 self.existing_wav_file_to_process = selected_directory
                 self.existing_wav_file_to_process_var.set(selected_directory)
+            else:
+                self.existing_wav_file_to_process = ""
+                self.existing_wav_file_to_process_var.set("")
 
         button_wav_dir = ttk.Button(new_window, text="Choose .wav file")
         button_wav_dir.bind(
@@ -569,6 +575,9 @@ class IoFront(ttk.Frame):
             if selected_directory:
                 self.existing_mp4_file_to_process = selected_directory
                 self.existing_mp4_file_to_process_var.set(selected_directory)
+            else:
+                self.existing_mp4_file_to_process = ""
+                self.existing_mp4_file_to_process_var.set("")
 
         button_mp4_dir = ttk.Button(new_window, text="Choose .mp4 file")
         button_mp4_dir.bind(
