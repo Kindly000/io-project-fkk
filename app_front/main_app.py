@@ -28,6 +28,7 @@ class IoFront(ttk.Frame):
         self.executor = ThreadPoolExecutor(max_workers=3)
         self.recording_video = False
         self.recording_audio = False
+        self.check_if_record_in_progress = False
 
         """directory to tmp files"""
         self.record_dir = ""
@@ -322,11 +323,16 @@ class IoFront(ttk.Frame):
         button = ttk.Button(
             master=self.new_record_container, width=20, text="Start recording"
         )
-        print("asdasdasd")
-        button.bind(
-            "<Button-1>", lambda e: [
+
+        def check_if_record_is_running():
+            if not self.check_if_record_in_progress:
+                self.check_if_record_in_progress = True
                 self.new_directory(),
                 self.start_recordings()
+
+        button.bind(
+            "<Button-1>", lambda e: [
+                check_if_record_is_running()
             ]
         )
         button.grid(row=1, column=1, padx=5, pady=10)
@@ -337,12 +343,18 @@ class IoFront(ttk.Frame):
         button = ttk.Button(
             master=self.new_record_container, width=20, text="Stop recording"
         )
-        button.bind(
-            "<Button-1>",
-            lambda e: [
+
+        def check_if_record_is_running_stop():
+            if self.check_if_record_in_progress:
+                self.check_if_record_in_progress = False
                 self.stop_recordings(),
                 self.combining_recordings(),
                 self.stop_recording_button_new_window(),
+
+        button.bind(
+            "<Button-1>",
+            lambda e: [
+                check_if_record_is_running_stop()
             ],
         )
         button.grid(row=2, column=1, padx=5, pady=10)
