@@ -1,1 +1,0 @@
-* Automatyczna transkrypcja mowy na tekst: Angielski/Polski -> Whisper AI Python
