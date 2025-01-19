@@ -25,17 +25,17 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 # 1. Transkrypcja pliku audio za pomocą Whisper
 def transcribe_audio(file_path: str) -> list[dict]:
     """
-    Transkrypcja pliku audio na tekst.
+        Transcribes an audio file to text.
 
-    Args:
-        file_path (str): Ścieżka do pliku audio.
+        Args:
+        file_path (str): Path to the audio file.
 
-    Returns:
-        list[dict]: Lista segmentów transkrypcji zawierająca czas rozpoczęcia, czas zakończenia i tekst.
+        Returns:
+        list[dict]: List of transcription segments including start time, end time, and text.
 
-    Notes:
-        - Funkcja korzysta z modelu Whisper.
-        - W przypadku wystąpienia błędu informacja jest logowana do pliku za pomocą `log_data_analyze`.
+        Notes:
+        - This function uses the Whisper model.
+        - If an error occurs, the information is logged to a file using `log_data_analyze`.
     """
     try:
         app_logs("[INFO] Audio transcription started.")
@@ -69,18 +69,18 @@ def transcribe_audio(file_path: str) -> list[dict]:
 # 2. Rozpoznawanie rozmówców audio za pomocą pyannote.audio
 def diarize_audio(file_path: str, hf_token: str) -> object:
     """
-    Diarizacja audio - rozpoznawanie rozmówców w pliku audio.
+        Audio diarization - recognizes interlocutors in an audio file.
 
-    Args:
-        file_path (str): Ścieżka do pliku audio.
-        hf_token (str): Token do autentykacji w HuggingFace.
+        Args:
+        file_path (str): Path to the audio file.
+        hf_token (str): Token for authentication in HuggingFace.
 
-    Returns:
-        object: Wynik diarizacji zawierający informacje o rozmówcach.
+        Returns:
+        object: The diarization result containing information about interlocutors.
 
-    Notes:
-        - Funkcja używa modelu pyannote do diarizacji.
-        - W przypadku wystąpienia błędu informacja jest logowana do pliku za pomocą `log_data_analyze`.
+        Notes:
+        - The function uses the pyannote model for diarization.
+        - In case of an error, the information is logged to a file using `log_data_analyze`.
     """
     try:
         app_logs("[INFO] Audio diarization started.")
@@ -102,18 +102,20 @@ def combine_transcription_and_diarization(
     segments: list[dict], diarization: object
 ) -> list[dict]:
     """
-    Łączenie wyników transkrypcji i diarizacji.
+        Merging transcription and diarization results.
 
-    Args:
-        segments (list[dict]): Lista segmentów transkrypcji.
-        diarization (object): Wyniki diarizacji rozmówców.
+        Args:
 
-    Returns:
-        list[dict]: Lista połączonych wyników zawierających informacje o czasie i mówiącym.
+        segments (list[dict]): List of transcription segments.
 
-    Notes:
-        - Funkcja łączy dane na podstawie nakładających się przedziałów czasowych.
-        - Informacje o sukcesie lub błędach są logowane do pliku.
+        diarization (object): Results of speaker diarization.
+
+        Returns:
+        list[dict]: List of merged results containing time and speaker information.
+
+        Notes:
+        - The function merges data based on overlapping time intervals.
+        - Success or failure information is logged to a file.
     """
     try:
         app_logs("[INFO] Transcription and diarization merging has begun.")
@@ -162,17 +164,17 @@ def combine_transcription_and_diarization(
 # 4. Generowanie podsumowań notatek
 def notes_summary(tekst: str) -> str:
     """
-    Generowanie podsumowań notatek.
+        Generating notes summaries.
 
-    Args:
-        tekst (str): Tekst, który ma zostać podsumowany.
+        Args:
+        text (str): Text to summarize.
 
-    Returns:
-        str: Streszczenie tekstu.
+        Returns:
+        str: A summary of the text.
 
-    Notes:
-        - Funkcja korzysta z API CHatGPT-4o do generowania podsumowań.
-        - Loguje sukces lub błędy za pomocą `log_data_analyze`.
+        Notes:
+        - This function uses the CHatGPT-4o API to generate summaries.
+        - Logs success or errors using `log_data_analyze`.
     """
     try:
         # summarizer = pipeline(
@@ -222,20 +224,20 @@ def get_video_frames(
     file_path: str, file_name: str, file_extension: str, temp_dir_name: str
 ) -> int:
     """
-    Wydobywanie ramek z pliku wideo do dalszej analizy.
+        Extract frames from a video file for further analysis.
 
-    Args:
-        file_path (str): Ścieżka do folderu, w którym znajduje się plik wideo.
-        file_name (str): Nazwa pliku wideo.
-        file_extension (str): Rozszerzenie pliku wideo.
-        temp_dir_name (str): folder w tmp, w którym mają zapisać się zdjęcia
+        Args:
+        file_path (str): Path to the folder where the video file is located.
+        file_name (str): Name of the video file.
+        file_extension (str): Extension of the video file.
+        temp_dir_name (str): Folder in tmp where the images should be saved
 
-    Returns:
-        int: Liczba plików zawierających ramki.
+        Returns:
+        int: Number of files containing frames.
 
-    Notes:
-        - Funkcja wykorzystuje FFmpeg do ekstrakcji ramek z wideo.
-        - Informacje o sukcesie lub błędach są logowane za pomocą `log_data_analyze`.
+        Notes:
+        - This function uses FFmpeg to extract frames from the video.
+        - Information about success or failure is logged using `log_data_analyze`.
     """
     app_logs("[INFO] Started generating frames from video file.")
     output_dir = f"../tmp/{temp_dir_name}/"
@@ -321,20 +323,20 @@ def main(
     send_to_server: bool = True,
 ):
     """
-    Główna funkcja odpowiedzialna za przetwarzanie danych multimedialnych: audio, wideo oraz generowanie podsumowań.
+        Main function responsible for processing multimedia data: audio, video and generating summaries.
 
-    Args:
-        temp_dir_name (str): Nazwa katalogu tymczasowego na wyniki przetwarzania.
-        filename_audio (str): Ścieżka do pliku audio.
-        filename_video (str): Ścieżka do pliku wideo.
-        application_name (str): Nazwa aplikacji źródłowej (np. "MSTeams", "Zoom").
-        user_dir (str): Katalog użytkownika do zapisania wyników. Domyślnie None.
-        title (str): Tytuł notatki. Domyślnie None.
-        datetime (datetime): Data i czas generacji notatki. Domyślnie None.
-        n_frame (int): Określa co która ramka ( z pliku wideo ) ma pozostać w folderze
+        Args:
+        temp_dir_name (str): Temporary directory name for processing results.
+        filename_audio (str): Path to audio file.
+        filename_video (str): Path to video file.
+        application_name (str): Source application name (e.g. "MSTeams", "Zoom").
+        user_dir (str): User directory to save results. Default is None.
+        title (str): Note title. Default is None.
+        datetime (datetime): Date and time of note generation. Default is None.
+        n_frame (int): Specifies every frame (from video file) to remain in the folder.
 
-    Returns:
-        None: Wyniki są zapisywane w wyznaczonym katalogu.
+        Returns:
+        None: Results are saved in the designated directory.
     """
     try:
         log_data_analyze("Starting main function.")
