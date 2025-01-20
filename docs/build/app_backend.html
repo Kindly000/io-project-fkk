@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>app_backend package &#8212; Notes Generator 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="app_front package" href="app_front.html" />
+    <link rel="prev" title="Notes Generator documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="app-backend-package">
+<h1>app_backend package<a class="headerlink" href="#app-backend-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-app_backend.communication_with_www_server">
+<span id="app-backend-communication-with-www-server-module"></span><h2>app_backend.communication_with_www_server module<a class="headerlink" href="#module-app_backend.communication_with_www_server" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.communication_with_www_server.get_info_of_notes_from_server">
+<span class="sig-prename descclassname"><span class="pre">app_backend.communication_with_www_server.</span></span><span class="sig-name descname"><span class="pre">get_info_of_notes_from_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://ioprojekt.atwebpages.com/api/get_notes_list'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#app_backend.communication_with_www_server.get_info_of_notes_from_server" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves information about notes from the server.</p>
+<p>This function sends an HTTP GET request to a specified URL to fetch a list of notes from the server
+in JSON format. The default URL points to a predefined API endpoint. If the request is successful,
+the function returns the parsed JSON response as a dictionary. If an error occurs, it logs the error
+and returns <cite>None</cite>.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>url (str, optional): The server API endpoint for retrieving notes information. Defaults to</dt><dd><p>“<a class="reference external" href="https://ioprojekt.atwebpages.com/api/get_notes_list">https://ioprojekt.atwebpages.com/api/get_notes_list</a>”.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>dict | None: A dictionary containing the notes information if the request is successful.</dt><dd><p><cite>None</cite> if an error occurs during the request.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the response status code is not 200 or the server response is not in the expected format.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs communication errors with the server using <cite>log_communication_with_www_server</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Requires the <cite>requests</cite> library.</p></li>
+<li><p>SSL certificate verification is disabled (<cite>verify=False</cite>), which may pose a security risk.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">notes</span> <span class="o">=</span> <span class="n">get_info_of_notes_from_server</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">notes</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes retrieved successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to retrieve notes. Check server logs for details.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.communication_with_www_server.get_info_of_notes_from_server_if_note_contain_search_word">
+<span class="sig-prename descclassname"><span class="pre">app_backend.communication_with_www_server.</span></span><span class="sig-name descname"><span class="pre">get_info_of_notes_from_server_if_note_contain_search_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_word</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://ioprojekt.atwebpages.com/api/search_in_notes'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#app_backend.communication_with_www_server.get_info_of_notes_from_server_if_note_contain_search_word" title="Link to this definition">¶</a></dt>
+<dd><p>Searches for notes on the server containing a specified search word.</p>
+<p>This function sends an HTTP POST request to a specified URL with a search word as part of the request data.
+The server responds with a list of notes containing the specified word in JSON format. The default URL
+points to a predefined API endpoint. If the request is successful, the function returns the parsed JSON
+response as a dictionary. If an error occurs, it logs the error and returns <cite>None</cite>.</p>
+<dl>
+<dt>Args:</dt><dd><p>search_word (str): The search word or phrase to find within the notes.
+url (str, optional): The server API endpoint for searching notes. Defaults to</p>
+<blockquote>
+<div><p>“<a class="reference external" href="https://ioprojekt.atwebpages.com/api/search_in_notes">https://ioprojekt.atwebpages.com/api/search_in_notes</a>”.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>dict | None: A dictionary containing the search results if the request is successful.</dt><dd><p><cite>None</cite> if an error occurs during the request.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the response status code is not 200 or the server response is not in the expected format.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs communication errors with the server using <cite>log_communication_with_www_server</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Requires the <cite>requests</cite> library.</p></li>
+<li><p>SSL certificate verification is disabled (<cite>verify=False</cite>), which may pose a security risk.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">get_info_of_notes_from_server_if_note_contain_search_word</span><span class="p">(</span><span class="s2">&quot;important&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Search results:&quot;</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No results found or an error occurred.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.communication_with_www_server.upload_file_on_server">
+<span class="sig-prename descclassname"><span class="pre">app_backend.communication_with_www_server.</span></span><span class="sig-name descname"><span class="pre">upload_file_on_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://ioprojekt.atwebpages.com/api/upload_file'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.communication_with_www_server.upload_file_on_server" title="Link to this definition">¶</a></dt>
+<dd><p>Uploads a file to a server for a specified note.</p>
+<p>This function sends an HTTP POST request to a specified URL to upload a file associated with a note ID.
+The default URL points to a predefined API endpoint. If the upload is successful, the server responds
+with a confirmation message and the function returns <cite>True</cite>. Otherwise, it logs the error and returns <cite>False</cite>.</p>
+<dl>
+<dt>Args:</dt><dd><p>note_id (str): The unique identifier of the note associated with the file.
+file_path (str): The local file path of the file to be uploaded.
+url (str, optional): The server API endpoint for file uploads. Defaults to</p>
+<blockquote>
+<div><p>“<a class="reference external" href="https://ioprojekt.atwebpages.com/api/upload_file">https://ioprojekt.atwebpages.com/api/upload_file</a>”.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>bool: <cite>True</cite> if the file upload is successful and the server responds with the expected message.</dt><dd><p><cite>False</cite> if an error occurs during the request or if the server response is unexpected.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><dl class="simple">
+<dt>Exception: If the response status code is not 201 or the server response does</dt><dd><p>not indicate a successful upload.</p>
+</dd>
+</dl>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs communication errors with the server using <cite>log_communication_with_www_server</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Requires the <cite>requests</cite> library.</p></li>
+<li><p>SSL certificate verification is disabled (<cite>verify=False</cite>), which may pose a security risk.</p></li>
+<li><p>Ensures the file is properly closed after the upload attempt.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">upload_file_on_server</span><span class="p">(</span><span class="s2">&quot;12345&quot;</span><span class="p">,</span> <span class="s2">&quot;example.pdf&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File uploaded successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File upload failed. Check server logs for details.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-app_backend.create_files">
+<span id="app-backend-create-files-module"></span><h2>app_backend.create_files module<a class="headerlink" href="#module-app_backend.create_files" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.create_files.create_docx_file">
+<span class="sig-prename descclassname"><span class="pre">app_backend.create_files.</span></span><span class="sig-name descname"><span class="pre">create_docx_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_summary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docx_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.create_files.create_docx_file" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a DOCX file with the specified note details.</p>
+<p>This function generates a DOCX file containing a note’s title, summary, and detailed content.
+The content can include text, speaker labels, and images, formatted with timestamps. The
+language of headings (e.g., “Title” and “Summary”) can be customized to English or Polish.</p>
+<dl>
+<dt>Args:</dt><dd><p>note_title (str): The title of the note to be included in the document.
+note_summary (str): A brief summary of the note.
+note_content (list): A list of dictionaries representing the note content. Each dictionary should have:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘type’ (str): The type of content (‘img’, ‘speaker’, or ‘text’).</p></li>
+<li><p>‘timestamp’ (str): The timestamp associated with the content.</p></li>
+<li><p>‘file_path’ (str, optional): Path to the image file (for ‘img’ type only).</p></li>
+<li><p>‘name’ (str, optional): The speaker’s name (for ‘speaker’ type only).</p></li>
+<li><p>‘value’ (str, optional): The text content (for ‘text’ type only).</p></li>
+</ul>
+</div></blockquote>
+<p>docx_file_path (str): The file path where the generated DOCX file will be saved.
+language (str, optional): The language for headings (‘pl’ for Polish, ‘en’ for English). Defaults to ‘pl’.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: <cite>True</cite> if the DOCX file is created and saved successfully. <cite>False</cite> if an error occurs.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If there is an error during the DOCX file creation or saving process.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs file operation errors using <cite>log_operations_on_file</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Requires the <cite>python-docx</cite> library.</p></li>
+<li><p>Timestamps are formatted using the <cite>format_timestamp</cite> function.</p></li>
+<li><p>Images are resized to a width of 4 inches using <cite>Inches</cite> from <cite>python-docx</cite>.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="s1">&#39;Introduction to the topic.&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;John Doe&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;img&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;file_path&#39;</span><span class="p">:</span> <span class="s1">&#39;example.jpg&#39;</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">create_docx_file</span><span class="p">(</span><span class="s2">&quot;Meeting Notes&quot;</span><span class="p">,</span> <span class="s2">&quot;Summary of the meeting&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="s2">&quot;meeting_notes.docx&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DOCX file created successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to create DOCX file.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.create_files.create_json_file">
+<span class="sig-prename descclassname"><span class="pre">app_backend.create_files.</span></span><span class="sig-name descname"><span class="pre">create_json_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_summary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_datetime</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docx_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txt_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.create_files.create_json_file" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a JSON file containing the specified note details.</p>
+<p>This function generates a JSON file with a note’s title, summary, datetime, and content. The content can include
+text, speaker labels, and images, formatted with timestamps. The function also includes file names for related
+video, DOCX, and TXT files. The language of the note (e.g., “Title” and “Summary”) can be customized to English or Polish.</p>
+<dl>
+<dt>Args:</dt><dd><p>note_title (str): The title of the note.
+note_summary (str): A brief summary of the note.
+note_content (list): A list of dictionaries representing the note content. Each dictionary should contain:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘type’ (str): The type of content (‘img’, ‘speaker’, or ‘text’).</p></li>
+<li><p>‘timestamp’ (str): The timestamp associated with the content.</p></li>
+<li><p>‘file_path’ (str, optional): The image file path (for ‘img’ type only).</p></li>
+<li><p>‘name’ (str, optional): The speaker’s name (for ‘speaker’ type only).</p></li>
+<li><p>‘value’ (str, optional): The text content (for ‘text’ type only).</p></li>
+</ul>
+</div></blockquote>
+<p>note_datetime (str): The datetime of the note.
+video_file_name (str): The name of the associated video file.
+docx_file_name (str): The name of the associated DOCX file.
+txt_file_name (str): The name of the associated TXT file.
+json_file_path (str): The path where the generated JSON file will be saved.
+language (str, optional): The language for the note (defaults to ‘pl’ for Polish).</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: <cite>True</cite> if the JSON file is created and saved successfully. <cite>False</cite> if an error occurs.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If there is an error during the JSON file creation or saving process.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs file operation errors using <cite>log_operations_on_file</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Timestamps are formatted using the <cite>format_timestamp</cite> function.</p></li>
+<li><p>The JSON file will include the note’s ID, derived from the file name (excluding the <cite>.json</cite> extension).</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="s1">&#39;Introduction to the topic.&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;John Doe&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;img&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;file_path&#39;</span><span class="p">:</span> <span class="s1">&#39;example.jpg&#39;</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">create_json_file</span><span class="p">(</span><span class="s2">&quot;Meeting Notes&quot;</span><span class="p">,</span> <span class="s2">&quot;Summary of the meeting&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span> <span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;meeting_notes.docx&quot;</span><span class="p">,</span> <span class="s2">&quot;meeting_notes.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;meeting_notes.json&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;JSON file created successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to create JSON file.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.create_files.create_txt_file">
+<span class="sig-prename descclassname"><span class="pre">app_backend.create_files.</span></span><span class="sig-name descname"><span class="pre">create_txt_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_summary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txt_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.create_files.create_txt_file" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a TXT file with the specified note details.</p>
+<p>This function generates a plain text file containing a note’s title, summary, and detailed content.
+The content can include speaker labels and text entries, formatted with timestamps. The language of headings
+(e.g., “Title” and “Summary”) can be customized to English or Polish.</p>
+<dl>
+<dt>Args:</dt><dd><p>note_title (str): The title of the note to be included in the document.
+note_summary (str): A brief summary of the note.
+note_content (list): A list of dictionaries representing the note content. Each dictionary should have:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘type’ (str): The type of content (‘speaker’ or ‘text’).</p></li>
+<li><p>‘timestamp’ (str): The timestamp associated with the content.</p></li>
+<li><p>‘name’ (str, optional): The speaker’s name (for ‘speaker’ type only).</p></li>
+<li><p>‘value’ (str, optional): The text content (for ‘text’ type only).</p></li>
+</ul>
+</div></blockquote>
+<p>txt_file_path (str): The file path where the generated TXT file will be saved.
+language (str, optional): The language for headings (‘pl’ for Polish, ‘en’ for English). Defaults to ‘pl’.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: <cite>True</cite> if the TXT file is created and saved successfully. <cite>False</cite> if an error occurs.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If there is an error during the TXT file creation or saving process.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs file operation errors using <cite>log_operations_on_file</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Timestamps are formatted using the <cite>format_timestamp</cite> function.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="s1">&#39;Introduction to the topic.&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;John Doe&#39;</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">create_txt_file</span><span class="p">(</span><span class="s2">&quot;Meeting Notes&quot;</span><span class="p">,</span> <span class="s2">&quot;Summary of the meeting&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="s2">&quot;meeting_notes.txt&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TXT file created successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to create TXT file.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.create_files.format_timestamp">
+<span class="sig-prename descclassname"><span class="pre">app_backend.create_files.</span></span><span class="sig-name descname"><span class="pre">format_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#app_backend.create_files.format_timestamp" title="Link to this definition">¶</a></dt>
+<dd><p>Converts a time duration in seconds into a formatted timestamp string.</p>
+<p>This function takes an integer value representing a time duration in seconds and converts it
+into a human-readable timestamp in the format <cite>[HH:MM:SS]</cite>.</p>
+<dl>
+<dt>Args:</dt><dd><p>seconds (int): The time duration in seconds to format.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>str: A formatted string representing the time duration in <cite>[HH:MM:SS]</cite> format,</dt><dd><p>where <cite>HH</cite> is hours, <cite>MM</cite> is minutes, and <cite>SS</cite> is seconds, all zero-padded to two digits.</p>
+</dd>
+</dl>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Handles durations longer than 24 hours (e.g., 90000 seconds -&gt; ‘[25:00:00]’).</p></li>
+<li><p>The input should be a non-negative integer. Negative values may result in unexpected output.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_timestamp</span><span class="p">(</span><span class="mi">3661</span><span class="p">)</span>
+<span class="go">&#39;[01:01:01]&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_timestamp</span><span class="p">(</span><span class="mi">45</span><span class="p">)</span>
+<span class="go">&#39;[00:00:45]&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-app_backend.logging_f">
+<span id="app-backend-logging-f-module"></span><h2>app_backend.logging_f module<a class="headerlink" href="#module-app_backend.logging_f" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.logging_f.app_logs">
+<span class="sig-prename descclassname"><span class="pre">app_backend.logging_f.</span></span><span class="sig-name descname"><span class="pre">app_logs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.logging_f.app_logs" title="Link to this definition">¶</a></dt>
+<dd><p>Logs a message to a file for tracking process of program.</p>
+<p>This function writes a log entry to a specific log file, including a timestamp and the provided text.
+The log file is specifically as <cite>logs.log</cite>. The function
+appends new entries to the file to ensure that previous logs are not overwritten.</p>
+<dl>
+<dt>Args:</dt><dd><p>text (str): The message to be logged. This should contain details about the event being recorded.</p>
+</dd>
+<dt>Returns:</dt><dd><p>None: This function does not return a value. It performs a file-writing operation for logging purposes.</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">log_operations_on_file</span><span class="p">(</span><span class="s2">&quot;[INFO] Start uploading files&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_operations_on_file</span><span class="p">(</span><span class="s2">&quot;[FAILED] Upload file&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>The function writes logs using UTF-8 encoding to support a wide range of characters.</p></li>
+<li><p>Logs include the current timestamp for tracking when the event occurred.</p></li>
+</ul>
+</dd>
+<dt>Limitations:</dt><dd><ul class="simple">
+<li><p>The function does not handle potential file I/O errors such as permission issues or disk space limitations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.logging_f.check_and_create_error_logs_folder">
+<span class="sig-prename descclassname"><span class="pre">app_backend.logging_f.</span></span><span class="sig-name descname"><span class="pre">check_and_create_error_logs_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.logging_f.check_and_create_error_logs_folder" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the ‘error_logs’ folder exists in the parent directory.
+If it does not exist, creates the folder to store error logs.</p>
+<p>This function ensures that the necessary directory for error logs is available
+before attempting to write any error logs to it.</p>
+<dl>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check_and_create_error_logs_folder</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.logging_f.log_communication_with_www_server">
+<span class="sig-prename descclassname"><span class="pre">app_backend.logging_f.</span></span><span class="sig-name descname"><span class="pre">log_communication_with_www_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.logging_f.log_communication_with_www_server" title="Link to this definition">¶</a></dt>
+<dd><p>Logs a message related to communication with a web server for debugging or tracking purposes.</p>
+<p>This function appends a message to a dedicated log file that records interactions or issues
+with a web server. The log entry includes a timestamp and the provided message, which can
+be useful for troubleshooting network requests or server communication failures.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>text (str): The message to be logged. This could include information about HTTP requests,</dt><dd><p>responses, or any relevant details regarding server communication.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>None: This function does not return a value. It performs a file-writing operation for logging purposes.</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">log_communication_with_www_server</span><span class="p">(</span><span class="s2">&quot;[ERROR] Received 404 Not Found response.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Ensure that the <cite>check_and_create_error_logs_folder</cite> funkcion exists to avoid any issues when writing the log file.</p></li>
+<li><p>The function writes logs using UTF-8 encoding to support a wide range of characters.</p></li>
+<li><p>Logs include the current timestamp for tracking when the event occurred.</p></li>
+</ul>
+</dd>
+<dt>Limitations:</dt><dd><ul class="simple">
+<li><p>The function does not handle potential file I/O errors such as permission issues or disk space limitations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.logging_f.log_data_analyze">
+<span class="sig-prename descclassname"><span class="pre">app_backend.logging_f.</span></span><span class="sig-name descname"><span class="pre">log_data_analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.logging_f.log_data_analyze" title="Link to this definition">¶</a></dt>
+<dd><p>Logs a message related to data analysisfor debugging or tracking purposes.</p>
+<p>This function appends a message to a log file that records relevant events or issues related
+to data analysis or server interactions. Each log entry includes a timestamp, providing context
+for when the event took place. This can be valuable for debugging, performance tracking, or
+understanding the sequence of actions in data analysis processes.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>text (str): The message to be logged. This could include details of data analysis steps,</dt><dd><p>server communication, or any issues encountered during these processes.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>None: The function does not return any value but performs a logging operation to a file.</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">log_data_analyze</span><span class="p">(</span><span class="s2">&quot;[ERROR] Data analysis process failed.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Ensure that the <cite>check_and_create_error_logs_folder</cite> function exists and is functional
+to avoid errors when accessing the log file.</p></li>
+<li><p>The function writes to the log using UTF-8 encoding, ensuring compatibility with a wide range
+of characters.</p></li>
+<li><p>Each log entry includes the current timestamp to help track the timing of events.</p></li>
+</ul>
+</dd>
+<dt>Limitations:</dt><dd><ul class="simple">
+<li><p>This function does not handle file I/O exceptions such as permission issues or disk space problems,
+which could prevent the log from being written successfully.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.logging_f.log_operations_on_file">
+<span class="sig-prename descclassname"><span class="pre">app_backend.logging_f.</span></span><span class="sig-name descname"><span class="pre">log_operations_on_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.logging_f.log_operations_on_file" title="Link to this definition">¶</a></dt>
+<dd><p>Logs a message to a file for tracking errors or events related to file creation.</p>
+<p>This function writes a log entry to a specific log file, including a timestamp and the provided text.
+The log file is located in the <cite>error_logs/</cite> directory, specifically as <cite>operations_on_file.log</cite>. The function
+appends new entries to the file to ensure that previous logs are not overwritten.</p>
+<dl>
+<dt>Args:</dt><dd><p>text (str): The message to be logged. This should contain details about the event or error being recorded.</p>
+</dd>
+<dt>Returns:</dt><dd><p>None: This function does not return a value. It performs a file-writing operation for logging purposes.</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">log_operations_on_file</span><span class="p">(</span><span class="s2">&quot;[ERROR] Unable to create the file due to insufficient permissions.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Ensure that the <cite>check_and_create_error_logs_folder</cite> funkcion exists to avoid any issues when writing the log file.</p></li>
+<li><p>The function writes logs using UTF-8 encoding to support a wide range of characters.</p></li>
+<li><p>Logs include the current timestamp for tracking when the event occurred.</p></li>
+</ul>
+</dd>
+<dt>Limitations:</dt><dd><ul class="simple">
+<li><p>The function does not handle potential file I/O errors such as permission issues or disk space limitations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-app_backend.retry_logic">
+<span id="app-backend-retry-logic-module"></span><h2>app_backend.retry_logic module<a class="headerlink" href="#module-app_backend.retry_logic" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.retry_logic.add_failed_calendar_events">
+<span class="sig-prename descclassname"><span class="pre">app_backend.retry_logic.</span></span><span class="sig-name descname"><span class="pre">add_failed_calendar_events</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.retry_logic.add_failed_calendar_events" title="Link to this definition">¶</a></dt>
+<dd><p>Attempts to re-add previously failed calendar events to Google Calendar.</p>
+<p>This function reads from a JSON file containing details of failed calendar events
+and tries to add them to the calendar using the Google Calendar API.
+Any events that still fail to be added are preserved for retrying later.</p>
+<dl>
+<dt>Workflow:</dt><dd><ol class="arabic simple">
+<li><p>Ensures the <cite>unsuccessful_uploads</cite> directory exists.</p></li>
+<li><p>Reads the <cite>failed_calendar_events.json</cite> file to get a list of failed events.</p></li>
+<li><dl class="simple">
+<dt>Iterates through each event and attempts to add it to Google Calendar:</dt><dd><ul class="simple">
+<li><p>Uses the <cite>google_cal.Calendar().add_event()</cite> method.</p></li>
+<li><p>If successful, the event is removed from the list.</p></li>
+<li><p>If unsuccessful, the event remains in the list for another retry.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Updates the JSON file with the remaining failed events.</p></li>
+</ol>
+</dd>
+<dt>Returns:</dt><dd><p>None: This function modifies the JSON file directly and does not return a value.</p>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Skips processing if the JSON file does not exist or contains no elements.</p></li>
+<li><p>The <cite>google_cal</cite> module is imported dynamically to handle event creation.</p></li>
+<li><p>Maintains a JSON file to persist failed events for future retries.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add_failed_calendar_events</span><span class="p">()</span>
+<span class="go"># Attempts to re-add failed calendar events and updates the JSON file accordingly.</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.retry_logic.check_and_create_unsuccessful_uploads_folder">
+<span class="sig-prename descclassname"><span class="pre">app_backend.retry_logic.</span></span><span class="sig-name descname"><span class="pre">check_and_create_unsuccessful_uploads_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.retry_logic.check_and_create_unsuccessful_uploads_folder" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the ‘unsuccessful_uploads’ directory exists in the parent folder.
+If it does not exist, the directory is created.</p>
+<p>This function ensures that a dedicated folder for unsuccessful uploads
+is present before further operations that may involve storing files in it.</p>
+<dl>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check_and_create_unsuccessful_uploads_folder</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.retry_logic.retry_logic">
+<span class="sig-prename descclassname"><span class="pre">app_backend.retry_logic.</span></span><span class="sig-name descname"><span class="pre">retry_logic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.retry_logic.retry_logic" title="Link to this definition">¶</a></dt>
+<dd><p>Executes retry logic for previously failed operations.</p>
+<p>This function is responsible for retrying the upload of files and the addition of
+calendar events that previously failed. It sequentially calls the following functions:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><cite>send_failed_files</cite>: Handles the re-upload of files saved in the
+<cite>../unsuccessful_uploads</cite> directory.</p></li>
+<li><p><cite>add_failed_calendar_events</cite>: Attempts to add failed calendar events
+from the <cite>failed_calendar_events.json</cite> file to Google Calendar.</p></li>
+</ol>
+</div></blockquote>
+<dl>
+<dt>Workflow:</dt><dd><ul class="simple">
+<li><p>Calls <cite>send_failed_files</cite> to retry file uploads.</p></li>
+<li><p>Calls <cite>add_failed_calendar_events</cite> to retry adding calendar events.</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>None: This function performs actions and does not return any value.</p>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Designed to be a central point for retrying failed operations.</p></li>
+<li><p>Depends on the presence of data in the <cite>../unsuccessful_uploads</cite> directory
+and associated JSON files.</p></li>
+<li><p>Logs errors encountered during retries via the respective helper functions.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">retry_logic</span><span class="p">()</span>
+<span class="go"># Reattempts the upload of failed files and the addition of failed calendar events.</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.retry_logic.save_failed_calendar_event">
+<span class="sig-prename descclassname"><span class="pre">app_backend.retry_logic.</span></span><span class="sig-name descname"><span class="pre">save_failed_calendar_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_datatime</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.retry_logic.save_failed_calendar_event" title="Link to this definition">¶</a></dt>
+<dd><p>Saves failed calendar event details to a JSON file for retrying later.</p>
+<p>This function handles the storage of calendar events that failed to be added successfully,
+storing their details in a structured JSON file within the unsuccessful uploads directory.</p>
+<dl>
+<dt>Args:</dt><dd><p>event_title (str): The title of the calendar event.
+event_datatime (str): The datetime of the event in ISO 8601 format.
+event_url (str): The URL associated with the event.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: True if the event was successfully recorded in the JSON file, False otherwise.</p>
+</dd>
+<dt>Workflow:</dt><dd><ol class="arabic simple">
+<li><p>Ensures that the <cite>unsuccessful_uploads</cite> directory exists.</p></li>
+<li><p>Reads the existing JSON file (<cite>failed_calendar_events.json</cite>) or initializes a new structure.</p></li>
+<li><dl class="simple">
+<dt>Checks if the event details already exist in the file:</dt><dd><ul class="simple">
+<li><p>If not, appends the event details to the list.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Writes the updated data back to the JSON file.</p></li>
+</ol>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Prevents duplication of events by ensuring new events are only added if they do not already exist.</p></li>
+<li><p>Uses <cite>json.dump</cite> with <cite>ensure_ascii=False</cite> to support non-ASCII characters in event details.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_failed_calendar_event</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">event_title</span><span class="o">=</span><span class="s2">&quot;Team Sync-Up&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">event_datatime</span><span class="o">=</span><span class="s2">&quot;2025-01-15T15:00:00&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">event_url</span><span class="o">=</span><span class="s2">&quot;https://calendar.example.com/event/12345&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.retry_logic.save_unsuccessful_upload">
+<span class="sig-prename descclassname"><span class="pre">app_backend.retry_logic.</span></span><span class="sig-name descname"><span class="pre">save_unsuccessful_upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.retry_logic.save_unsuccessful_upload" title="Link to this definition">¶</a></dt>
+<dd><p>Saves an unsuccessful file upload by storing it in a specific directory and updating a JSON log.</p>
+<p>This function handles the case when a file upload fails. It saves the file to a designated folder
+(<cite>../unsuccessful_uploads</cite>) organized by <cite>note_id</cite>, and updates a JSON file (<cite>failed_files.json</cite>)
+to keep track of the failed uploads. If a folder for the <cite>note_id</cite> doesn’t exist, it is created.
+The file is copied to the appropriate folder and the JSON log is updated with the new failed upload.</p>
+<dl>
+<dt>Args:</dt><dd><p>note_id (str): The unique identifier of the note related to the failed upload.
+file_path (str): The local path of the file that failed to upload.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: <cite>True</cite> if the file was successfully saved and the JSON file was updated. <cite>False</cite> if an error occurred.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs errors during file operations using <cite>log_operations_on_file</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>The function ensures the existence of the <cite>unsuccessful_uploads</cite> folder before saving the file.</p></li>
+<li><p>If a directory for a specific <cite>note_id</cite> does not exist, it is created.</p></li>
+<li><p>Updates or creates a JSON file <cite>failed_files.json</cite> to track the failed uploads.</p></li>
+<li><p>Uses the <cite>copy_file</cite> function to move the file to the appropriate directory.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">save_unsuccessful_upload</span><span class="p">(</span><span class="s2">&quot;80dd89ff24bd287237c31639ed6eff5b6a7e854a9e0b2b919598d1798bccf5bd&quot;</span><span class="p">,</span> <span class="s2">&quot;example.pdf&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed upload saved successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to save the unsuccessful upload.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.retry_logic.send_failed_files">
+<span class="sig-prename descclassname"><span class="pre">app_backend.retry_logic.</span></span><span class="sig-name descname"><span class="pre">send_failed_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.retry_logic.send_failed_files" title="Link to this definition">¶</a></dt>
+<dd><p>Attempts to re-upload failed files and updates the status of the upload process.</p>
+<p>This function checks for any previously failed uploads stored in <cite>failed_files.json</cite> within the <cite>unsuccessful_uploads</cite> directory.
+It attempts to re-upload each failed file using the <cite>upload_file_on_server</cite> function. If the upload is successful, the file is deleted.
+If the upload fails again, the file is retained for future attempts. After processing all files, the function updates the JSON file
+to reflect the current status of each failed upload, removing any successfully re-uploaded files and directories.</p>
+<dl>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs errors during file uploads using <cite>log_operations_on_file</cite>.</p></li>
+<li><p>Handles <cite>FileNotFoundError</cite> gracefully if a file to upload is missing.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>The function reads and updates the <cite>failed_files.json</cite> file, which tracks failed uploads.</p></li>
+<li><p>Deletes the directory for a <cite>note_id</cite> if all files within that directory have been successfully re-uploaded.</p></li>
+<li><p>Retains and re-attempts uploading any files that fail during the re-upload process.</p></li>
+<li><p>Utilizes the <cite>upload_file_on_server</cite> function for uploading and <cite>delete_directory</cite> for cleaning up empty directories.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">send_failed_files</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># This will attempt to re-upload any files that failed during a previous upload attempt.</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-app_backend.save_files">
+<span id="app-backend-save-files-module"></span><h2>app_backend.save_files module<a class="headerlink" href="#module-app_backend.save_files" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.save_files.copy_file">
+<span class="sig-prename descclassname"><span class="pre">app_backend.save_files.</span></span><span class="sig-name descname"><span class="pre">copy_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.save_files.copy_file" title="Link to this definition">¶</a></dt>
+<dd><p>Copies a file from one location to another.</p>
+<p>This function copies a file from the specified source (<cite>file_path</cite>) to the destination (<cite>destination_file_path</cite>).
+If the copy operation is successful, it returns <cite>True</cite>. If an error occurs during the copying process,
+it logs the error and returns <cite>False</cite>.</p>
+<dl>
+<dt>Args:</dt><dd><p>file_path (str): The path to the source file to be copied.
+destination_file_path (str): The path to the destination where the file should be copied.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: <cite>True</cite> if the file was copied successfully. <cite>False</cite> if an error occurred.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs errors during the file copy process using <cite>log_operations_on_file</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Uses <cite>shutil.copyfile()</cite> to copy the file.</p></li>
+<li><p>Ensure that both the source and destination file paths are valid.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">copy_file</span><span class="p">(</span><span class="s2">&quot;example.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;/path/to/destination/example.txt&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File copied successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to copy the file.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.save_files.create_note_id">
+<span class="sig-prename descclassname"><span class="pre">app_backend.save_files.</span></span><span class="sig-name descname"><span class="pre">create_note_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_datetime</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#app_backend.save_files.create_note_id" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a unique identifier (ID) for a note based on its title, datetime, and language.</p>
+<p>This function creates a unique hash string by concatenating the note title, language, datetime,
+and a random integer. The resulting string is then hashed using the SHA-256 algorithm to produce
+a fixed-length, cryptographically secure identifier.</p>
+<dl>
+<dt>Args:</dt><dd><p>note_title (str): The title of the note used as part of the ID generation.
+note_datetime (str): The datetime associated with the note, used to ensure uniqueness.
+language (str): The language code (e.g., ‘en’ or ‘pl’) used as part of the ID generation.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: A unique SHA-256 hash string that serves as the ID for the note.</p>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>This function uses the <cite>hashlib</cite> module to create the SHA-256 hash.</p></li>
+<li><p>The function includes a random integer between 0 and 10,000 to increase the likelihood of uniqueness.</p></li>
+<li><p>Ensure that the <cite>hashlib</cite> library is imported for this function to work properly.</p></li>
+<li><p>The function returns a string of 64 hexadecimal characters.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">note_id</span> <span class="o">=</span> <span class="n">create_note_id</span><span class="p">(</span><span class="s2">&quot;Meeting Notes&quot;</span><span class="p">,</span> <span class="s2">&quot;01-02-2022 11:50:00&quot;</span><span class="p">,</span> <span class="s2">&quot;en&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">note_id</span><span class="p">)</span>
+<span class="go">&#39;5f4d2b89f...&lt;hash_value&gt;...&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.save_files.delete_directory">
+<span class="sig-prename descclassname"><span class="pre">app_backend.save_files.</span></span><span class="sig-name descname"><span class="pre">delete_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.save_files.delete_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes a directory and its contents.</p>
+<p>This function attempts to delete a specified directory along with all its files and subdirectories.
+If the operation is successful, it returns <cite>True</cite>. If an error occurs during the deletion process,
+it logs the error and returns <cite>False</cite>.</p>
+<dl>
+<dt>Args:</dt><dd><p>directory_path (str): The path to the directory to be deleted.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: <cite>True</cite> if the directory was deleted successfully. <cite>False</cite> if an error occurred.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs errors during the directory deletion process using <cite>log_operations_on_file</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Uses <cite>shutil.rmtree()</cite> to recursively delete the directory and its contents.</p></li>
+<li><p>Ensure that the provided <cite>directory_path</cite> is correct to avoid accidental deletions.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">delete_directory</span><span class="p">(</span><span class="s2">&quot;/path/to/directory&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Directory deleted successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to delete the directory.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.save_files.save_audio_and_video_files_to_user_directory">
+<span class="sig-prename descclassname"><span class="pre">app_backend.save_files.</span></span><span class="sig-name descname"><span class="pre">save_audio_and_video_files_to_user_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.save_files.save_audio_and_video_files_to_user_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Saves audio and video files to a user directory with detailed logging.</p>
+<p>This function creates a subdirectory within the specified directory path if it does not already exist.
+It then attempts to copy the specified audio and video files into this subdirectory. Logs are generated
+to indicate the success or failure of each operation.</p>
+<dl>
+<dt>Args:</dt><dd><p>directory_path (str): The base directory path where the files will be saved.
+tmp_dir_name (str): The name of the temporary subdirectory to be created within the base directory.
+audio_file_path (str): The path to the audio file to be copied.
+video_file_path (str): The path to the video file to be copied.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: <cite>True</cite> if both files are successfully copied to the directory. <cite>False</cite> otherwise.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Uses the <cite>copy_file</cite> function for copying files, which handles file copy errors.</p></li>
+<li><p>Logs errors and successes for each file operation using <cite>app_logs</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Ensures the directory structure is created before attempting to copy files.</p></li>
+<li><p>Generates logs for each file, indicating whether the operation was successful or failed.</p></li>
+<li><p>Returns <cite>False</cite> if any of the file copy operations fail, but continues to process remaining files.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">save_audio_and_video_files_to_user_directory</span><span class="p">(</span><span class="s2">&quot;/user/files&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp123&quot;</span><span class="p">,</span> <span class="s2">&quot;audio.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;video.mp4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Files saved successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to save files.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.save_files.save_files">
+<span class="sig-prename descclassname"><span class="pre">app_backend.save_files.</span></span><span class="sig-name descname"><span class="pre">save_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_summary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_datetime</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_content_img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_content_text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_content_speaker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_to_server</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#app_backend.save_files.save_files" title="Link to this definition">¶</a></dt>
+<dd><p>Saves and manages files related to a note, including DOCX, TXT, JSON, and video files, with options
+for local storage and server upload.</p>
+<p>This function processes and organizes note content, creates files, and stores them locally.
+If specified, it also handles sending files to a server and adds an event to Google Calendar.</p>
+<dl>
+<dt>Args:</dt><dd><p>note_title (str): The title of the note.
+note_summary (str): A summary of the note’s content.
+note_datetime (datetime): The datetime of the note.
+note_content_img (list): List of image-related content for the note.
+note_content_text (list): List of text-related content for the note.
+note_content_speaker (list): List of speaker-related content for the note.
+video_file_path (str): Path to the video file associated with the note.
+tmp_dir_name (str): Temporary directory name for processing files.
+directory_path (str): The base directory for saving final files.
+send_to_server (bool): Flag indicating whether files should be uploaded to the server.
+language (str, optional): Language setting for file creation. Defaults to ‘pl’.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: Information about proccess</p>
+</dd>
+<dt>Workflow:</dt><dd><ol class="arabic simple">
+<li><p>Combines and sorts all note content (images, text, speakers).</p></li>
+<li><p>Generates a unique note ID based on the title, datetime, and language.</p></li>
+<li><p>Creates DOCX and TXT files based on the note content.</p></li>
+<li><p>Saves all processed files to a user-specified directory.</p></li>
+<li><dl class="simple">
+<dt>If <cite>send_to_server</cite> is True:</dt><dd><ul class="simple">
+<li><p>Creates a JSON metadata file for the note.</p></li>
+<li><p>Uploads all files (including JSON, DOCX, TXT, images, and video) to the server.</p></li>
+<li><p>Deletes the temporary processing directory after upload.</p></li>
+<li><p>Adds a calendar event with a link to the note’s server location.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>If <cite>send_to_server</cite> is False, deletes the temporary directory after processing.</p></li>
+</ol>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Ensures temporary directories are deleted in both local and server workflows.</p></li>
+<li><p>Logs successes and failures at each step using <cite>app_logs</cite>.</p></li>
+<li><p>Handles file creation and upload failures gracefully.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_files</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">note_title</span><span class="o">=</span><span class="s2">&quot;Meeting Notes&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">note_summary</span><span class="o">=</span><span class="s2">&quot;Discussion about project milestones.&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">note_datetime</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">note_content_img</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="s2">&quot;image1.png&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">}],</span>
+<span class="gp">... </span>    <span class="n">note_content_text</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Initial project proposal&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">345</span><span class="p">}],</span>
+<span class="gp">... </span>    <span class="n">note_content_speaker</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">456</span><span class="p">}],</span>
+<span class="gp">... </span>    <span class="n">video_file_path</span><span class="o">=</span><span class="s2">&quot;meeting_video.mp4&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">tmp_dir_name</span><span class="o">=</span><span class="s2">&quot;temp123&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">directory_path</span><span class="o">=</span><span class="s2">&quot;/user/notes&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">send_to_server</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">language</span><span class="o">=</span><span class="s2">&quot;en&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.save_files.save_final_files_to_user_directory">
+<span class="sig-prename descclassname"><span class="pre">app_backend.save_files.</span></span><span class="sig-name descname"><span class="pre">save_final_files_to_user_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_docx_file_created</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docx_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_txt_file_created</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txt_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_files_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#app_backend.save_files.save_final_files_to_user_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Saves final files, including documents, images, and videos, to a user directory with logging.</p>
+<p>This function creates a subdirectory within the specified directory path if it does not already exist.
+It then attempts to copy the specified files (e.g., images, documents, and video) into this subdirectory.
+Success or failure of each file operation is logged.</p>
+<dl>
+<dt>Args:</dt><dd><p>directory_path (str): The base directory path where the files will be saved.
+tmp_dir_name (str): The name of the temporary subdirectory to be created within the base directory.
+is_docx_file_created (bool): Whether a DOCX file is to be saved.
+docx_file_path (str): The path to the DOCX file to be copied (if created).
+is_txt_file_created (bool): Whether a TXT file is to be saved.
+txt_file_path (str): The path to the TXT file to be copied (if created).
+img_files_name (list): A list of image file names to be saved.
+video_file_path (str): The path to the video file to be copied.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: <cite>True</cite> if all files are successfully copied to the directory. <cite>False</cite> if any file fails to copy.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Uses the <cite>copy_file</cite> function for copying files, which handles file copy errors.</p></li>
+<li><p>Logs errors and successes for each file operation using <cite>app_logs</cite>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Ensures the directory structure is created before attempting to copy files.</p></li>
+<li><p>Checks for the existence of optional files (e.g., DOCX and TXT) and includes them if present.</p></li>
+<li><p>Continues processing remaining files even if some file operations fail.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">success</span> <span class="o">=</span> <span class="n">save_final_files_to_user_directory</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;/user/files&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp123&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;document.docx&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;summary.txt&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">&quot;image1.png&quot;</span><span class="p">,</span> <span class="s2">&quot;image2.jpg&quot;</span><span class="p">],</span> <span class="s2">&quot;video.mp4&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Files saved successfully.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to save some files.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.save_files.send_files_on_server_with_delete_directory">
+<span class="sig-prename descclassname"><span class="pre">app_backend.save_files.</span></span><span class="sig-name descname"><span class="pre">send_files_on_server_with_delete_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_files_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_docx_file_created</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docx_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_docx_txt_created</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txt_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_backend.save_files.send_files_on_server_with_delete_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Uploads multiple files to a server and deletes the temporary directory.</p>
+<p>This function uploads a set of files (such as images, JSON, video, and optional text and DOCX files)
+associated with a specific note to the server. If any file fails to upload, it is saved for a retry later.
+After all files are processed, it deletes the temporary directory used for storing the files.</p>
+<dl>
+<dt>Args:</dt><dd><p>note_id (str): The unique identifier of the note associated with the files.
+json_file_path (str): The path to the JSON file to be uploaded.
+img_files_name (list): A list of image file names to be uploaded.
+video_file_path (str): The path to the video file to be uploaded.
+is_docx_file_created (bool): A flag indicating if the DOCX file is created and should be uploaded.
+docx_file_path (str): The path to the DOCX file to be uploaded (if created).
+is_docx_txt_created (bool): A flag indicating if the TXT file is created and should be uploaded.
+txt_file_path (str): The path to the TXT file to be uploaded (if created).
+tmp_dir_name (str): The name of the temporary directory containing the files to be uploaded.</p>
+</dd>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Logs failed uploads using <cite>app_logs</cite>.</p></li>
+<li><p>Saves failed uploads for later retries using <cite>save_unsuccessful_upload</cite>.</p></li>
+<li><p>The function will log each step of the upload process, including success or failure.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>The function attempts to upload all specified files, including images, video, and text files.</p></li>
+<li><p>If any file fails to upload, it is saved for a retry attempt.</p></li>
+<li><p>Deletes the temporary directory once all file uploads are completed.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">send_files_on_server_with_delete_directory</span><span class="p">(</span><span class="s2">&quot;12345&quot;</span><span class="p">,</span> <span class="s2">&quot;note.json&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;img1.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;img2.jpg&quot;</span><span class="p">],</span> <span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;note.docx&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;note.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp123&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># This will upload the files associated with the note and delete the temporary directory.</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_backend.save_files.sort_note_content">
+<span class="sig-prename descclassname"><span class="pre">app_backend.save_files.</span></span><span class="sig-name descname"><span class="pre">sort_note_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#app_backend.save_files.sort_note_content" title="Link to this definition">¶</a></dt>
+<dd><p>Sorts a list of note content elements based on their timestamp and type.</p>
+<p>This function organizes the elements of a note’s content in chronological order.
+If two elements have the same timestamp, they are further sorted based on their type
+according to a predefined order: ‘img’ (0), ‘speaker’ (1), and ‘text’ (2).</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>note_content (list): A list of dictionaries representing the content elements of a note.</dt><dd><p>Each dictionary must contain the following keys:
+- <cite>type</cite> (str): The type of the content (<cite>‘img’</cite>, <cite>‘speaker’</cite>, or <cite>‘text’</cite>).
+- <cite>timestamp</cite> (int): The timestamp in seconds to be used for sorting.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>list: A new list of note content elements sorted first by timestamp and then by type.</p>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>The function assumes that all dictionaries in the input list have the keys <cite>type</cite> and <cite>timestamp</cite>.</p></li>
+<li><p>The sorting order for types is predefined: <cite>img</cite> is sorted first, then <cite>speaker</cite>, and <cite>text</cite> last.</p></li>
+<li><p>This function uses a lambda function as the sorting key to achieve multi-level sorting.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">note_content</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Alice&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;img&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s1">&#39;file_path&#39;</span><span class="p">:</span> <span class="s1">&#39;image.jpg&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="s1">&#39;Some text content&#39;</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sorted_content</span> <span class="o">=</span> <span class="n">sort_note_content</span><span class="p">(</span><span class="n">note_content</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sorted_content</span><span class="p">)</span>
+<span class="go">[{&#39;type&#39;: &#39;img&#39;, &#39;timestamp&#39;: 60, &#39;file_path&#39;: &#39;image.jpg&#39;},</span>
+<span class="go"> {&#39;type&#39;: &#39;speaker&#39;, &#39;timestamp&#39;: 120, &#39;name&#39;: &#39;Alice&#39;},</span>
+<span class="go"> {&#39;type&#39;: &#39;text&#39;, &#39;timestamp&#39;: 120, &#39;value&#39;: &#39;Some text content&#39;}]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-app_backend">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-app_backend" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Notes Generator</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">app_backend package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_backend.communication_with_www_server">app_backend.communication_with_www_server module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_backend.create_files">app_backend.create_files module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_backend.logging_f">app_backend.logging_f module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_backend.retry_logic">app_backend.retry_logic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_backend.save_files">app_backend.save_files module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_backend">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="app_front.html">app_front package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_analyze.html">data_analyze package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Notes Generator documentation</a></li>
+      <li>Next: <a href="app_front.html" title="next chapter">app_front package</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Filip Kaczor, Jakub Kowalski, Jakub Kogut.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/app_backend.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

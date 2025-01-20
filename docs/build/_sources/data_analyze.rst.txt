@@ -1,0 +1,29 @@
+data\_analyze package
+=====================
+
+Submodules
+----------
+
+data\_analyze.data\_analyze module
+----------------------------------
+
+.. automodule:: data_analyze.data_analyze
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+data\_analyze.image\_files\_analyze module
+------------------------------------------
+
+.. automodule:: data_analyze.image_files_analyze
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: data_analyze
+   :members:
+   :undoc-members:
+   :show-inheritance:

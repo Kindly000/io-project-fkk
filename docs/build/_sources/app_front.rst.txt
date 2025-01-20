@@ -1,0 +1,61 @@
+app\_front package
+==================
+
+Submodules
+----------
+
+app\_front.class\_audio module
+------------------------------
+
+.. automodule:: app_front.class_audio
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+app\_front.class\_record module
+-------------------------------
+
+.. automodule:: app_front.class_record
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+app\_front.main module
+----------------------
+
+.. automodule:: app_front.main
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+app\_front.notification\_window module
+--------------------------------------
+
+.. automodule:: app_front.notification_window
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+app\_front.quickstart module
+----------------------------
+
+.. automodule:: app_front.quickstart
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+app\_front.test module
+----------------------
+
+.. automodule:: app_front.test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: app_front
+   :members:
+   :undoc-members:
+   :show-inheritance:
