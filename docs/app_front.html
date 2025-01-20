@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>app_front package &#8212; Notes Generator 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="data_analyze package" href="data_analyze.html" />
+    <link rel="prev" title="app_backend package" href="app_backend.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="app-front-package">
+<h1>app_front package<a class="headerlink" href="#app-front-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-app_front.class_audio">
+<span id="app-front-class-audio-module"></span><h2>app_front.class_audio module<a class="headerlink" href="#module-app_front.class_audio" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app_front.class_audio.AudioRecorder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app_front.class_audio.</span></span><span class="sig-name descname"><span class="pre">AudioRecorder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_audio.AudioRecorder" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.class_audio.AudioRecorder.find_input_device">
+<span class="sig-name descname"><span class="pre">find_input_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_audio.AudioRecorder.find_input_device" title="Link to this definition">¶</a></dt>
+<dd><p>Finds the ‘Stereo Mix’ input device.</p>
+<p>This method searches through all available devices and returns the index
+of the device whose name contains ‘stereo mix’ or ‘miks stereo’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.class_audio.AudioRecorder.record_chunks">
+<span class="sig-name descname"><span class="pre">record_chunks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_audio.AudioRecorder.record_chunks" title="Link to this definition">¶</a></dt>
+<dd><p>Records audio chunks in a separate thread.</p>
+<p>This method reads chunks of audio data from the input stream and appends them to the frames list.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.class_audio.AudioRecorder.start_recording">
+<span class="sig-name descname"><span class="pre">start_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_audio.AudioRecorder.start_recording" title="Link to this definition">¶</a></dt>
+<dd><p>Starts recording audio.</p>
+<p>This method initializes the audio stream and starts recording in a separate thread.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.class_audio.AudioRecorder.stop_recording">
+<span class="sig-name descname"><span class="pre">stop_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_audio.AudioRecorder.stop_recording" title="Link to this definition">¶</a></dt>
+<dd><p>Stops the recording and saves the audio to a file.</p>
+<p>This method stops the recording, waits for the recording thread to finish,
+and writes the recorded frames to a WAV file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.class_audio.AudioRecorder.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_audio.AudioRecorder.terminate" title="Link to this definition">¶</a></dt>
+<dd><p>Terminates the PyAudio instance.</p>
+<p>This method releases resources used by PyAudio.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app_front.class_record">
+<span id="app-front-class-record-module"></span><h2>app_front.class_record module<a class="headerlink" href="#module-app_front.class_record" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app_front.class_record.ScreenRecorder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app_front.class_record.</span></span><span class="sig-name descname"><span class="pre">ScreenRecorder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_record.ScreenRecorder" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.class_record.ScreenRecorder.start_record">
+<span class="sig-name descname"><span class="pre">start_record</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_record.ScreenRecorder.start_record" title="Link to this definition">¶</a></dt>
+<dd><p>Starts recording in a separate thread.</p>
+<p>If recording is not already active, this method will initiate the process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.class_record.ScreenRecorder.stop_record">
+<span class="sig-name descname"><span class="pre">stop_record</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.class_record.ScreenRecorder.stop_record" title="Link to this definition">¶</a></dt>
+<dd><p>Stops the recording and releases the resources.</p>
+<p>This method sets the recording status to False, waits for the recording thread to finish,
+and releases the video file.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app_front.main">
+<span id="app-front-main-module"></span><h2>app_front.main module<a class="headerlink" href="#module-app_front.main" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app_front.main.IoFront">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app_front.main.</span></span><span class="sig-name descname"><span class="pre">IoFront</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_window</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code></p>
+<p>Constructor for the IoFront class.</p>
+<p>Initializes the IoFront class, which sets up the main GUI window for managing recordings,
+Google Calendar authentication, and notes from the server. It also handles directories,
+variables, threading, and GUI layout for user interaction.</p>
+<dl>
+<dt>Args:</dt><dd><p>master_window (tk.Tk): The parent Tkinter window to which this frame belongs.</p>
+</dd>
+<dt>Attributes:</dt><dd><p>executor (ThreadPoolExecutor): A thread pool executor to run tasks concurrently.
+recording_video (bool): Tracks the video recording status.
+recording_audio (bool): Tracks the audio recording status.
+check_if_record_in_progress (bool): Tracks whether a recording is in progress.</p>
+<p>record_dir (str): Directory for storing recorded files (set later).
+analyze_dir (str): Directory for storing analyzed files (set later).</p>
+<p><a href="#id1"><span class="problematic" id="id2">google_</span></a> (google_cal.Calendar): Instance of the Calendar class for Google Calendar API interaction.</p>
+<p>import_from_server (dict | None): Contains notes fetched from the server; None if the fetch fails.
+imported_notes (list): List of notes fetched from the server, or an empty list if none are fetched.
+clicked_note (str): Placeholder for storing the clicked note ID.</p>
+<p>date_var (str | None): Variable for storing the date related to the current note.
+date_var_analyze (str | None): Variable for storing the date related to analysis.</p>
+<p>selected_download_dir_var (str): Default directory for downloads.
+existing_record_frequency_comparison_sec (str): Frequency (in seconds) for comparing existing recordings.
+existing_record_selected_dir_var (str): Directory for existing recordings.
+existing_record_file_name (str): Default file name for existing recordings.
+existing_record_entered_name (ttk.StringVar): Holds user input for file name.
+existing_record_app_name (str): Example application name for existing recordings.
+existing_record_send_to_server_from_new_window_var (tk.BooleanVar): Boolean flag for sending files to the server.
+existing_record_send_to_server_from_new_window (bool): Default value for sending files to the server.
+existing_wav_file_to_process_var (ttk.StringVar): Holds the WAV file to process.
+existing_mp4_file_to_process_var (ttk.StringVar): Holds the MP4 file to process.
+existing_wav_file_to_process (str): Placeholder for WAV file path.
+existing_mp4_file_to_process (str): Placeholder for MP4 file path.</p>
+<p>left_container (ttk.LabelFrame): Left-side container for managing recordings and displaying notes.
+tree (ttk.Treeview): Treeview widget for displaying recordings/notes.
+right_container (ttk.Frame): Right-side container for recording controls and actions.
+new_record_container (ttk.LabelFrame): Container for new recording controls.
+action_container (ttk.LabelFrame): Container for managing recording actions.
+search_container (ttk.LabelFrame): Container for search functionality.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app_front.main.IoFront.analyze_dir">
+<span class="sig-name descname"><span class="pre">analyze_dir</span></span><a class="headerlink" href="#app_front.main.IoFront.analyze_dir" title="Link to this definition">¶</a></dt>
+<dd><p>Google Calendar Authentication</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app_front.main.IoFront.check_if_record_in_progress">
+<span class="sig-name descname"><span class="pre">check_if_record_in_progress</span></span><a class="headerlink" href="#app_front.main.IoFront.check_if_record_in_progress" title="Link to this definition">¶</a></dt>
+<dd><p>Directories for temporary files</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app_front.main.IoFront.clicked_note">
+<span class="sig-name descname"><span class="pre">clicked_note</span></span><a class="headerlink" href="#app_front.main.IoFront.clicked_note" title="Link to this definition">¶</a></dt>
+<dd><p>Date variables for note creation and analysis</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.combining_recordings">
+<span class="sig-name descname"><span class="pre">combining_recordings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.combining_recordings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.create_entry">
+<span class="sig-name descname"><span class="pre">create_entry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.create_entry" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.create_scrollbar_for_treeview">
+<span class="sig-name descname"><span class="pre">create_scrollbar_for_treeview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.create_scrollbar_for_treeview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.create_search_button">
+<span class="sig-name descname"><span class="pre">create_search_button</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.create_search_button" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.create_treeview">
+<span class="sig-name descname"><span class="pre">create_treeview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.create_treeview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app_front.main.IoFront.date_var_analyze">
+<span class="sig-name descname"><span class="pre">date_var_analyze</span></span><a class="headerlink" href="#app_front.main.IoFront.date_var_analyze" title="Link to this definition">¶</a></dt>
+<dd><p>Variables for processing existing recording windows</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.drop_menu_app">
+<span class="sig-name descname"><span class="pre">drop_menu_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.drop_menu_app" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app_front.main.IoFront.existing_mp4_file_to_process">
+<span class="sig-name descname"><span class="pre">existing_mp4_file_to_process</span></span><a class="headerlink" href="#app_front.main.IoFront.existing_mp4_file_to_process" title="Link to this definition">¶</a></dt>
+<dd><p>GUI setup</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.existing_record_drop_menu_app">
+<span class="sig-name descname"><span class="pre">existing_record_drop_menu_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.existing_record_drop_menu_app" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.existing_record_open_directory_picker">
+<span class="sig-name descname"><span class="pre">existing_record_open_directory_picker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.existing_record_open_directory_picker" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app_front.main.IoFront.google_">
+<span class="sig-name descname"><span class="pre">google_</span></span><a class="headerlink" href="#app_front.main.IoFront.google_" title="Link to this definition">¶</a></dt>
+<dd><p>Fetching notes from the server</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.new_directory">
+<span class="sig-name descname"><span class="pre">new_directory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.new_directory" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.new_directory_for_analyze">
+<span class="sig-name descname"><span class="pre">new_directory_for_analyze</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.new_directory_for_analyze" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.on_click_refresh">
+<span class="sig-name descname"><span class="pre">on_click_refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.on_click_refresh" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.on_click_search">
+<span class="sig-name descname"><span class="pre">on_click_search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.on_click_search" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.on_closing">
+<span class="sig-name descname"><span class="pre">on_closing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.on_closing" title="Link to this definition">¶</a></dt>
+<dd><p>Closes the application and shuts down all tasks in the ThreadPoolExecutor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.open_directory_picker">
+<span class="sig-name descname"><span class="pre">open_directory_picker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.open_directory_picker" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.open_download_directory_picker">
+<span class="sig-name descname"><span class="pre">open_download_directory_picker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.open_download_directory_picker" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.open_in_browser_button">
+<span class="sig-name descname"><span class="pre">open_in_browser_button</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.open_in_browser_button" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.placeholder">
+<span class="sig-name descname"><span class="pre">placeholder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.placeholder" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.process_files_main_app_button">
+<span class="sig-name descname"><span class="pre">process_files_main_app_button</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.process_files_main_app_button" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.refresh_button">
+<span class="sig-name descname"><span class="pre">refresh_button</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.refresh_button" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.retry_logic">
+<span class="sig-name descname"><span class="pre">retry_logic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.retry_logic" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.save_audio_and_video_files">
+<span class="sig-name descname"><span class="pre">save_audio_and_video_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.save_audio_and_video_files" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.save_name_dir_in_variables_existing_record">
+<span class="sig-name descname"><span class="pre">save_name_dir_in_variables_existing_record</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.save_name_dir_in_variables_existing_record" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.start_audio_recording">
+<span class="sig-name descname"><span class="pre">start_audio_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.start_audio_recording" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.start_data_analyze">
+<span class="sig-name descname"><span class="pre">start_data_analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp_dir_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_datetime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.start_data_analyze" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.start_processing_button_main_app">
+<span class="sig-name descname"><span class="pre">start_processing_button_main_app</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.start_processing_button_main_app" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.start_processing_button_new_window">
+<span class="sig-name descname"><span class="pre">start_processing_button_new_window</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.start_processing_button_new_window" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.start_recording_button">
+<span class="sig-name descname"><span class="pre">start_recording_button</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.start_recording_button" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.start_recordings">
+<span class="sig-name descname"><span class="pre">start_recordings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.start_recordings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.start_video_recording">
+<span class="sig-name descname"><span class="pre">start_video_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.start_video_recording" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.stop_audio_recording">
+<span class="sig-name descname"><span class="pre">stop_audio_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.stop_audio_recording" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.stop_recording_button">
+<span class="sig-name descname"><span class="pre">stop_recording_button</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.stop_recording_button" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.stop_recording_button_new_window">
+<span class="sig-name descname"><span class="pre">stop_recording_button_new_window</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.stop_recording_button_new_window" title="Link to this definition">¶</a></dt>
+<dd><p>Function to check if ‘combined.mp4’ file is present and handle actions accordingly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.stop_recordings">
+<span class="sig-name descname"><span class="pre">stop_recordings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.stop_recordings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.stop_video_recording">
+<span class="sig-name descname"><span class="pre">stop_video_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.stop_video_recording" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.main.IoFront.tree_on_click_element">
+<span class="sig-name descname"><span class="pre">tree_on_click_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.main.IoFront.tree_on_click_element" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app_front.notification_window">
+<span id="app-front-notification-window-module"></span><h2>app_front.notification_window module<a class="headerlink" href="#module-app_front.notification_window" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app_front.notification_window.NotificationWindow">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app_front.notification_window.</span></span><span class="sig-name descname"><span class="pre">NotificationWindow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.notification_window.NotificationWindow" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to create and display a notification window with an informational message.</p>
+<p>This window displays a message in a text widget and provides an “OK” button to close the window.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>root (ttk2.Window): The main window for the notification.
+info_text (ttk2.Text): A text widget to display the informational message.
+ok_button (ttk2.Button): A button to close the window.</p>
+</dd>
+<dt>Methods:</dt><dd><p>set_info_text(text: str): Updates the informational message displayed in the window.
+close_window(): Closes the notification window.
+run(): Starts the window’s main event loop.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.notification_window.NotificationWindow.close_window">
+<span class="sig-name descname"><span class="pre">close_window</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.notification_window.NotificationWindow.close_window" title="Link to this definition">¶</a></dt>
+<dd><p>Closes the notification window.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.notification_window.NotificationWindow.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.notification_window.NotificationWindow.run" title="Link to this definition">¶</a></dt>
+<dd><p>Starts the notification window’s main event loop.</p>
+<p>This keeps the window open until it is closed by the user.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.notification_window.NotificationWindow.set_info_text">
+<span class="sig-name descname"><span class="pre">set_info_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#app_front.notification_window.NotificationWindow.set_info_text" title="Link to this definition">¶</a></dt>
+<dd><p>Updates the informational message displayed in the text widget.</p>
+<p>Adjusts the text widget’s height and width based on the number of lines
+and the length of the longest line in the message.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>text (str): The new message to display.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app_front.notification_window.create_notification_window">
+<span class="sig-prename descclassname"><span class="pre">app_front.notification_window.</span></span><span class="sig-name descname"><span class="pre">create_notification_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#app_front.notification_window.create_notification_window" title="Link to this definition">¶</a></dt>
+<dd><p>Creates and runs a notification window with the given informational message.</p>
+<dl>
+<dt>Args:</dt><dd><p>info_message (str): The message to display in the notification window.</p>
+</dd>
+<dt>Returns:</dt><dd><p>None: This function does not return any value.</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">create_notification_window</span><span class="p">(</span><span class="s2">&quot;This is an important message.&quot;</span><span class="p">)</span>
+<span class="go"># Opens a window displaying the message with an &quot;OK&quot; button.</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-app_front.quickstart">
+<span id="app-front-quickstart-module"></span><h2>app_front.quickstart module<a class="headerlink" href="#module-app_front.quickstart" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app_front.quickstart.Calendar">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app_front.quickstart.</span></span><span class="sig-name descname"><span class="pre">Calendar</span></span><a class="headerlink" href="#app_front.quickstart.Calendar" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.quickstart.Calendar.add_event">
+<span class="sig-name descname"><span class="pre">add_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#app_front.quickstart.Calendar.add_event" title="Link to this definition">¶</a></dt>
+<dd><p>Adds a new event to the Google Calendar.
+Returns a dictionary indicating if the event was created successfully.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.quickstart.Calendar.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.quickstart.Calendar.main" title="Link to this definition">¶</a></dt>
+<dd><p>Shows basic usage of the Google Calendar API.
+Prints the start and name of the next 10 events on the user’s calendar.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_front.quickstart.Calendar.set_credentials">
+<span class="sig-name descname"><span class="pre">set_credentials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.quickstart.Calendar.set_credentials" title="Link to this definition">¶</a></dt>
+<dd><p>Sets up and manages user credentials for authentication.
+Retrieves stored credentials or prompts the user to authenticate.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app_front.test">
+<span id="app-front-test-module"></span><h2>app_front.test module<a class="headerlink" href="#module-app_front.test" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="app_front.test.test">
+<span class="sig-prename descclassname"><span class="pre">app_front.test.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app_front.test.test" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-app_front">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-app_front" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Notes Generator</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="app_backend.html">app_backend package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">app_front package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_front.class_audio">app_front.class_audio module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_front.class_record">app_front.class_record module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_front.main">app_front.main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_front.notification_window">app_front.notification_window module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_front.quickstart">app_front.quickstart module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_front.test">app_front.test module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-app_front">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_analyze.html">data_analyze package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="app_backend.html" title="previous chapter">app_backend package</a></li>
+      <li>Next: <a href="data_analyze.html" title="next chapter">data_analyze package</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Filip Kaczor, Jakub Kowalski, Jakub Kogut.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/app_front.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
