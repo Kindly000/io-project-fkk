@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>data_analyze package &#8212; Notes Generator 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="app_front package" href="app_front.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="data-analyze-package">
+<h1>data_analyze package<a class="headerlink" href="#data-analyze-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-data_analyze.data_analyze">
+<span id="data-analyze-data-analyze-module"></span><h2>data_analyze.data_analyze module<a class="headerlink" href="#module-data_analyze.data_analyze" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.data_analyze.combine_transcription_and_diarization">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.data_analyze.</span></span><span class="sig-name descname"><span class="pre">combine_transcription_and_diarization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diarization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#data_analyze.data_analyze.combine_transcription_and_diarization" title="Link to this definition">¶</a></dt>
+<dd><p>Merging transcription and diarization results.</p>
+<p>Args:</p>
+<p>segments (list[dict]): List of transcription segments.</p>
+<p>diarization (object): Results of speaker diarization.</p>
+<p>Returns:
+list[dict]: List of merged results containing time and speaker information.</p>
+<p>Notes:
+- The function merges data based on overlapping time intervals.
+- Success or failure information is logged to a file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.data_analyze.diarize_audio">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.data_analyze.</span></span><span class="sig-name descname"><span class="pre">diarize_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hf_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">object</span></span></span><a class="headerlink" href="#data_analyze.data_analyze.diarize_audio" title="Link to this definition">¶</a></dt>
+<dd><p>Audio diarization - recognizes interlocutors in an audio file.</p>
+<p>Args:
+file_path (str): Path to the audio file.
+hf_token (str): Token for authentication in HuggingFace.</p>
+<p>Returns:
+object: The diarization result containing information about interlocutors.</p>
+<p>Notes:
+- The function uses the pyannote model for diarization.
+- In case of an error, the information is logged to a file using <cite>log_data_analyze</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.data_analyze.get_video_frames">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.data_analyze.</span></span><span class="sig-name descname"><span class="pre">get_video_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#data_analyze.data_analyze.get_video_frames" title="Link to this definition">¶</a></dt>
+<dd><p>Extract frames from a video file for further analysis.</p>
+<p>Args:
+file_path (str): Path to the folder where the video file is located.
+file_name (str): Name of the video file.
+file_extension (str): Extension of the video file.
+temp_dir_name (str): Folder in tmp where the images should be saved</p>
+<p>Returns:
+int: Number of files containing frames.</p>
+<p>Notes:
+- This function uses FFmpeg to extract frames from the video.
+- Information about success or failure is logged using <cite>log_data_analyze</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.data_analyze.main">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.data_analyze.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'testowe_pliki'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'../tmp/testowe_pliki/test_wyklad.wav'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'../tmp/testowe_pliki/nagranie_testowe_teams.mp4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">application_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MSTeams'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'../default_sava_folder'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test_main_data_analyze'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datetime</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">datetime.datetime(2025,</span> <span class="pre">1,</span> <span class="pre">11,</span> <span class="pre">18,</span> <span class="pre">50,</span> <span class="pre">49,</span> <span class="pre">859943)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_to_server</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#data_analyze.data_analyze.main" title="Link to this definition">¶</a></dt>
+<dd><p>Main function responsible for processing multimedia data: audio, video and generating summaries.</p>
+<p>Args:
+temp_dir_name (str): Temporary directory name for processing results.
+filename_audio (str): Path to audio file.
+filename_video (str): Path to video file.
+application_name (str): Source application name (e.g. “MSTeams”, “Zoom”).
+user_dir (str): User directory to save results. Default is None.
+title (str): Note title. Default is None.
+datetime (datetime): Date and time of note generation. Default is None.
+n_frame (int): Specifies every frame (from video file) to remain in the folder.</p>
+<p>Returns:
+None: Results are saved in the designated directory.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.data_analyze.notes_summary">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.data_analyze.</span></span><span class="sig-name descname"><span class="pre">notes_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tekst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#data_analyze.data_analyze.notes_summary" title="Link to this definition">¶</a></dt>
+<dd><p>Generating notes summaries.</p>
+<p>Args:
+text (str): Text to summarize.</p>
+<p>Returns:
+str: A summary of the text.</p>
+<p>Notes:
+- This function uses the CHatGPT-4o API to generate summaries.
+- Logs success or errors using <cite>log_data_analyze</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.data_analyze.transcribe_audio">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.data_analyze.</span></span><span class="sig-name descname"><span class="pre">transcribe_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#data_analyze.data_analyze.transcribe_audio" title="Link to this definition">¶</a></dt>
+<dd><p>Transcribes an audio file to text.</p>
+<p>Args:
+file_path (str): Path to the audio file.</p>
+<p>Returns:
+list[dict]: List of transcription segments including start time, end time, and text.</p>
+<p>Notes:
+- This function uses the Whisper model.
+- If an error occurs, the information is logged to a file using <cite>log_data_analyze</cite>.</p>
+</dd></dl>
+
+</section>
+<section id="module-data_analyze.image_files_analyze">
+<span id="data-analyze-image-files-analyze-module"></span><h2>data_analyze.image_files_analyze module<a class="headerlink" href="#module-data_analyze.image_files_analyze" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.image_files_analyze.main">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.image_files_analyze.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">application_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#data_analyze.image_files_analyze.main" title="Link to this definition">¶</a></dt>
+<dd><dl>
+<dt>Main function that analyzes changes in images extracted from a video.</dt><dd><p>Removes images that do not contain relevant data or are duplicates.</p>
+<p>Args:
+video_length (int): Number of frames (images) to analyze.
+folder_path (str): Path to the folder with video frames (PNG images).
+application_name (str): Application name, used to read the template.
+n_frame (int): Specifies which frames (from the video file) to leave in the folder.</p>
+<p>Returns:
+list[str]: List of filenames containing relevant data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.image_files_analyze.preprocess_image">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.image_files_analyze.</span></span><span class="sig-name descname"><span class="pre">preprocess_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#data_analyze.image_files_analyze.preprocess_image" title="Link to this definition">¶</a></dt>
+<dd><p>Processes an image, preparing it for analysis using OCR.</p>
+<p>The process includes:
+- Converting the image to grayscale.
+- Removing noise using denoising.
+- Binarizing the image (converting it to black and white).</p>
+<p>Args:
+image (np.ndarray): The input image in NumPy array format.</p>
+<p>Returns:
+np.ndarray: The processed binary image.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.image_files_analyze.screen_change_analyze">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.image_files_analyze.</span></span><span class="sig-name descname"><span class="pre">screen_change_analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_nr_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_nr_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.7</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#data_analyze.image_files_analyze.screen_change_analyze" title="Link to this definition">¶</a></dt>
+<dd><p>Analyzes the changes between two images by comparing their text and appearance.</p>
+<blockquote>
+<div><p>Uses Mean Squared Error (MSE) as a measure of the difference between the images.</p>
+<p>Args:
+img_nr_1 (int): The number of the first image to analyze.
+img_nr_2 (int): The number of the second image to analyze.
+folder_path (str): The path to the folder where the images are located.
+threshold (float): The minimum similarity value to consider the images as similar (default 0.70).</p>
+<p>Returns:
+bool: True if the images are different, False otherwise.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="data_analyze.image_files_analyze.template_analyze">
+<span class="sig-prename descclassname"><span class="pre">data_analyze.image_files_analyze.</span></span><span class="sig-name descname"><span class="pre">template_analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img2_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#data_analyze.image_files_analyze.template_analyze" title="Link to this definition">¶</a></dt>
+<dd><p>Analyzes the similarity of the grayscale histograms of two images to see if the image contains a specific slide or other information.</p>
+<p>Args:
+template (str): Path to the template image against which other images are compared.
+img2_path (str): Path to the second image to be compared to the template.
+i (int): Image number, used for debugging or further analysis.</p>
+<p>Returns:
+bool: True if the images are different (i.e. the image contains a slide or information), False otherwise.</p>
+</dd></dl>
+
+</section>
+<section id="module-data_analyze">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-data_analyze" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Notes Generator</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="app_backend.html">app_backend package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_front.html">app_front package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">data_analyze package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-data_analyze.data_analyze">data_analyze.data_analyze module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-data_analyze.image_files_analyze">data_analyze.image_files_analyze module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-data_analyze">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="app_front.html" title="previous chapter">app_front package</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Filip Kaczor, Jakub Kowalski, Jakub Kogut.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/data_analyze.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
