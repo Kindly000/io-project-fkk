@@ -156,14 +156,12 @@ class Calendar:
 
             # Insert the event into the calendar and execute the API call
             event = service.events().insert(calendarId='primary', body=event).execute()
-            logg.app_logs(f"[SUCCESS] Event created: {event.get('htmlLink')}")
-
             # Return a success response with the event link
             return {"is_created": True, "link": event.get('htmlLink')}
 
         except Exception as e:
             # Handle any errors that occur during the event creation process
-            logg.app_logs(f"[Error] An error occurred: {e}")
+            logg.log_google_calendar(f"[Error] An error occurred: {e}")
 
         # Return a failure response if event creation fails
         return {"is_created": False, "link": None}

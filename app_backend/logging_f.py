@@ -143,3 +143,31 @@ def log_data_analyze(text: str) -> None:
     check_and_create_error_logs_folder()
     with open(file="../error_logs/data_analyze.log", mode="a", encoding="utf-8") as log:
         log.write(f"{datetime.datetime.now()} {text}\n")
+
+def log_google_calendar(text: str) -> None:
+    """
+    Logs a message to a file for tracking events related to Google Calendar.
+
+    This function writes a log entry to a specific log file, including a timestamp and the provided text.
+    The log file is specifically as `logs.log`. The function
+    appends new entries to the file to ensure that previous logs are not overwritten.
+
+    Args:
+        text (str): The message to be logged. This should contain details about the Google calendar event.
+
+    Returns:
+        None: This function does not return a value. It performs a file-writing operation for logging purposes.
+
+    Example:
+        >>> log_google_calendar("[INFO] Start uploading files")
+        >>> log_google_calendar("[FAILED] Upload file")
+
+    Notes:
+        - The function writes logs using UTF-8 encoding to support a wide range of characters.
+        - Logs include the current timestamp for tracking when the event occurred.
+
+    Limitations:
+        - The function does not handle potential file I/O errors such as permission issues or disk space limitations.
+    """
+    with open(file="../google_calendar.log", mode="a", encoding='utf-8') as log:
+        log.write(f"{datetime.datetime.now()} {text}\n")

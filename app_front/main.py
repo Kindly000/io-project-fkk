@@ -147,8 +147,9 @@ class IoFront(ttk.Frame):
 
         master_window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-    """Create treeview widget to display notes"""
     def create_treeview(self):
+        """Create treeview widget to display notes"""
+
         columns = ["id", "date", "name"]  # Columns for the treeview
         tree = ttk.Treeview(
             master=self.left_container,
@@ -198,22 +199,22 @@ class IoFront(ttk.Frame):
 
         return tree
 
-    """Handle treeview item selection"""
     def tree_on_click_element(self, event):
+        """Handle treeview item selection"""
         clickedItem = self.tree.focus()  # Get the selected item
         self.clicked_note = self.tree.item(clickedItem)["values"][0]  # Store the selected note's ID
         return
 
-    """Create scrollbar for treeview"""
     def create_scrollbar_for_treeview(self):
+        """Create scrollbar for treeview"""
         scrollbar = ttk.Scrollbar(
             master=self.left_container, orient="vertical", command=self.tree.yview
         )  # Create vertical scrollbar
         scrollbar.grid(row=0,rowspan=5, column=4, sticky="ns")  # Place it next to the treeview
         self.tree.configure(yscrollcommand=scrollbar.set)  # Link the scrollbar to the treeview
 
-    """Create a button for processing existing files"""
     def process_files_main_app_button(self):
+        """Create a button for processing existing files"""
         button = ttk.Button(
             master=self.action_container, width=20, text="Process files"
         )  # Create button for file processing
@@ -225,21 +226,25 @@ class IoFront(ttk.Frame):
             ]
         )
 
-    """Create an entry widget for user input"""
     def create_entry(self):
+        """Create an entry widget for user input"""
         entry = ttk.Entry(master=self.search_container, width=20)  # Create an entry field
         entry.pack(padx=5, pady=10)  # Pack it into the search container
         return entry
 
-    """Create a search button to trigger search functionality"""
     def create_search_button(self):
+        """Create a search button to trigger search functionality"""
         button = ttk.Button(master=self.search_container, width=20, text="Search")
         button.bind("<Button-1>", lambda x: self.on_click_search())  # Trigger search function on click
         button.pack(padx=5, pady=10)  # Pack the search button
         return button
 
-    # Function to create a dropdown menu for selecting the application for recording
     def drop_menu_app(self, master):
+        """
+        Function to create a dropdown menu for selecting the application for recording
+        Args:
+            master (widget): The parent widget
+        """
         # Create a menu button with options for selecting an application
         mb = ttk.Menubutton(master=master, width=16, text="Application")
         mb.pack(padx=5, pady=10)  # Pack the menu button into the parent container
@@ -258,8 +263,12 @@ class IoFront(ttk.Frame):
             )
         mb["menu"] = inside_menu  # Attach the menu to the menubutton
 
-    # Function to create a dropdown menu for selecting the application for recording (for existing file processing)
     def existing_record_drop_menu_app(self, master):
+        """
+            Function to create a dropdown menu for selecting the application for recording (for existing file processing)
+            Args:
+                master (widget): The parent widget
+        """
         # Create a menu button with options for selecting an application
         mb = ttk.Menubutton(master=master, width=16, text="Application")
         mb.pack(padx=5, pady=10)  # Pack the menu button into the parent container
@@ -278,8 +287,10 @@ class IoFront(ttk.Frame):
             )
         mb["menu"] = inside_menu  # Attach the menu to the menubutton
 
-    # Function to create a button that opens the selected recording in a web browser
     def open_in_browser_button(self):
+        """
+            Function to create a button that opens the selected note in a web browser
+        """
         # Create a button to open the recording in the browser
         button = ttk.Button(
             master=self.action_container, width=20, text="Open in browser"
@@ -294,8 +305,10 @@ class IoFront(ttk.Frame):
         )
         return button  # Return the created button
 
-    # Function to create a refresh button for the treeview in the main window
     def refresh_button(self):
+        """
+            Function to create a refresh button for the treeview in the main window
+        """
         # Create a refresh button to refresh the data shown in the treeview
         button = ttk.Button(master=self.action_container, width=20, text="Refresh")
         button.grid(row=5, column=1, rowspan=2, padx=5, pady=10, columnspan=3)
@@ -305,8 +318,10 @@ class IoFront(ttk.Frame):
         )
         return button  # Return the created button
 
-    # Function to handle the refresh action by fetching updated data from the server
     def on_click_refresh(self):
+        """
+            Function to handle the refresh action by fetching updated data from the server
+        """
         # Fetch the latest data from the server
         data = com_www_server.get_info_of_notes_from_server()["notes"]
         # Clear the existing treeview entries
@@ -335,8 +350,10 @@ class IoFront(ttk.Frame):
 
             index += 1
 
-    # Function to search for notes based on the search term entered by the user
     def on_click_search(self):
+        """
+            Function to handle search for notes based on the search term entered by the user
+        """
         data = ""
         get_text = self.search_entry.get()  # Get the text from the search entry field
         # Fetch notes from the server that contain the search term
@@ -370,8 +387,10 @@ class IoFront(ttk.Frame):
 
                 index += 1
 
-    # Function to create a button to start the recording and create a new directory for recording
     def start_recording_button(self):
+        """
+            Function to create a button to start the recording and create a new directory for recording
+        """
         button = ttk.Button(
             master=self.new_record_container, width=20, text="Start recording"
         )
@@ -392,8 +411,11 @@ class IoFront(ttk.Frame):
         button.grid(row=1, column=1, padx=5, pady=10)  # Position the button in the grid
         return button  # Return the created button
 
-    # Function to create a button to stop the recording and combine the recordings
     def stop_recording_button(self):
+        """
+        Function to create a button to stop the recording and combine the recordings
+
+        """
         button = ttk.Button(
             master=self.new_record_container, width=20, text="Stop recording"
         )
@@ -416,29 +438,31 @@ class IoFront(ttk.Frame):
         button.grid(row=2, column=1, padx=5, pady=10)  # Position the button in the grid
         return button  # Return the created button
 
-    # Function to open a new window after stopping the recording with options for further actions
     def stop_recording_button_new_window(self):
-        """Function to check if 'combined.mp4' file is present and handle actions accordingly."""
+        """
+        Function to open a new window after stopping the recording with options for further actions
+        """
 
         def check_file_presence():
+            """Function to check if 'combined.mp4' file is present and handle actions accordingly."""
             if self.record_dir:
                 file_path = os.path.join("../tmp/", self.record_dir, "combined.mp4")
                 if os.path.isfile(file_path):  # Check if the combined video file exists
                     return True
                 else:
-                    logg.app_logs(f"[ERROR] File not found {file_path}")
+                    logg.app_logs(f"[FAILED] File not found {file_path}")
                     return False
             else:
-                logg.app_logs(f"[INFO] Directory not set")
+                logg.app_logs(f"[FAILED] Directory not set")
 
-        # Function to process the file if it's present
         def check_file_and_process():
+            """Use function to check if the file is present and process it if so."""
             if check_file_presence():
                 self.start_processing_button_new_window()  # Start processing the file if present
                 new_window.destroy()  # Close the window after starting the processing
 
-        # Function to download the file if it's present
         def check_file_and_download():
+            """Use function to check if the file is present and download it if so."""
             if check_file_presence():
                 self.save_audio_and_video_files()  # Save the audio and video files to the selected directory
 
@@ -476,11 +500,13 @@ class IoFront(ttk.Frame):
 
         check_file_presence()  # Check if the file is present when the window is created
 
-    # Function to create a processing window after finishing recording
     def start_processing_button_new_window(self):
+        """ Function to create a processing window after finishing recording """
 
-        # Validating the title of the note entered by the user
         def validate_title():
+            """
+                Validating the title of the note entered by the user
+            """
             title = entry_title.get()  # Get the title entered by the user
             # Regular expression check to allow letters, numbers, spaces, hyphens, and underscores
             if not re.match(r"^[\w\-. ]+$", title):
@@ -559,6 +585,7 @@ class IoFront(ttk.Frame):
         inside_menu_sec = ttk.Menu(mb_sec, tearoff=0)
 
         def on_click_sec(option):
+            """Function to change chosen frequency of comparison on click"""
             self.existing_record_frequency_comparison_sec = option  # Set the selected frequency
             mb_sec.config(text=option)
 
@@ -588,11 +615,15 @@ class IoFront(ttk.Frame):
         )
         start_process_button.pack(pady=10)
 
-    # Function to create a processing window for an existing recording from the main app
     def start_processing_button_main_app(self):
+        """
+        Function to create a processing window for an existing recording from the main app
 
-        # Validating the title of the note entered by the user
+        """
         def validate_title():
+            """
+            Validating the title of the note entered by the user
+            """
             title = entry_title.get()  # Get the title entered by the user
             if not re.match(r"^[\w\-. ]+$", title):  # Check for valid characters in title
                 validation_label.config(
@@ -617,8 +648,10 @@ class IoFront(ttk.Frame):
         label_paths = ttk.Label(new_window, text="Paths to files", font=("Arial", 9))
         label_paths.pack(pady=10)
 
-        # Button to choose a .wav file directory
         def existing_record_wav_files_directory_picker():
+            """
+                Button to choose a .wav file directory for processing existing recording
+            """
             selected_directory = filedialog.askopenfilename(title="Choose file", filetypes=[("WAV files", "*.wav")])
             if selected_directory:
                 self.existing_wav_file_to_process = selected_directory
@@ -637,8 +670,10 @@ class IoFront(ttk.Frame):
         )
         button_wav_dir.pack(pady=10)
 
-        # Button to choose a .mp4 file directory
         def existing_record_mp4_files_directory_picker():
+            """
+                Button to choose a .mp4 file directory for processing existing recording
+            """
             selected_directory = filedialog.askopenfilename(title="Choose file", filetypes=[("MP4 files", "*.mp4")])
             if selected_directory:
                 self.existing_mp4_file_to_process = selected_directory
@@ -697,6 +732,7 @@ class IoFront(ttk.Frame):
         inside_menu_sec = ttk.Menu(mb_sec, tearoff=0)
 
         def on_click_sec(option):
+            """Function to change chosen frequency of comparison on click"""
             self.existing_record_frequency_comparison_sec = option  # Set the selected frequency
 
         # Add options to the frequency menu
@@ -724,15 +760,15 @@ class IoFront(ttk.Frame):
         )
         start_process_button.pack(pady=10)
 
-    """function to run in thread combine audio and video files"""
 
     def combining_recordings(self):
+        """function to run in thread combine audio and video files"""
         # Submits the _combining_recordings method to the executor to run in a separate thread
         self.executor.submit(self._combining_recordings)
 
-    """function to combine audio and video files by using ffmpeg"""
 
     def _combining_recordings(self):
+        """function to combine audio and video files by using ffmpeg"""
         try:
             # FFmpeg command to combine audio and video files into one MP4 file
             cmd = f"ffmpeg -i ../tmp/{self.record_dir}/audio_output.wav -i ../tmp/{self.record_dir}/video_output.avi -c:v libx264 -c:a aac -strict experimental ../tmp/{self.record_dir}/combined.mp4"
@@ -742,17 +778,17 @@ class IoFront(ttk.Frame):
                 # Executes the FFmpeg command and writes stdout and stderr to the log file
                 subprocess.call(cmd, shell=True, stdout=log_file, stderr=subprocess.STDOUT)
 
-            logg.app_logs(f"[SUCCESS] Mixing is complete!")
+            logg.log_operations_on_file(f"[SUCCESS] Mixing is complete!")
 
             # Store the path to the newly created combined MP4 file
             self.existing_mp4_file_to_process = f"../tmp/{self.record_dir}/combined.mp4"
 
         except Exception as e:
-            logg.app_logs(f"[ERROR] Mixing error {e}")
+            logg.log_operations_on_file(f"[ERROR] Mixing error {e}")
 
-    """function to create new directory for notes"""
 
     def new_directory(self):
+        """function to create new directory for notes"""
         # Get the current date and time for the directory name
         self.date_var = datetime.now()
         date_current = self.date_var.strftime("%Y-%m-%d_%H-%M-%S")
@@ -764,9 +800,9 @@ class IoFront(ttk.Frame):
         nested_dir = Path(f"../tmp/{self.record_dir}")
         nested_dir.mkdir(parents=True, exist_ok=True)  # Create the directory if it doesn't exist
 
-    """function to create new directory for notes from analysis window"""
 
     def new_directory_for_analyze(self):
+        """function to create new directory for notes from analysis window"""
         # Same as new_directory, but for analysis purposes
         self.date_var_analyze = datetime.now()
         date_current = self.date_var_analyze.strftime("%Y-%m-%d_%H-%M-%S")
@@ -775,22 +811,20 @@ class IoFront(ttk.Frame):
         nested_dir = Path(f"../tmp/{self.analyze_dir}")
         nested_dir.mkdir(parents=True, exist_ok=True)
 
-    """function to start recording"""
 
     def start_recordings(self):
+        """function to start recording"""
         # Set flags to indicate recording is in progress
         self.recording_video = True
         self.recording_audio = True
         logg.app_logs(f"[INFO] Start recording")
-
-
         # Start audio and video recording in separate threads
         self.executor.submit(self.start_audio_recording)
         self.executor.submit(self.start_video_recording)
 
-    """function to stop recording"""
 
     def stop_recordings(self):
+        """function to stop recording"""
         # Set flags to stop the recording
         self.recording_video = False
         self.recording_audio = False
@@ -800,37 +834,44 @@ class IoFront(ttk.Frame):
         self.stop_video_recording()
         self.stop_audio_recording()
 
-    """function to run methods for recording video"""
 
     def start_video_recording(self):
+        """function to run methods for recording video"""
         # Initialize screen recorder for video
         self.screen_recorder = rec_vid.ScreenRecorder(self.record_dir)
         self.screen_recorder.start_record()  # Start recording video
 
-    """function to run methods to stop recording video and release resources"""
 
     def stop_video_recording(self):
+        """function to run methods to stop recording video and release resources"""
         if hasattr(self, "screen_recorder"):
             self.screen_recorder.stop_record()  # Stop recording video
             del self.screen_recorder  # Delete the screen recorder object
 
-    """function to run methods for recording audio"""
 
     def start_audio_recording(self):
+        """function to run methods for recording audio"""
         # Initialize audio recorder for audio
         self.audio_recorder = rec_aud.AudioRecorder(f"../tmp/{self.record_dir}/audio_output.wav")
         self.audio_recorder.start_recording()  # Start recording audio
 
-    """function to run methods to stop recording audio and release resources"""
 
     def stop_audio_recording(self):
+        """function to run methods to stop recording audio and release resources"""
         if hasattr(self, "audio_recorder"):
             # Stop the audio recording and store the file path
             self.existing_wav_file_to_process = self.audio_recorder.stop_recording()
 
-    """function to run data analysis"""
 
     def start_data_analyze(self, temp_dir_name, note_datetime):
+        """
+            function to run data analysis
+
+            Args:
+                temp_dir_name: Name of directory
+                note_datetime: Time of the note
+        """
+
         try:
             # Call the data analysis method (e.g., transcription, etc.)
             data_analyze.main(
@@ -844,39 +885,40 @@ class IoFront(ttk.Frame):
                 n_frame=int(self.existing_record_frequency_comparison_sec),
                 send_to_server=self.existing_record_send_to_server_from_new_window
             )
-            self.master.after(0, lambda: logg.app_logs(f"[SUCCESS] Transcription finished"))  # Safely update the UI
+            self.master.after(0, lambda: logg.log_data_analyze(f"[SUCCESS] Transcription finished"))  # Safely update the UI
         except Exception as e:
-            logg.app_logs(f"[ERROR] Error in data_analyze: {e}")
+            logg.log_data_analyze(f"[ERROR] Error in data_analyze: {e}")
 
-    """function to retry sending files from server"""
+
 
     def retry_logic(self):
+        """function to retry sending files from server"""
         retry_logic.retry_logic()  # Call the retry logic function
 
-    """function to open directory picker in analysis window"""
+
 
     def open_directory_picker(self):
+        """function to open directory picker in analysis window"""
         selected_directory = filedialog.askdirectory(title="Choose directory")  # Open directory picker
         if selected_directory:
             self.existing_record_selected_dir_var = selected_directory  # Store the selected directory path
 
-    """function to open download directory picker in existing recording analysis window"""
 
     def existing_record_open_directory_picker(self):
+        """function to open download directory picker in existing recording analysis window"""
         selected_directory = filedialog.askdirectory(title="Choose directory")  # Open directory picker for download
         if selected_directory:
             self.existing_record_selected_dir_var = selected_directory  # Store the selected directory path
 
-    """function to open directory picker in download window"""
-
     def open_download_directory_picker(self):
+        """function to open directory picker in download window"""
         selected_directory = filedialog.askdirectory(title="Choose directory")  # Open directory picker for download
         if selected_directory:
             self.selected_download_dir_var = selected_directory  # Store the selected download directory path
 
-    """function to get values from different variables"""
 
     def save_name_dir_in_variables_existing_record(self):
+        """function to get values from different variables and set them in different variables"""
         # Save various variables related to the existing recording and the selected directory
         self.existing_record_file_name = self.existing_record_entered_name.get()
         self.existing_record_send_to_server_from_new_window = self.existing_record_send_to_server_from_new_window_var.get()
@@ -884,9 +926,9 @@ class IoFront(ttk.Frame):
         self.existing_mp4_file_to_process = self.existing_mp4_file_to_process_var.get()
         # Print the variables for debugging purposes
 
-    """function to save audio and video files to user directory"""
 
     def save_audio_and_video_files(self):
+        """function to save audio and video files to user directory"""
         logg.app_logs(f"[INFO] Start saving files to user directory {self.selected_download_dir_var}")
         # Call a method to save the audio and video files to the selected directory
         sf.save_audio_and_video_files_to_user_directory(
@@ -896,22 +938,24 @@ class IoFront(ttk.Frame):
             self.existing_mp4_file_to_process
         )
 
-    """function to run analysis in thread and create new directory for analysis"""
 
     def placeholder(self):
+        """function to run analysis in thread and create new directory for analysis"""
         # Create a new directory for analysis and run the data analysis in a separate thread
         self.new_directory_for_analyze()
         self.executor.submit(self.start_data_analyze, self.analyze_dir, self.date_var_analyze)
 
-    """function to close application with threads"""
 
     def on_closing(self):
-        """Closes the application and shuts down all tasks in the ThreadPoolExecutor."""
-        logg.app_logs(f"[INFO] Shutting down executor")
+        """
+        function to close application with threads
+        Closes the application and shuts down all tasks in the ThreadPoolExecutor.
+        """
+        logg.app_logs(f"[INFO] Start shutting down application")
         self.stop_video_recording()  # Stop video recording
         self.stop_audio_recording()  # Stop audio recording
         self.executor.shutdown(wait=False)  # Shutdown the executor and wait for tasks to finish
-        logg.app_logs(f"[SUCCESS] Executor shut down")
+        logg.app_logs(f"[SUCCESS] Application shut down")
         self.master.destroy()  # Destroy the main window
         sys.exit()  # Exit the application
 

@@ -40,7 +40,7 @@ class AudioRecorder:
             # raise ValueError(
             #     "No 'Stereo Mix' device found. Please ensure it's enabled."
             # )
-            logg.app_logs(f"No 'Stereo Mix' device found. Please ensure it's enabled.")
+            logg.app_logs(f"[FAILED] No 'Stereo Mix' device found. Please ensure it's enabled.")
 
     def find_input_device(self):
         """
