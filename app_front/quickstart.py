@@ -14,7 +14,21 @@ from googleapiclient.errors import HttpError
 
 class Calendar:
     def __init__(self):
-        """Initializes the Calendar object with API scope and credentials."""
+        """
+        Constructor for the Calendar class.
+
+        Initializes the Calendar object with the required Google Calendar API scope
+        and user credentials.
+
+        Attributes:
+            SCOPES (list): Defines the Google Calendar API scope (permissions).
+            creds (google.oauth2.credentials.Credentials): Stores user credentials for
+                authenticating requests to the Google Calendar API.
+
+        Methods:
+            set_credentials(): Called during initialization to manage and set up user credentials.
+        """
+
         self.SCOPES = [
             "https://www.googleapis.com/auth/calendar"]  # Defines the Google Calendar API scope (permissions)
         self.creds = None  # To store credentials for user authentication

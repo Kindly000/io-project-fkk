@@ -21,82 +21,130 @@ import app_backend.logging_f as logg
 
 # Main class for handling GUI and interactions
 class IoFront(ttk.Frame):
+    """
+    Constructor for the IoFront class.
+
+    Initializes the IoFront class, which sets up the main GUI window for managing recordings,
+    Google Calendar authentication, and notes from the server. It also handles directories,
+    variables, threading, and GUI layout for user interaction.
+
+    Args:
+        master_window (tk.Tk): The parent Tkinter window to which this frame belongs.
+
+    Attributes:
+        executor (ThreadPoolExecutor): A thread pool executor to run tasks concurrently.
+        recording_video (bool): Tracks the video recording status.
+        recording_audio (bool): Tracks the audio recording status.
+        check_if_record_in_progress (bool): Tracks whether a recording is in progress.
+
+        record_dir (str): Directory for storing recorded files (set later).
+        analyze_dir (str): Directory for storing analyzed files (set later).
+
+        google_ (google_cal.Calendar): Instance of the Calendar class for Google Calendar API interaction.
+
+        import_from_server (dict | None): Contains notes fetched from the server; None if the fetch fails.
+        imported_notes (list): List of notes fetched from the server, or an empty list if none are fetched.
+        clicked_note (str): Placeholder for storing the clicked note ID.
+
+        date_var (str | None): Variable for storing the date related to the current note.
+        date_var_analyze (str | None): Variable for storing the date related to analysis.
+
+        selected_download_dir_var (str): Default directory for downloads.
+        existing_record_frequency_comparison_sec (str): Frequency (in seconds) for comparing existing recordings.
+        existing_record_selected_dir_var (str): Directory for existing recordings.
+        existing_record_file_name (str): Default file name for existing recordings.
+        existing_record_entered_name (ttk.StringVar): Holds user input for file name.
+        existing_record_app_name (str): Example application name for existing recordings.
+        existing_record_send_to_server_from_new_window_var (tk.BooleanVar): Boolean flag for sending files to the server.
+        existing_record_send_to_server_from_new_window (bool): Default value for sending files to the server.
+        existing_wav_file_to_process_var (ttk.StringVar): Holds the WAV file to process.
+        existing_mp4_file_to_process_var (ttk.StringVar): Holds the MP4 file to process.
+        existing_wav_file_to_process (str): Placeholder for WAV file path.
+        existing_mp4_file_to_process (str): Placeholder for MP4 file path.
+
+        left_container (ttk.LabelFrame): Left-side container for managing recordings and displaying notes.
+        tree (ttk.Treeview): Treeview widget for displaying recordings/notes.
+        right_container (ttk.Frame): Right-side container for recording controls and actions.
+        new_record_container (ttk.LabelFrame): Container for new recording controls.
+        action_container (ttk.LabelFrame): Container for managing recording actions.
+        search_container (ttk.LabelFrame): Container for search functionality.
+    """
+
     def __init__(self, master_window):
         """Initialization of the main window."""
-        super().__init__(master_window, padding=(20, 10))  # Initialize parent frame with padding
-        self.grid(row=0, column=0)  # Grid layout for placing the frame in the window
+        super().__init__(master_window, padding=(20, 10))
+        self.grid(row=0, column=0)
 
         """Threading setup"""
-        self.executor = ThreadPoolExecutor(max_workers=3)  # ThreadPoolExecutor to run tasks concurrently
-        self.recording_video = False  # Flag for tracking video recording status
-        self.recording_audio = False  # Flag for tracking audio recording status
-        self.check_if_record_in_progress = False  # Flag for checking if a recording is in progress
+        self.executor = ThreadPoolExecutor(max_workers=3)
+        self.recording_video = False
+        self.recording_audio = False
+        self.check_if_record_in_progress = False
 
         """Directories for temporary files"""
-        self.record_dir = ""  # Directory for storing recorded files (to be set later)
-        self.analyze_dir = ""  # Directory for storing analyzed files (to be set later)
+        self.record_dir = ""
+        self.analyze_dir = ""
 
         """Google Calendar Authentication"""
-        self.google_ = google_cal.Calendar()  # Initialize Google Calendar API connection
+        self.google_ = google_cal.Calendar()
 
         """Fetching notes from the server"""
-        self.import_from_server = com_www_server.get_info_of_notes_from_server()  # Retrieve notes from the server
+        self.import_from_server = com_www_server.get_info_of_notes_from_server()
         if self.import_from_server is not None:
-            self.imported_notes = self.import_from_server["notes"]  # Store notes if available
+            self.imported_notes = self.import_from_server["notes"]
         else:
-            self.imported_notes = []  # Default to an empty list if no notes are fetched
-        self.clicked_note = ""  # Placeholder for storing the clicked note ID
+            self.imported_notes = []
+        self.clicked_note = ""
 
         """Date variables for note creation and analysis"""
-        self.date_var = None  # Variable for storing the date related to the current note
-        self.date_var_analyze = None  # Variable for storing date related to analysis (if any)
+        self.date_var = None
+        self.date_var_analyze = None
 
         """Variables for processing existing recording windows"""
-        self.selected_download_dir_var = "../default_save_folder"  # Default folder for downloads
-        self.existing_record_frequency_comparison_sec = "5"  # Frequency for comparing existing recordings (in seconds)
-        self.existing_record_selected_dir_var = "../default_save_folder"  # Default folder for existing recordings
-        self.existing_record_file_name = "notatka_testowa"  # Default file name for existing recordings
-        self.existing_record_entered_name = ttk.StringVar()  # Store user input for file name
-        self.existing_record_app_name = "MSTeams"  # Example application name for existing recordings
-        self.existing_record_send_to_server_from_new_window_var = BooleanVar()  # Flag for whether to send to server
-        self.existing_record_send_to_server_from_new_window = True  # Default to True for sending to the server
-        self.existing_wav_file_to_process_var = ttk.StringVar()  # Store the selected WAV file to process
-        self.existing_mp4_file_to_process_var = ttk.StringVar()  # Store the selected MP4 file to process
-        self.existing_wav_file_to_process = ""  # Placeholder for WAV file
-        self.existing_mp4_file_to_process = ""  # Placeholder for MP4 file
+        self.selected_download_dir_var = "../default_save_folder"
+        self.existing_record_frequency_comparison_sec = "5"
+        self.existing_record_selected_dir_var = "../default_save_folder"
+        self.existing_record_file_name = "notatka_testowa"
+        self.existing_record_entered_name = ttk.StringVar()
+        self.existing_record_app_name = "MSTeams"
+        self.existing_record_send_to_server_from_new_window_var = BooleanVar()
+        self.existing_record_send_to_server_from_new_window = True
+        self.existing_wav_file_to_process_var = ttk.StringVar()
+        self.existing_mp4_file_to_process_var = ttk.StringVar()
+        self.existing_wav_file_to_process = ""
+        self.existing_mp4_file_to_process = ""
 
         """GUI setup"""
         """Left container for notes and treeview"""
-        self.left_container = ttk.LabelFrame(self, text="Recordings")  # LabelFrame to group the recordings section
-        self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)  # Pack it on the left with padding
-        self.tree = self.create_treeview()  # Create a treeview to display notes
-        self.create_scrollbar_for_treeview()  # Create a scrollbar for the treeview
+        self.left_container = ttk.LabelFrame(self, text="Recordings")
+        self.left_container.pack(padx=5, pady=10, side=LEFT, fill=Y)
+        self.tree = self.create_treeview()
+        self.create_scrollbar_for_treeview()
 
         """Right container for recording and actions"""
-        self.right_container = ttk.Frame(self)  # Frame to contain the right-side elements
-        self.new_record_container = ttk.LabelFrame(self.right_container, text="New recording")  # Frame for new recording controls
-        self.start_recording_button()  # Create the start recording button
-        self.stop_recording_button()  # Create the stop recording button
-        self.new_record_container.pack(padx=5, pady=10)  # Pack the new recording section
+        self.right_container = ttk.Frame(self)
+        self.new_record_container = ttk.LabelFrame(self.right_container, text="New recording")
+        self.start_recording_button()
+        self.stop_recording_button()
+        self.new_record_container.pack(padx=5, pady=10)
 
         """Action container for managing recordings"""
-        self.action_container = ttk.LabelFrame(self.right_container, text="Manage recording")  # Frame for action buttons
-        self.open_in_browser_button()  # Create the open in browser button
-        self.refresh_button()  # Create the refresh button
-        self.process_files_main_app_button()  # Create the process files button
-        self.action_container.pack(padx=5, pady=10)  # Pack the action section
+        self.action_container = ttk.LabelFrame(self.right_container, text="Manage recording")
+        self.open_in_browser_button()
+        self.refresh_button()
+        self.process_files_main_app_button()
+        self.action_container.pack(padx=5, pady=10)
 
         """Search container with entry and button"""
-        self.search_container = ttk.LabelFrame(self.right_container, text="Search")  # Frame for the search functionality
-        self.search_entry = self.create_entry()  # Create the search entry field
-        self.create_search_button()  # Create the search button
-        self.search_container.pack(padx=5, pady=10)  # Pack the search section
-        self.right_container.pack(side=LEFT, padx=20, pady=10, fill=Y)  # Pack the right container
+        self.search_container = ttk.LabelFrame(self.right_container, text="Search")
+        self.search_entry = self.create_entry()
+        self.create_search_button()
+        self.search_container.pack(padx=5, pady=10)
+        self.right_container.pack(side=LEFT, padx=20, pady=10, fill=Y)
 
         """Function for retrying failed file uploads"""
-        self.retry_logic()  # Call retry logic for handling file uploads that failed previously
+        self.retry_logic()
 
-        # Ensure proper cleanup when closing the window
         master_window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     """Create treeview widget to display notes"""
@@ -448,7 +496,7 @@ class IoFront(ttk.Frame):
 
         # Create a new window for processing the recording details
         new_window = Toplevel(self.new_record_container)
-        new_window.title("Details")
+        new_window.title("Process recording")
         new_window.geometry("300x700")  # Window size
 
         # Display the paths to the files for processing (WAV and MP4)
@@ -502,7 +550,7 @@ class IoFront(ttk.Frame):
         self.drop_menu_app(new_window)
 
         # Prompt for the frequency of comparison (e.g., 5 seconds, 10 seconds, etc.)
-        label_seconds = ttk.Label(new_window, text="Enter frequency of comparison", font=("Arial", 9))
+        label_seconds = ttk.Label(new_window, text="Choose frequency of comparison", font=("Arial", 9))
         label_seconds.pack(pady=10)
 
         mb_sec = ttk.Menubutton(new_window, width=16, text="Seconds")
@@ -640,7 +688,7 @@ class IoFront(ttk.Frame):
         self.existing_record_drop_menu_app(new_window)
 
         # Dropdown for selecting the frequency of comparison
-        label_seconds = ttk.Label(new_window, text="Enter frequency of comparison", font=("Arial", 9))
+        label_seconds = ttk.Label(new_window, text="Choose frequency of comparison", font=("Arial", 9))
         label_seconds.pack(pady=10)
 
         mb_sec = ttk.Menubutton(new_window, width=16, text="Seconds")
