@@ -7,7 +7,6 @@ Notes Generator jest to aplikacja, której celem jest umożliwienie użytkowniko
 - **/app_backend/**
   - `communication_with_www_server.py`: Zawiera funkcje odpowiedzialne za interakcję z serwerem w celu pobierania i przesyłania danych dotyczących notatek. 
   - `create_files.py`: Zawiera w sobie funkcjonalności umożliwiające tworzenie plików zawierające wyniki analizy nagrań.
-  - `find_notes.py`: Służy do przeszukiwania notatek w poszukiwaniu danego ciągu znaków.
   - `logging_f.py`: Zawiera w sobie funkcje obsługujące logowanie zdarzeń w obrębie całej aplikacji.
   - `retry_logic.py`: Zarządza procesem ponownego przesyłania plików w przypadku wystąpienia jakiegoś błędu.
   - `save_files.py`: Zarządza zapisem plików na lokalnej maszynie jak i na dedykowanej stronie internetowej.
