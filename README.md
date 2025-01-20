@@ -21,6 +21,7 @@ Notes Generator jest to aplikacja, której celem jest umożliwienie użytkowniko
   - `token.json`: Jest to token tworzony podczas logowania przez użytkownika do swojego konta Google. Umożliwia on uwierzytelnianie i autoryzację z API Google Calendar.
 
 - **/data_analyze/**
+  - ``templates/``: Folder zawierający w sobie wzory, do których porównywane są zrzuty wygenerowane z nagrania spotkania, aby określić czy prezentowane są jakiekolwiek treści na ekranie.
   - `data_analyze.py`: Zawiera funkcje odpowiedzialne za wykonywanie transkrypcji, diaryzacji oraz podsumowań na podstawie przekazanych do niej plików audio (.wav) oraz wideo (.mp4). 
   - `image_files_analyze.py`: Zawiera funkcje odpowiedzialne za analize ramek z pliku wideo, wykrywanie zmian treści na ekranie oraz wykrywania prezentowanych multimediów podczas telekonferencji. 
 
@@ -61,6 +62,12 @@ Notes Generator jest to aplikacja, której celem jest umożliwienie użytkowniko
 ### Uruchamianie projektu ( aplikacji )
 
 Instrukcja jak uruchomić projekt lokalnie:
+
+  - Należy pobrać ffmpeg.exe (ze strony https://www.ffmpeg.org/download.html) i zainstalować globalnie (tak jak jest pokazane tutaj: https://www.youtube.com/watch?v=JR36oH35Fgg)   
+  - Należy kliknąć PPM na ikonę głośnika -> Dźwięki -> przejść do zakładki Nagrywanie -> włączyć Miks Stereo (ang. Mix Stereo) i ustawić na domyślne  
+  - Należy wejść na stronę https://huggingface.co/, założyć tam konto, następnie wygenerować sobie token ( wystarczy z uprawnieniami ReadOnly ) i umieścić go w funkcji ``main`` w pliku ``data_analyze.py`` w zmiennej ``hf_token``.  
+  - Należy wejść na stronę https://github.com/marketplace/models/azure-openai/gpt-4o i kliknąć w przycisk ``Get API key`` i wygenerować token dostępowy, który następnie należy umieścić w funkcji ``notes_summary`` w pliku ``data_analyze.py`` w zmiennej ``api_key``.
+  - W przypadku Google Calendar należy skontaktować się z twórcami aplikacji w celu wpisania swojego maila na whitelist dostępową
 
    ```cmd
    git clone https://github.com/Kindly000/io-project-fkk.git
