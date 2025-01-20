@@ -6,16 +6,15 @@ from app_backend.logging_f import log_data_analyze
 
 def template_analyze(template: str, img2_path: str, i: int) -> bool:
     """
-    Analizuje podobieństwo histogramów dwóch obrazów w odcieniach szarości, aby sprawdzić,
-    czy dany obraz zawiera określony slajd lub inne informacje.
+        Analyzes the similarity of the grayscale histograms of two images to see if the image contains a specific slide or other information.
 
-    Args:
-        template (str): Ścieżka do obrazu szablonu (template), z którym porównywane są inne obrazy.
-        img2_path (str): Ścieżka do drugiego obrazu, który ma być porównany z szablonem.
-        i (int): Numer obrazu, używany do debugowania lub dalszej analizy.
+        Args:
+        template (str): Path to the template image against which other images are compared.
+        img2_path (str): Path to the second image to be compared to the template.
+        i (int): Image number, used for debugging or further analysis.
 
-    Returns:
-        bool: True, jeśli obrazy są różne (tj. obraz zawiera slajd lub informacje), False w przeciwnym razie.
+        Returns:
+        bool: True if the images are different (i.e. the image contains a slide or information), False otherwise.
     """
     try:
         img1 = cv2.imread(template, cv2.IMREAD_GRAYSCALE)
@@ -40,17 +39,18 @@ def template_analyze(template: str, img2_path: str, i: int) -> bool:
 
 def preprocess_image(image):
     """
-    Przetwarza obraz, przygotowując go do analizy za pomocą OCR.
-    Proces obejmuje:
-    - Konwersję obrazu na odcienie szarości.
-    - Usunięcie szumu za pomocą techniki denoising.
-    - Binarizację obrazu (przekształcenie w obraz czarno-biały).
+        Processes an image, preparing it for analysis using OCR.
 
-    Args:
-        image (np.ndarray): Obraz wejściowy w formacie NumPy array.
+        The process includes:
+        - Converting the image to grayscale.
+        - Removing noise using denoising.
+        - Binarizing the image (converting it to black and white).
 
-    Returns:
-        np.ndarray: Przetworzony obraz binarny.
+        Args:
+        image (np.ndarray): The input image in NumPy array format.
+
+        Returns:
+        np.ndarray: The processed binary image.
     """
     try:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -66,17 +66,18 @@ def screen_change_analyze(
     img_nr_1: int, img_nr_2: int, folder_path: str, threshold: float = 0.70
 ) -> bool:
     """
-    Analizuje zmiany pomiędzy dwoma obrazami poprzez porównanie ich tekstu i wyglądu.
-    Wykorzystuje Mean Squared Error (MSE) jako miarę różnicy między obrazami.
+       Analyzes the changes between two images by comparing their text and appearance.
 
-    Args:
-        img_nr_1 (int): Numer pierwszego obrazu do analizy.
-        img_nr_2 (int): Numer drugiego obrazu do analizy.
-        folder_path (str): Ścieżka do folderu, w którym znajdują się obrazy.
-        threshold (float): Minimalna wartość podobieństwa, aby uznać obrazy za podobne (domyślnie 0.70).
+        Uses Mean Squared Error (MSE) as a measure of the difference between the images.
 
-    Returns:
-        bool: True, jeśli obrazy są różne, False w przeciwnym razie.
+        Args:
+        img_nr_1 (int): The number of the first image to analyze.
+        img_nr_2 (int): The number of the second image to analyze.
+        folder_path (str): The path to the folder where the images are located.
+        threshold (float): The minimum similarity value to consider the images as similar (default 0.70).
+
+        Returns:
+        bool: True if the images are different, False otherwise.
     """
     try:
         image1 = cv2.imread(f"{folder_path}/{img_nr_1}.png")
@@ -93,7 +94,7 @@ def screen_change_analyze(
             return mse_value, diff
 
         error, _ = mse(img1_processed, img2_processed)
-        
+
         return error > 0.005
     except Exception as e:
         log_data_analyze(
@@ -106,17 +107,17 @@ def main(
     video_length: int, folder_path: str, application_name: str, n_frame: int
 ) -> list[str]:
     """
-    Główna funkcja analizująca zmiany w obrazach wyodrębnionych z wideo.
-    Usuwa obrazy, które nie zawierają istotnych danych lub są zduplikowane.
+       Main function that analyzes changes in images extracted from a video.
+        Removes images that do not contain relevant data or are duplicates.
 
-    Args:
-        video_length (int): Liczba klatek (obrazów) do analizy.
-        folder_path (str): Ścieżka do folderu z klatkami wideo (obrazy w formacie PNG).
-        application_name (str): Nazwa aplikacji, używana do odczytu szablonu.
-        n_frame (int): Określa co która ramka (z pliku wideo) ma pozostać w folderze.
+        Args:
+        video_length (int): Number of frames (images) to analyze.
+        folder_path (str): Path to the folder with video frames (PNG images).
+        application_name (str): Application name, used to read the template.
+        n_frame (int): Specifies which frames (from the video file) to leave in the folder.
 
-    Returns:
-        list[str]: Lista nazw plików zawierających istotne dane.
+        Returns:
+        list[str]: List of filenames containing relevant data.
     """
     final_data = []
     screen_with_data = []
