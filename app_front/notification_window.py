@@ -24,7 +24,7 @@ class NotificationWindow():
             Args:
                 info_message (str): The message to display in the notification window.
         """
-        self.root = ttk2.Window("io_app", "superhero", resizable=(True, True))
+        self.root = ttk2.Window("Process information", "superhero", resizable=(True, True))
 
         self.info_text = ttk2.Text(
             self.root,
