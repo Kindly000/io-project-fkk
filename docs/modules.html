@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>app_backend &#8212; Notes Generator 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="app-backend">
+<h1>app_backend<a class="headerlink" href="#app-backend" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_backend.html">app_backend package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="app_backend.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app_backend.html#module-app_backend.communication_with_www_server">app_backend.communication_with_www_server module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.communication_with_www_server.get_info_of_notes_from_server"><code class="docutils literal notranslate"><span class="pre">get_info_of_notes_from_server()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.communication_with_www_server.get_info_of_notes_from_server_if_note_contain_search_word"><code class="docutils literal notranslate"><span class="pre">get_info_of_notes_from_server_if_note_contain_search_word()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.communication_with_www_server.upload_file_on_server"><code class="docutils literal notranslate"><span class="pre">upload_file_on_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_backend.html#module-app_backend.create_files">app_backend.create_files module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.create_files.create_docx_file"><code class="docutils literal notranslate"><span class="pre">create_docx_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.create_files.create_json_file"><code class="docutils literal notranslate"><span class="pre">create_json_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.create_files.create_txt_file"><code class="docutils literal notranslate"><span class="pre">create_txt_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.create_files.format_timestamp"><code class="docutils literal notranslate"><span class="pre">format_timestamp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_backend.html#module-app_backend.logging_f">app_backend.logging_f module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.logging_f.app_logs"><code class="docutils literal notranslate"><span class="pre">app_logs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.logging_f.check_and_create_error_logs_folder"><code class="docutils literal notranslate"><span class="pre">check_and_create_error_logs_folder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.logging_f.log_communication_with_www_server"><code class="docutils literal notranslate"><span class="pre">log_communication_with_www_server()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.logging_f.log_data_analyze"><code class="docutils literal notranslate"><span class="pre">log_data_analyze()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.logging_f.log_operations_on_file"><code class="docutils literal notranslate"><span class="pre">log_operations_on_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_backend.html#module-app_backend.retry_logic">app_backend.retry_logic module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.retry_logic.add_failed_calendar_events"><code class="docutils literal notranslate"><span class="pre">add_failed_calendar_events()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.retry_logic.check_and_create_unsuccessful_uploads_folder"><code class="docutils literal notranslate"><span class="pre">check_and_create_unsuccessful_uploads_folder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.retry_logic.retry_logic"><code class="docutils literal notranslate"><span class="pre">retry_logic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.retry_logic.save_failed_calendar_event"><code class="docutils literal notranslate"><span class="pre">save_failed_calendar_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.retry_logic.save_unsuccessful_upload"><code class="docutils literal notranslate"><span class="pre">save_unsuccessful_upload()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.retry_logic.send_failed_files"><code class="docutils literal notranslate"><span class="pre">send_failed_files()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_backend.html#module-app_backend.save_files">app_backend.save_files module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.save_files.copy_file"><code class="docutils literal notranslate"><span class="pre">copy_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.save_files.create_note_id"><code class="docutils literal notranslate"><span class="pre">create_note_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.save_files.delete_directory"><code class="docutils literal notranslate"><span class="pre">delete_directory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.save_files.save_audio_and_video_files_to_user_directory"><code class="docutils literal notranslate"><span class="pre">save_audio_and_video_files_to_user_directory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.save_files.save_files"><code class="docutils literal notranslate"><span class="pre">save_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.save_files.save_final_files_to_user_directory"><code class="docutils literal notranslate"><span class="pre">save_final_files_to_user_directory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.save_files.send_files_on_server_with_delete_directory"><code class="docutils literal notranslate"><span class="pre">send_files_on_server_with_delete_directory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="app_backend.html#app_backend.save_files.sort_note_content"><code class="docutils literal notranslate"><span class="pre">sort_note_content()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app_backend.html#module-app_backend">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Notes Generator</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_backend.html">app_backend package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_front.html">app_front package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_analyze.html">data_analyze package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Filip Kaczor, Jakub Kowalski, Jakub Kogut.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
