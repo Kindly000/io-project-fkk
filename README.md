@@ -78,6 +78,6 @@ Instrukcja jak uruchomić projekt lokalnie:
    python -m app_front.main
    ```
 
-### Dokumentacja Wymagań - docs\Dokumentacja_wymagan.docx
+### [Dokumentacja Wymagań](docs\Dokumentacja_wymagan.docx)
 
-### Dokumentacja Kodu - docs\Dokumentacja_kodu
+### [Dokumentacja Kodu](https://kindly000.github.io/io-projekt-fkk-code-documentation/)
