@@ -29,7 +29,7 @@ Notes Generator jest to aplikacja, której celem jest umożliwienie użytkowniko
 
 - **/docs/**
   - `Dokumentacja_wymagan.docx`: Tak jak wskazuje nazwa pliku
-  - `json_file_doc.json`: Plik przedstawiający schemat JSON wykorzystywany do komunikacji z API Google Calendar 
+  - `json_file_doc.json`: Plik przedstawiający schemat JSON wykorzystywany do komunikacji z serwerem WWW
 
 - **/error_logs/**
   - `communication_with_www_server.log`: Wyświetla wszystkie błędy, do których doszło podczas komunikacji aplikacji z serwerem WWW, na którym zapisywane są pliki. 
@@ -43,7 +43,7 @@ Notes Generator jest to aplikacja, której celem jest umożliwienie użytkowniko
   - W tym folderze zapisywane są pliki tymczasowe wykorzystywane podczas wykonywania analizy plików wideo oraz audio. Po przesłaniu danych na serwerem lub zapisaniu ich lokalnie, pliki z tego folderu są usuwane.
 
 - **/unsuccessful_uploads/**
-  - W tym folderze zapisywane są pliki, których z jakiegoś powodu nie udało się przesłać na serwer WWW.
+  - W tym folderze zapisywane są pliki, których z jakiegoś powodu nie udało się przesłać na serwer
 
 - **/logs.log**
   - W tym pliku zapisywane są informacje dotyczące działania aplikacji i operacji jakie w obecnej chwili są wykonywane.
