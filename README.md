@@ -15,7 +15,7 @@ Co w przypadku natłoku rozmowy ? - brak pełnej identyfikacji rozmówcy. Identy
 * Identyfikacja mówcy w notatkach - opcjonalnie
 
 # Uruchamianie programu
-Należy pobrać ffmpeg.exe (ze strony https://www.ffmpeg.org/download.html) i zainstalować globalnie (tak jak jest pokazane tutaj: https://www.youtube.com/watch?v=JR36oH35Fgg)
+Należy pobrać ffmpeg.exe (ze strony https://www.ffmpeg.org/download.html) i zainstalować globalnie (tak jak jest pokazane tutaj: https://www.youtube.com/watch?v=JR36oH35Fgg)<br>
 Należy kliknąć PPM na ikonę głośnika -> Dźwięki -> przejść do zakładki Nagrywanie -> włączyć Miks Stereo (ang. Mix Stereo) i ustawić na domyślne
 
 Z poziomu głównego folderu wykonać komendy: 
