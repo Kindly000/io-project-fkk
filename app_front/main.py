@@ -445,7 +445,6 @@ class IoFront(ttk.Frame):
 
         def check_file_presence():
             """Function to check if 'combined.mp4' file is present and handle actions accordingly."""
-            print("check_file_presence")
             if self.record_dir:
                 file_path = os.path.join("../tmp/", self.record_dir, "combined.mp4")
                 if self.existing_mp4_file_to_process != "":  # Check if the combined video file exists
@@ -471,7 +470,7 @@ class IoFront(ttk.Frame):
         new_window = Toplevel(self.new_record_container)
         new_window.title("Choose action")
         new_window.geometry("400x300")
-        new_window.protocol("WM_DELETE_WINDOW", lambda e: close_window())
+        new_window.protocol("WM_DELETE_WINDOW", lambda : close_window())
 
         def close_window():
             self.existing_mp4_file_to_process = ""
@@ -530,7 +529,7 @@ class IoFront(ttk.Frame):
         new_window = Toplevel(self.new_record_container)
         new_window.title("Process recording")
         new_window.geometry("300x700")  # Window size
-        new_window.protocol("WM_DELETE_WINDOW", lambda e: close_window())
+        new_window.protocol("WM_DELETE_WINDOW", lambda : close_window())
 
         def close_window():
             self.existing_mp4_file_to_process = ""
@@ -654,7 +653,7 @@ class IoFront(ttk.Frame):
         new_window = Toplevel(self.new_record_container)
         new_window.title("Process existing recording")
         new_window.geometry("300x700")  # Window size
-        new_window.protocol("WM_DELETE_WINDOW", lambda e: close_window())
+        new_window.protocol("WM_DELETE_WINDOW", lambda : close_window())
 
         def close_window():
             self.existing_mp4_file_to_process = ""
