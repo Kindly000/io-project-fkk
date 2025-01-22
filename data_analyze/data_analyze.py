@@ -25,17 +25,17 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 # 1. Transkrypcja pliku audio za pomocą Whisper
 def transcribe_audio(file_path: str) -> list[dict]:
     """
-        Transcribes an audio file to text.
+    Transcribes an audio file to text.
 
-        Args:
-        file_path (str): Path to the audio file.
+    Args:
+    file_path (str): Path to the audio file.
 
-        Returns:
-        list[dict]: List of transcription segments including start time, end time, and text.
+    Returns:
+    list[dict]: List of transcription segments including start time, end time, and text.
 
-        Notes:
-        - This function uses the Whisper model.
-        - If an error occurs, the information is logged to a file using `log_data_analyze`.
+    Notes:
+    - This function uses the Whisper model.
+    - If an error occurs, the information is logged to a file using `log_data_analyze`.
     """
     try:
         app_logs("[INFO] Audio transcription started.")
@@ -69,18 +69,18 @@ def transcribe_audio(file_path: str) -> list[dict]:
 # 2. Rozpoznawanie rozmówców audio za pomocą pyannote.audio
 def diarize_audio(file_path: str, hf_token: str) -> object:
     """
-        Audio diarization - recognizes interlocutors in an audio file.
+    Audio diarization - recognizes interlocutors in an audio file.
 
-        Args:
-        file_path (str): Path to the audio file.
-        hf_token (str): Token for authentication in HuggingFace.
+    Args:
+    file_path (str): Path to the audio file.
+    hf_token (str): Token for authentication in HuggingFace.
 
-        Returns:
-        object: The diarization result containing information about interlocutors.
+    Returns:
+    object: The diarization result containing information about interlocutors.
 
-        Notes:
-        - The function uses the pyannote model for diarization.
-        - In case of an error, the information is logged to a file using `log_data_analyze`.
+    Notes:
+    - The function uses the pyannote model for diarization.
+    - In case of an error, the information is logged to a file using `log_data_analyze`.
     """
     try:
         app_logs("[INFO] Audio diarization started.")
@@ -102,20 +102,20 @@ def combine_transcription_and_diarization(
     segments: list[dict], diarization: object
 ) -> list[dict]:
     """
-        Merging transcription and diarization results.
+    Merging transcription and diarization results.
 
-        Args:
+    Args:
 
-        segments (list[dict]): List of transcription segments.
+    segments (list[dict]): List of transcription segments.
 
-        diarization (object): Results of speaker diarization.
+    diarization (object): Results of speaker diarization.
 
-        Returns:
-        list[dict]: List of merged results containing time and speaker information.
+    Returns:
+    list[dict]: List of merged results containing time and speaker information.
 
-        Notes:
-        - The function merges data based on overlapping time intervals.
-        - Success or failure information is logged to a file.
+    Notes:
+    - The function merges data based on overlapping time intervals.
+    - Success or failure information is logged to a file.
     """
     try:
         app_logs("[INFO] Transcription and diarization merging has begun.")
@@ -164,17 +164,17 @@ def combine_transcription_and_diarization(
 # 4. Generowanie podsumowań notatek
 def notes_summary(tekst: str) -> str:
     """
-        Generating notes summaries.
+    Generating notes summaries.
 
-        Args:
-        text (str): Text to summarize.
+    Args:
+    text (str): Text to summarize.
 
-        Returns:
-        str: A summary of the text.
+    Returns:
+    str: A summary of the text.
 
-        Notes:
-        - This function uses the CHatGPT-4o API to generate summaries.
-        - Logs success or errors using `log_data_analyze`.
+    Notes:
+    - This function uses the CHatGPT-4o API to generate summaries.
+    - Logs success or errors using `log_data_analyze`.
     """
     try:
         # summarizer = pipeline(
@@ -192,14 +192,14 @@ def notes_summary(tekst: str) -> str:
 
         client = OpenAI(
             base_url="https://models.inference.ai.azure.com",
-            api_key="...",
+            api_key="..",
         )
 
         response = client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    "content": 'Podsumuj transkrypcje nagrania wideo którą ci przekaże poniżej ( jeżeli nie będzie tekstu do podsumowania zwróć odpowiedź: "Brak tekstu do podsumowania"):',
+                    "content": "Wygeneruj podsumowanie w tekstu podanego poniżej ( po polsku ):",
                 },
                 {
                     "role": "user",
@@ -224,20 +224,20 @@ def get_video_frames(
     file_path: str, file_name: str, file_extension: str, temp_dir_name: str
 ) -> int:
     """
-        Extract frames from a video file for further analysis.
+    Extract frames from a video file for further analysis.
 
-        Args:
-        file_path (str): Path to the folder where the video file is located.
-        file_name (str): Name of the video file.
-        file_extension (str): Extension of the video file.
-        temp_dir_name (str): Folder in tmp where the images should be saved
+    Args:
+    file_path (str): Path to the folder where the video file is located.
+    file_name (str): Name of the video file.
+    file_extension (str): Extension of the video file.
+    temp_dir_name (str): Folder in tmp where the images should be saved
 
-        Returns:
-        int: Number of files containing frames.
+    Returns:
+    int: Number of files containing frames.
 
-        Notes:
-        - This function uses FFmpeg to extract frames from the video.
-        - Information about success or failure is logged using `log_data_analyze`.
+    Notes:
+    - This function uses FFmpeg to extract frames from the video.
+    - Information about success or failure is logged using `log_data_analyze`.
     """
     app_logs("[INFO] Started generating frames from video file.")
     output_dir = f"../tmp/{temp_dir_name}/"
@@ -323,20 +323,20 @@ def main(
     send_to_server: bool = True,
 ):
     """
-        Main function responsible for processing multimedia data: audio, video and generating summaries.
+    Main function responsible for processing multimedia data: audio, video and generating summaries.
 
-        Args:
-        temp_dir_name (str): Temporary directory name for processing results.
-        filename_audio (str): Path to audio file.
-        filename_video (str): Path to video file.
-        application_name (str): Source application name (e.g. "MSTeams", "Zoom").
-        user_dir (str): User directory to save results. Default is None.
-        title (str): Note title. Default is None.
-        datetime (datetime): Date and time of note generation. Default is None.
-        n_frame (int): Specifies every frame (from video file) to remain in the folder.
+    Args:
+    temp_dir_name (str): Temporary directory name for processing results.
+    filename_audio (str): Path to audio file.
+    filename_video (str): Path to video file.
+    application_name (str): Source application name (e.g. "MSTeams", "Zoom").
+    user_dir (str): User directory to save results. Default is None.
+    title (str): Note title. Default is None.
+    datetime (datetime): Date and time of note generation. Default is None.
+    n_frame (int): Specifies every frame (from video file) to remain in the folder.
 
-        Returns:
-        None: Results are saved in the designated directory.
+    Returns:
+    None: Results are saved in the designated directory.
     """
     try:
         log_data_analyze("Starting main function.")
