@@ -445,11 +445,15 @@ class IoFront(ttk.Frame):
 
         def check_file_presence():
             """Function to check if 'combined.mp4' file is present and handle actions accordingly."""
+            print("check_file_presence")
             if self.record_dir:
                 file_path = os.path.join("../tmp/", self.record_dir, "combined.mp4")
-                if os.path.isfile(file_path):  # Check if the combined video file exists
+                # print(os.path.isfile(file_path))
+                if self.existing_mp4_file_to_process != "":  # Check if the combined video file exists
+                    print(self.existing_mp4_file_to_process, "true")
                     return True
                 else:
+                    print(self.existing_mp4_file_to_process, "false")
                     logg.app_logs(f"[FAILED] File not found {file_path}")
                     return False
             else:
@@ -470,6 +474,11 @@ class IoFront(ttk.Frame):
         new_window = Toplevel(self.new_record_container)
         new_window.title("Choose action")
         new_window.geometry("400x300")
+        new_window.protocol("WM_DELETE_WINDOW", lambda e: close_window())
+
+        def close_window():
+            self.existing_mp4_file_to_process = ""
+            new_window.destroy()
 
         # Label and button for selecting a download directory
         download_label = ttk.Label(new_window, text="Select dir to local download", font=("Arial", 9))
@@ -778,7 +787,7 @@ class IoFront(ttk.Frame):
                 # Executes the FFmpeg command and writes stdout and stderr to the log file
                 subprocess.call(cmd, shell=True, stdout=log_file, stderr=subprocess.STDOUT)
 
-            logg.log_operations_on_file(f"[SUCCESS] Mixing is complete!")
+            logg.app_logs(f"[SUCCESS] Created mp4 file!")
 
             # Store the path to the newly created combined MP4 file
             self.existing_mp4_file_to_process = f"../tmp/{self.record_dir}/combined.mp4"
@@ -886,6 +895,7 @@ class IoFront(ttk.Frame):
                 send_to_server=self.existing_record_send_to_server_from_new_window
             )
             self.master.after(0, lambda: logg.log_data_analyze(f"[SUCCESS] Transcription finished"))  # Safely update the UI
+            self.existing_mp4_file_to_process = ""
         except Exception as e:
             logg.log_data_analyze(f"[ERROR] Error in data_analyze: {e}")
 
@@ -937,7 +947,6 @@ class IoFront(ttk.Frame):
             self.existing_wav_file_to_process,
             self.existing_mp4_file_to_process
         )
-
 
     def placeholder(self):
         """function to run analysis in thread and create new directory for analysis"""
