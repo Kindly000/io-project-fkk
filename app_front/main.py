@@ -448,12 +448,9 @@ class IoFront(ttk.Frame):
             print("check_file_presence")
             if self.record_dir:
                 file_path = os.path.join("../tmp/", self.record_dir, "combined.mp4")
-                # print(os.path.isfile(file_path))
                 if self.existing_mp4_file_to_process != "":  # Check if the combined video file exists
-                    print(self.existing_mp4_file_to_process, "true")
                     return True
                 else:
-                    print(self.existing_mp4_file_to_process, "false")
                     logg.app_logs(f"[FAILED] File not found {file_path}")
                     return False
             else:
@@ -533,6 +530,11 @@ class IoFront(ttk.Frame):
         new_window = Toplevel(self.new_record_container)
         new_window.title("Process recording")
         new_window.geometry("300x700")  # Window size
+        new_window.protocol("WM_DELETE_WINDOW", lambda e: close_window())
+
+        def close_window():
+            self.existing_mp4_file_to_process = ""
+            new_window.destroy()
 
         # Display the paths to the files for processing (WAV and MP4)
         label_paths = ttk.Label(new_window, text="Paths to files", font=("Arial", 9))
@@ -652,6 +654,11 @@ class IoFront(ttk.Frame):
         new_window = Toplevel(self.new_record_container)
         new_window.title("Process existing recording")
         new_window.geometry("300x700")  # Window size
+        new_window.protocol("WM_DELETE_WINDOW", lambda e: close_window())
+
+        def close_window():
+            self.existing_mp4_file_to_process = ""
+            new_window.destroy()
 
         # Display the paths for selecting files
         label_paths = ttk.Label(new_window, text="Paths to files", font=("Arial", 9))
